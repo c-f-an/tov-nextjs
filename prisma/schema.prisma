@@ -1,0 +1,774 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================
+// 1. 사용자 관련 모델
+// =============================================
+
+model User {
+  id                Int       @id @default(autoincrement())
+  username          String?   @unique
+  email             String    @unique
+  password          String?
+  name              String
+  phone             String?
+  status            UserStatus @default(active)
+  emailVerifiedAt   DateTime?
+  rememberToken     String?
+  loginType         LoginType @default(email)
+  avatarUrl         String?
+  lastLoginAt       DateTime?
+  lastLoginIp       String?
+  createdAt         DateTime? @default(now())
+  updatedAt         DateTime? @updatedAt
+
+  // Relations
+  profile           UserProfile?
+  posts             Post[]
+  consultations     Consultation[]
+  sponsors          Sponsor[]
+  refreshTokens     RefreshToken[]
+  socialAccounts    SocialAccount[]
+  userDevices       UserDevice[]
+  formSubmissions   FormSubmission[]
+  activityLogs      ActivityLog[]
+  satisfactionSurveys SatisfactionSurvey[]
+
+  @@index([loginType])
+  @@map("users")
+}
+
+model UserProfile {
+  id                Int       @id @default(autoincrement())
+  userId            Int       @unique
+  churchName        String?
+  position          String?
+  denomination      String?
+  address           String?
+  postcode          String?
+  birthDate         DateTime?
+  gender            Gender?
+  profileImage      String?
+  newsletterSubscribe Boolean @default(false)
+  marketingAgree    Boolean   @default(false)
+  privacyAgreeDate  DateTime?
+  termsAgreeDate    DateTime?
+  createdAt         DateTime? @default(now())
+  updatedAt         DateTime? @updatedAt
+
+  // Relations
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model PasswordResetToken {
+  email     String
+  token     String
+  createdAt DateTime? @default(now())
+
+  @@id([email, token])
+  @@index([email])
+  @@map("password_reset_tokens")
+}
+
+// =============================================
+// 2. 콘텐츠 관리 모델
+// =============================================
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  parentId    Int?
+  name        String
+  slug        String    @unique
+  description String?   @db.Text
+  type        CategoryType
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  // Relations
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryHierarchy")
+  posts       Post[]
+
+  @@map("categories")
+}
+
+model Post {
+  id            Int       @id @default(autoincrement())
+  categoryId    Int
+  userId        Int
+  title         String
+  slug          String?
+  content       String    @db.LongText
+  excerpt       String?   @db.Text
+  featuredImage String?
+  status        PostStatus @default(draft)
+  isNotice      Boolean   @default(false)
+  isFeatured    Boolean   @default(false)
+  viewCount     Int       @default(0)
+  publishedAt   DateTime?
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
+
+  // Relations
+  category      Category  @relation(fields: [categoryId], references: [id])
+  user          User      @relation(fields: [userId], references: [id])
+  attachments   Attachment[]
+
+  @@index([categoryId])
+  @@index([userId])
+  @@index([status])
+  @@index([publishedAt])
+  @@map("posts")
+}
+
+model Attachment {
+  id               Int       @id @default(autoincrement())
+  attachableType   String
+  attachableId     Int
+  filename         String
+  originalFilename String
+  path             String
+  mimeType         String?
+  size             BigInt?
+  downloadCount    Int       @default(0)
+  createdAt        DateTime? @default(now())
+  updatedAt        DateTime? @updatedAt
+
+  // Polymorphic relations (manual handling required)
+  post             Post?     @relation(fields: [attachableId], references: [id], map: "attachments_post_id_fkey")
+
+  @@index([attachableType, attachableId])
+  @@map("attachments")
+}
+
+// =============================================
+// 3. 메인 페이지 관리 모델
+// =============================================
+
+model MainBanner {
+  id          Int       @id @default(autoincrement())
+  title       String
+  subtitle    String?
+  description String?   @db.Text
+  imagePath   String
+  linkUrl     String?
+  linkTarget  LinkTarget @default(SELF)
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  @@index([sortOrder])
+  @@index([isActive])
+  @@map("main_banners")
+}
+
+model QuickLink {
+  id          Int       @id @default(autoincrement())
+  title       String
+  icon        String?
+  linkUrl     String
+  description String?   @db.Text
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  @@index([sortOrder])
+  @@map("quick_links")
+}
+
+// =============================================
+// 4. 상담 관련 모델
+// =============================================
+
+model Consultation {
+  id                Int       @id @default(autoincrement())
+  userId            Int?
+  name              String
+  phone             String
+  email             String?
+  churchName        String?
+  position          String?
+  consultationType  String
+  preferredDate     DateTime?
+  preferredTime     String?
+  title             String
+  content           String    @db.Text
+  status            ConsultationStatus @default(pending)
+  assignedTo        Int?
+  consultationDate  DateTime?
+  consultationNotes String?   @db.Text
+  privacyAgree      Boolean   @default(false)
+  createdAt         DateTime? @default(now())
+  updatedAt         DateTime? @updatedAt
+
+  // Relations
+  user              User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@map("consultations")
+}
+
+// =============================================
+// 5. 후원 관련 모델
+// =============================================
+
+model Sponsor {
+  id               Int       @id @default(autoincrement())
+  userId           Int?
+  sponsorType      SponsorType @default(individual)
+  name             String
+  organizationName String?
+  phone            String?
+  email            String?
+  address          String?
+  postcode         String?
+  sponsorStatus    SponsorStatus @default(active)
+  privacyAgree     Boolean   @default(false)
+  receiptRequired  Boolean   @default(false)
+  createdAt        DateTime? @default(now())
+  updatedAt        DateTime? @updatedAt
+
+  // Relations
+  user             User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  donations        Donation[]
+
+  @@map("sponsors")
+}
+
+model Donation {
+  id            Int       @id @default(autoincrement())
+  sponsorId     Int
+  donationType  DonationType
+  amount        Decimal   @db.Decimal(10, 0)
+  paymentMethod String?
+  paymentDate   DateTime  @db.Date
+  receiptNumber String?
+  purpose       String?
+  memo          String?   @db.Text
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
+
+  // Relations
+  sponsor       Sponsor   @relation(fields: [sponsorId], references: [id])
+
+  @@index([sponsorId])
+  @@index([paymentDate])
+  @@map("donations")
+}
+
+model FinancialReport {
+  id           Int       @id @default(autoincrement())
+  reportYear   Int       @db.Year
+  reportMonth  Int?      @db.TinyInt
+  title        String
+  content      String?   @db.LongText
+  totalIncome  Decimal?  @db.Decimal(12, 0)
+  totalExpense Decimal?  @db.Decimal(12, 0)
+  balance      Decimal?  @db.Decimal(12, 0)
+  publishedAt  DateTime? @db.Date
+  createdAt    DateTime? @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@unique([reportYear, reportMonth])
+  @@map("financial_reports")
+}
+
+// =============================================
+// 6. 기타 관리 모델
+// =============================================
+
+model Faq {
+  id        Int       @id @default(autoincrement())
+  category  String
+  question  String    @db.VarChar(500)
+  answer    String    @db.Text
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  viewCount Int       @default(0)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@index([category])
+  @@index([sortOrder])
+  @@map("faqs")
+}
+
+model Popup {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String    @db.Text
+  imagePath String?
+  linkUrl   String?
+  width     Int?      @default(400)
+  height    Int?      @default(500)
+  positionX Int?      @default(100)
+  positionY Int?      @default(100)
+  isActive  Boolean   @default(true)
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@map("popups")
+}
+
+model Menu {
+  id        Int       @id @default(autoincrement())
+  parentId  Int?
+  name      String
+  url       String?
+  menuType  MenuType  @default(main)
+  target    LinkTarget @default(SELF)
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  // Relations
+  parent    Menu?     @relation("MenuHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Menu[]    @relation("MenuHierarchy")
+
+  @@index([menuType])
+  @@map("menus")
+}
+
+model SiteSetting {
+  id           Int       @id @default(autoincrement())
+  settingGroup String
+  settingKey   String
+  settingValue String?   @db.Text
+  settingType  SettingType @default(text)
+  createdAt    DateTime? @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@unique([settingGroup, settingKey])
+  @@map("site_settings")
+}
+
+model ActivityLog {
+  id          BigInt    @id @default(autoincrement())
+  userId      Int?
+  logType     String
+  description String    @db.Text
+  ipAddress   String?
+  userAgent   String?   @db.Text
+  createdAt   DateTime? @default(now())
+
+  // Relations
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([logType])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+model SatisfactionSurvey {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  surveyType String
+  rating     Int       @db.TinyInt
+  feedback   String?   @db.Text
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  // Relations
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@index([surveyType])
+  @@map("satisfaction_surveys")
+}
+
+model NewsletterSubscriber {
+  id             Int       @id @default(autoincrement())
+  email          String    @unique
+  name           String?
+  isActive       Boolean   @default(true)
+  subscribedAt   DateTime  @default(now())
+  unsubscribedAt DateTime?
+  createdAt      DateTime? @default(now())
+  updatedAt      DateTime? @updatedAt
+
+  @@map("newsletter_subscribers")
+}
+
+// =============================================
+// 7. Next.js 관련 추가 모델
+// =============================================
+
+model ApiKey {
+  id          Int       @id @default(autoincrement())
+  serviceName String
+  apiKey      String
+  apiSecret   String?
+  environment Environment @default(development)
+  isActive    Boolean   @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  @@unique([serviceName, environment])
+  @@map("api_keys")
+}
+
+model RefreshToken {
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  tokenHash     String    @unique
+  deviceInfo    String?
+  ipAddress     String?
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  revokedReason String?
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
+
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@map("refresh_tokens")
+}
+
+model JwtBlacklist {
+  id            Int       @id @default(autoincrement())
+  jti           String    @unique
+  tokenType     TokenType
+  userId        Int?
+  expiresAt     DateTime
+  blacklistedAt DateTime  @default(now())
+  reason        String?
+
+  @@index([expiresAt])
+  @@index([userId])
+  @@map("jwt_blacklist")
+}
+
+model UserDevice {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  deviceId     String    @unique
+  deviceName   String?
+  deviceType   DeviceType @default(web)
+  platform     String?
+  browser      String?
+  ipAddress    String?
+  lastActiveAt DateTime?
+  isTrusted    Boolean   @default(false)
+  createdAt    DateTime? @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  // Relations
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_devices")
+}
+
+model SocialAccount {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  provider        Provider
+  providerUserId  String
+  providerEmail   String?
+  providerName    String?
+  providerAvatar  String?
+  accessToken     String?   @db.Text
+  refreshToken    String?   @db.Text
+  tokenExpiresAt  DateTime?
+  rawData         Json?
+  createdAt       DateTime? @default(now())
+  updatedAt       DateTime? @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@map("social_accounts")
+}
+
+model SocialLoginConfig {
+  id               Int       @id @default(autoincrement())
+  provider         Provider
+  clientId         String
+  clientSecret     String
+  redirectUri      String
+  scope            String?   @db.Text
+  additionalParams Json?
+  isActive         Boolean   @default(true)
+  environment      Environment @default(development)
+  createdAt        DateTime? @default(now())
+  updatedAt        DateTime? @updatedAt
+
+  @@unique([provider, environment])
+  @@map("social_login_configs")
+}
+
+model LoginAttempt {
+  id             BigInt    @id @default(autoincrement())
+  email          String?
+  ipAddress      String
+  userAgent      String?   @db.Text
+  loginType      LoginType
+  attemptStatus  AttemptStatus
+  failureReason  String?
+  attemptedAt    DateTime  @default(now())
+
+  @@index([email])
+  @@index([ipAddress])
+  @@index([attemptedAt])
+  @@map("login_attempts")
+}
+
+model ImageOptimization {
+  id            Int       @id @default(autoincrement())
+  originalPath  String
+  optimizedPath String
+  width         Int?
+  height        Int?
+  format        String?
+  quality       Int?      @db.TinyInt
+  sizeBytes     BigInt?
+  createdAt     DateTime? @default(now())
+
+  @@index([originalPath])
+  @@index([width, height])
+  @@map("image_optimizations")
+}
+
+model PageMetadata {
+  id             Int       @id @default(autoincrement())
+  pageType       String
+  pageId         Int?
+  title          String?
+  description    String?   @db.Text
+  keywords       String?   @db.Text
+  ogTitle        String?
+  ogDescription  String?   @db.Text
+  ogImage        String?
+  twitterCard    String?   @default("summary_large_image")
+  canonicalUrl   String?
+  robots         String?   @default("index,follow")
+  createdAt      DateTime? @default(now())
+  updatedAt      DateTime? @updatedAt
+
+  @@unique([pageType, pageId])
+  @@map("page_metadata")
+}
+
+model CacheEntry {
+  id         Int       @id @default(autoincrement())
+  cacheKey   String    @unique
+  cacheValue String?   @db.LongText
+  tags       Json?
+  expiresAt  DateTime?
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@index([expiresAt])
+  @@map("cache_entries")
+}
+
+model Redirect {
+  id              Int       @id @default(autoincrement())
+  sourcePath      String    @unique
+  destinationPath String
+  statusCode      Int       @default(301)
+  isActive        Boolean   @default(true)
+  hitCount        Int       @default(0)
+  createdAt       DateTime? @default(now())
+  updatedAt       DateTime? @updatedAt
+
+  @@index([isActive])
+  @@map("redirects")
+}
+
+model FormSubmission {
+  id        Int       @id @default(autoincrement())
+  formType  String
+  formData  Json
+  userId    Int?
+  ipAddress String?
+  userAgent String?   @db.Text
+  referer   String?
+  createdAt DateTime? @default(now())
+
+  // Relations
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([formType])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("form_submissions")
+}
+
+// =============================================
+// 10. 2단계 인증 (2FA) 관련 모델
+// =============================================
+
+model TwoFactorAuth {
+  id            Int       @id @default(autoincrement())
+  userId        Int       @unique
+  secret        String
+  recoveryCodes Json?
+  enabledAt     DateTime?
+  lastUsedAt    DateTime?
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
+
+  @@map("two_factor_auth")
+}
+
+model VerificationCode {
+  id         Int       @id @default(autoincrement())
+  identifier String
+  code       String
+  type       VerificationType
+  expiresAt  DateTime
+  verifiedAt DateTime?
+  attempts   Int       @default(0) @db.TinyInt
+  createdAt  DateTime? @default(now())
+
+  @@index([identifier])
+  @@index([expiresAt])
+  @@map("verification_codes")
+}
+
+// =============================================
+// Enums
+// =============================================
+
+enum UserStatus {
+  active
+  inactive
+  suspended
+}
+
+enum LoginType {
+  email
+  google
+  naver
+  kakao
+  apple
+}
+
+enum Gender {
+  M
+  F
+}
+
+enum CategoryType {
+  notice
+  news
+  publication
+  media
+  resource
+  activity
+}
+
+enum PostStatus {
+  draft
+  published
+  archived
+}
+
+enum LinkTarget {
+  SELF @map("_self")
+  BLANK @map("_blank")
+}
+
+enum ConsultationStatus {
+  pending
+  assigned
+  in_progress
+  completed
+  cancelled
+}
+
+enum SponsorType {
+  individual
+  organization
+}
+
+enum SponsorStatus {
+  active
+  inactive
+  paused
+}
+
+enum DonationType {
+  regular
+  one_time
+}
+
+enum MenuType {
+  main
+  footer
+  utility
+}
+
+enum SettingType {
+  text
+  textarea
+  number
+  boolean
+  json
+}
+
+enum Environment {
+  development
+  staging
+  production
+}
+
+enum TokenType {
+  access
+  refresh
+}
+
+enum DeviceType {
+  web
+  mobile
+  tablet
+  desktop
+}
+
+enum Provider {
+  google
+  naver
+  kakao
+  apple
+}
+
+enum AttemptStatus {
+  success
+  failed
+  blocked
+}
+
+enum VerificationType {
+  email
+  sms
+  twofa @map("2fa")
+}
