@@ -118,6 +118,7 @@ model Post {
   isNotice      Boolean   @default(false)
   isFeatured    Boolean   @default(false)
   viewCount     Int       @default(0)
+  attachmentUrls Json     @default("[]")
   publishedAt   DateTime?
   createdAt     DateTime? @default(now())
   updatedAt     DateTime? @updatedAt

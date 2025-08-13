@@ -1,3 +1,4 @@
+import 'server-only';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { IAuthService, TokenPayload, TokenPair } from '@/core/domain/services/IAuthService';

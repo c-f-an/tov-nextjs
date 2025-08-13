@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { Container } from './infrastructure/config/container';
+import { verifyAccessToken } from './lib/auth-utils';
 
 // Paths that require authentication
 const protectedPaths = [
@@ -48,9 +48,8 @@ export async function middleware(request: NextRequest) {
     
     try {
       // Verify access token
-      const container = Container.getInstance();
-      const authService = container.getAuthService();
-      const payload = await authService.verifyAccessToken(accessToken);
+      const jwtSecret = process.env.JWT_ACCESS_SECRET || 'default-access-secret';
+      const payload = verifyAccessToken(accessToken, jwtSecret);
       
       if (!payload) {
         throw new Error('Invalid token');

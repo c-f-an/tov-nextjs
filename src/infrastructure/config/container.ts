@@ -1,3 +1,4 @@
+import 'server-only';
 import { IUserRepository } from '@/core/domain/repositories/IUserRepository';
 import { IRefreshTokenRepository } from '@/core/domain/repositories/IRefreshTokenRepository';
 import { IAuthService } from '@/core/domain/services/IAuthService';
@@ -9,7 +10,7 @@ import { RefreshTokenUseCase } from '@/core/application/use-cases/auth/RefreshTo
 import { LogoutUseCase } from '@/core/application/use-cases/auth/LogoutUseCase';
 import { PrismaUserRepository } from '../repositories/PrismaUserRepository';
 import { PrismaRefreshTokenRepository } from '../repositories/PrismaRefreshTokenRepository';
-import { JwtAuthService } from '../services/JwtAuthService';
+import { JwtAuthService } from '../services/JwtAuthService.server';
 
 export class Container {
   private static instance: Container;
