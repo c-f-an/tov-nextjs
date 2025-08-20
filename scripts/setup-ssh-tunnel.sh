@@ -27,16 +27,16 @@ fi
 
 # SSH 터널 생성
 echo "🔧 Creating SSH tunnel..."
-ssh -f -N -L $LOCAL_PORT:$RDS_ENDPOINT:$RDS_PORT -i $SSH_KEY_PATH $SSH_USER@$SSH_HOST
+echo "📌 Keep this terminal open to maintain the tunnel connection"
+echo ""
+echo "📝 Your .env file should have:"
+echo "DATABASE_URL=\"mysql://tov-client:A0oMDPDoRn3H6Y0@localhost:$LOCAL_PORT/tov_prod\""
+echo ""
+echo "🛑 Press Ctrl+C to stop the tunnel"
+echo ""
+echo "🚇 Tunnel is running..."
 
-if [ $? -eq 0 ]; then
-    echo "✅ SSH tunnel established successfully!"
-    echo ""
-    echo "📝 Update your .env file with:"
-    echo "DATABASE_URL=\"mysql://tov-client:A0oMDPDoRn3H6Y0@localhost:$LOCAL_PORT/tov_prod\""
-    echo ""
-    echo "🛑 To stop the tunnel, run: lsof -ti:$LOCAL_PORT | xargs kill -9"
-else
-    echo "❌ Failed to establish SSH tunnel"
-    exit 1
-fi
+# -N: 원격 명령을 실행하지 않음
+# -L: 로컬 포트 포워딩
+# -v: verbose 모드로 상태 표시
+ssh -N -L $LOCAL_PORT:$RDS_ENDPOINT:$RDS_PORT -i $SSH_KEY_PATH $SSH_USER@$SSH_HOST -v

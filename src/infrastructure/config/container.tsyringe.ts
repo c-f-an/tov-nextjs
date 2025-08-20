@@ -17,6 +17,7 @@ import { INewsletterSubscriberRepository } from '@/core/domain/repositories/INew
 import { IMainBannerRepository } from '@/core/domain/repositories/IMainBannerRepository';
 import { IQuickLinkRepository } from '@/core/domain/repositories/IQuickLinkRepository';
 import { PrismaUserRepository } from '../repositories/PrismaUserRepository';
+import { UserRepositoryMySQL } from '../repositories/mysql/UserRepositoryMySQL';
 import { PrismaRefreshTokenRepository } from '../repositories/PrismaRefreshTokenRepository';
 import { PrismaCategoryRepository } from '../repositories/PrismaCategoryRepository';
 import { PrismaPostRepository } from '../repositories/PrismaPostRepository';
@@ -37,8 +38,12 @@ import { JwtAuthService } from '../services/JwtAuthService.server';
 import { FileUploadService } from '../services/FileUploadService';
 
 // Repository implementations
+// Use MySQL repository for local development with sha256_password
+const useMySQLRepository = process.env.DATABASE_URL?.includes('localhost:3307') && 
+                          process.env.USE_MYSQL_DIRECT === 'true';
+
 container.register<IUserRepository>('IUserRepository', {
-  useClass: PrismaUserRepository
+  useClass: useMySQLRepository ? UserRepositoryMySQL : PrismaUserRepository
 });
 
 container.register<IRefreshTokenRepository>('IRefreshTokenRepository', {
