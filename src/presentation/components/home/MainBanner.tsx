@@ -46,7 +46,7 @@ export function MainBanner() {
   }, []);
 
   return (
-    <section className="relative h-[500px] bg-gray-900 overflow-hidden">
+    <section className="relative h-[500px] bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
       {banners.map((banner, index) => (
         <div
           key={banner.id}
@@ -54,13 +54,13 @@ export function MainBanner() {
             index === currentSlide ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30 z-10" />
-          <div className="absolute inset-0 bg-blue-900/20 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/80 to-white/40 z-10" />
+          <div className="absolute inset-0 bg-blue-100/30 z-10" />
           
           {/* Banner Content */}
           <div className="relative z-20 h-full flex items-center">
             <div className="container mx-auto px-4">
-              <div className="max-w-2xl text-white">
+              <div className="max-w-2xl text-gray-800">
                 <h2 className="text-5xl font-bold mb-4 animate-fadeInUp">
                   {banner.title}
                 </h2>
@@ -72,7 +72,7 @@ export function MainBanner() {
                 </p>
                 <Link
                   href={banner.link}
-                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-md transition-colors animate-fadeInUp animation-delay-600"
+                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-md shadow-lg transition-all hover:shadow-xl animate-fadeInUp animation-delay-600"
                 >
                   {banner.linkText}
                 </Link>
@@ -89,7 +89,7 @@ export function MainBanner() {
             key={index}
             onClick={() => setCurrentSlide(index)}
             className={`w-3 h-3 rounded-full transition-colors ${
-              index === currentSlide ? 'bg-white' : 'bg-white/40'
+              index === currentSlide ? 'bg-blue-600' : 'bg-gray-400'
             }`}
           />
         ))}
@@ -98,7 +98,7 @@ export function MainBanner() {
       {/* Navigation Arrows */}
       <button
         onClick={() => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length)}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-3 rounded-full transition-colors z-30"
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/70 hover:bg-white/90 text-gray-800 p-3 rounded-full shadow-lg transition-all hover:shadow-xl z-30"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -106,7 +106,7 @@ export function MainBanner() {
       </button>
       <button
         onClick={() => setCurrentSlide((prev) => (prev + 1) % banners.length)}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-3 rounded-full transition-colors z-30"
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/70 hover:bg-white/90 text-gray-800 p-3 rounded-full shadow-lg transition-all hover:shadow-xl z-30"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

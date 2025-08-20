@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack -p 3004",
+    "dev": "next dev -p 3004",
     "build": "next build",
     "start": "next start -p 3004",
     "lint": "next lint"
@@ -11,6 +11,7 @@
   "dependencies": {
     "@prisma/client": "^6.13.0",
     "@tailwindcss/typography": "^0.5.16",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.1",
     "jsonwebtoken": "^9.0.2",

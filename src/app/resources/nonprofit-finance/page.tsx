@@ -129,7 +129,7 @@ export default function NonprofitFinancePage() {
               </CardContent>
             </Card>
           )
-        }}}
+        })}
       </div>
 
       {/* 우수 사례 */}
