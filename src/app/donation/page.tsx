@@ -220,7 +220,7 @@ export default function DonationPage() {
               </CardContent>
             </Card>
           )
-        }}}
+        })}
       </div>
 
       {/* 기부금 영수증 안내 */}
