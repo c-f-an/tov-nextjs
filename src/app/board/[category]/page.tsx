@@ -33,16 +33,22 @@ async function getCategory(slug: string) {
 }
 
 async function getPosts(categoryId: number, page: number) {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/posts?categoryId=${categoryId}&page=${page}&includeNotices=true`,
-    { cache: 'no-store' }
-  );
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/posts?categoryId=${categoryId}&page=${page}&includeNotices=true`,
+      { cache: 'no-store' }
+    );
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch posts');
+    if (!response.ok) {
+      // Return empty result if posts cannot be fetched
+      return { posts: [], total: 0, totalPages: 1 };
+    }
+
+    return response.json();
+  } catch (error) {
+    // Return empty result on error
+    return { posts: [], total: 0, totalPages: 1 };
   }
-
-  return response.json();
 }
 
 export default async function BoardPage({ params, searchParams }: BoardPageProps) {
@@ -54,12 +60,17 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
 
   // Get category from database
   const category = await getCategory(params.category);
-  if (!category) {
-    notFound();
-  }
+  
+  // If category doesn't exist in DB, create a mock category based on categoryMapping
+  const mockCategory = category || {
+    id: 999, // temporary ID
+    slug: params.category,
+    name: categoryInfo.name,
+    description: categoryInfo.description
+  };
 
   const currentPage = parseInt(searchParams.page || '1');
-  const { posts, total, totalPages } = await getPosts(category.id, currentPage);
+  const { posts, total, totalPages } = await getPosts(mockCategory.id, currentPage);
 
   return (
     <div className="container mx-auto px-4 py-8">

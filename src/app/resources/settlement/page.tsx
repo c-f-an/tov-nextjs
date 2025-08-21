@@ -124,7 +124,7 @@ export default function SettlementPage() {
               </CardContent>
             </Card>
           )
-        }}}
+        })}
       </div>
 
       {/* 공시 의무 안내 */}

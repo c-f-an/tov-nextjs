@@ -26,7 +26,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/news/notice" className="text-gray-600 hover:text-gray-900">
+                <Link href="/board/notice" className="text-gray-600 hover:text-gray-900">
                   공지사항
                 </Link>
               </li>

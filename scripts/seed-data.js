@@ -39,11 +39,12 @@ async function seedDatabase() {
     const categories = await prisma.$executeRaw`
       INSERT INTO categories (name, slug, description, type, sort_order, is_active, created_at, updated_at)
       VALUES 
-      ('공지사항', 'notice', '토브 공지사항', 'notice', 1, 1, NOW(), NOW()),
-      ('토브 뉴스', 'news', '토브 관련 뉴스', 'news', 2, 1, NOW(), NOW()),
-      ('활동소식', 'activity', '토브 활동소식', 'activity', 3, 1, NOW(), NOW()),
-      ('출판물', 'publication', '토브 출판물', 'publication', 4, 1, NOW(), NOW()),
-      ('미디어', 'media', '토브 미디어 자료', 'media', 5, 1, NOW(), NOW())
+      ('공지사항', 'notice', '토브협회의 공지사항입니다.', 'notice', 1, 1, NOW(), NOW()),
+      ('토브소식', 'news', '토브협회의 최신 소식을 전합니다.', 'news', 2, 1, NOW(), NOW()),
+      ('언론보도', 'media', '토브협회 관련 언론 보도자료입니다.', 'media', 3, 1, NOW(), NOW()),
+      ('발간자료', 'publication', '토브협회에서 발간한 자료들입니다.', 'publication', 4, 1, NOW(), NOW()),
+      ('자료실', 'resource', '토브협회 관련 자료들입니다.', 'resource', 5, 1, NOW(), NOW()),
+      ('활동소식', 'activity', '토브협회 활동 소식입니다.', 'activity', 6, 1, NOW(), NOW())
       ON DUPLICATE KEY UPDATE updated_at = NOW()
     `;
     console.log(`✅ Created ${categories} categories`);
