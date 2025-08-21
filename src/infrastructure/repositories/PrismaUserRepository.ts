@@ -10,17 +10,17 @@ export class PrismaUserRepository implements IUserRepository {
       prismaUser.email,
       prismaUser.name,
       prismaUser.status as UserStatus,
-      prismaUser.loginType as LoginType,
+      prismaUser.login_type as LoginType,
       prismaUser.username,
       prismaUser.password,
       prismaUser.phone,
-      prismaUser.emailVerifiedAt,
-      prismaUser.rememberToken,
-      prismaUser.avatarUrl,
-      prismaUser.lastLoginAt,
-      prismaUser.lastLoginIp,
-      prismaUser.createdAt,
-      prismaUser.updatedAt
+      prismaUser.email_verified_at,
+      prismaUser.remember_token,
+      prismaUser.avatar_url,
+      prismaUser.last_login_at,
+      prismaUser.last_login_ip,
+      prismaUser.created_at,
+      prismaUser.updated_at
     );
   }
 
@@ -49,14 +49,14 @@ export class PrismaUserRepository implements IUserRepository {
         name: user.name,
         phone: user.phone,
         status: user.status,
-        loginType: user.loginType,
-        avatarUrl: user.avatarUrl,
-        emailVerifiedAt: user.emailVerifiedAt,
-        rememberToken: user.rememberToken,
-        lastLoginAt: user.lastLoginAt,
-        lastLoginIp: user.lastLoginIp,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt
+        login_type: user.loginType,
+        avatar_url: user.avatarUrl,
+        email_verified_at: user.emailVerifiedAt,
+        remember_token: user.rememberToken,
+        last_login_at: user.lastLoginAt,
+        last_login_ip: user.lastLoginIp,
+        created_at: user.createdAt,
+        updated_at: user.updatedAt
       }
     });
   }
@@ -71,13 +71,13 @@ export class PrismaUserRepository implements IUserRepository {
         name: user.name,
         phone: user.phone,
         status: user.status,
-        loginType: user.loginType,
-        avatarUrl: user.avatarUrl,
-        emailVerifiedAt: user.emailVerifiedAt,
-        rememberToken: user.rememberToken,
-        lastLoginAt: user.lastLoginAt,
-        lastLoginIp: user.lastLoginIp,
-        updatedAt: user.updatedAt
+        login_type: user.loginType,
+        avatar_url: user.avatarUrl,
+        email_verified_at: user.emailVerifiedAt,
+        remember_token: user.rememberToken,
+        last_login_at: user.lastLoginAt,
+        last_login_ip: user.lastLoginIp,
+        updated_at: user.updatedAt
       }
     });
   }
