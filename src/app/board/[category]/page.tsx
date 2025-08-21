@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { PostList } from '@/presentation/components/board/PostList';
 import { Pagination } from '@/presentation/components/board/Pagination';
+import { container } from '@/infrastructure/config/container.tsyringe';
+import { GetPostsUseCase } from '@/core/application/use-cases/post/GetPostsUseCase';
+import { GetCategoriesUseCase } from '@/core/application/use-cases/category/GetCategoriesUseCase';
 
 // Category slug mapping
 const categoryMapping: Record<string, { name: string; description: string }> = {
@@ -14,62 +17,58 @@ const categoryMapping: Record<string, { name: string; description: string }> = {
 };
 
 interface BoardPageProps {
-  params: { category: string };
-  searchParams: { page?: string };
+  params: Promise<{ category: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
 async function getCategory(slug: string) {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/categories?slug=${slug}`,
-    { cache: 'no-store' }
-  );
-
-  if (!response.ok) {
+  try {
+    const getCategoriesUseCase = container.resolve(GetCategoriesUseCase);
+    const categories = await getCategoriesUseCase.execute();
+    return categories.find((cat: any) => cat.slug === slug);
+  } catch (error) {
+    console.error('Error fetching category:', error);
     return null;
   }
-
-  const categories = await response.json();
-  return categories.find((cat: any) => cat.slug === slug);
 }
 
 async function getPosts(categoryId: number, page: number) {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/posts?categoryId=${categoryId}&page=${page}&includeNotices=true`,
-      { cache: 'no-store' }
-    );
-
-    if (!response.ok) {
-      // Return empty result if posts cannot be fetched
-      return { posts: [], total: 0, totalPages: 1 };
-    }
-
-    return response.json();
+    const getPostsUseCase = container.resolve(GetPostsUseCase);
+    const result = await getPostsUseCase.execute({
+      categoryId,
+      page,
+      limit: 10,
+      includeNotices: true
+    });
+    return result;
   } catch (error) {
-    // Return empty result on error
+    console.error('Error fetching posts:', error);
     return { posts: [], total: 0, totalPages: 1 };
   }
 }
 
 export default async function BoardPage({ params, searchParams }: BoardPageProps) {
-  const categoryInfo = categoryMapping[params.category];
+  const { category } = await params;
+  const { page } = await searchParams;
+  const categoryInfo = categoryMapping[category];
   
   if (!categoryInfo) {
     notFound();
   }
 
   // Get category from database
-  const category = await getCategory(params.category);
+  const categoryData = await getCategory(category);
   
   // If category doesn't exist in DB, create a mock category based on categoryMapping
-  const mockCategory = category || {
+  const mockCategory = categoryData || {
     id: 999, // temporary ID
-    slug: params.category,
+    slug: category,
     name: categoryInfo.name,
     description: categoryInfo.description
   };
 
-  const currentPage = parseInt(searchParams.page || '1');
+  const currentPage = parseInt(page || '1');
   const { posts, total, totalPages } = await getPosts(mockCategory.id, currentPage);
 
   return (
@@ -112,7 +111,7 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
           </button>
         </div>
         <Link
-          href={`/board/${params.category}/write`}
+          href={`/board/${category}/write`}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
         >
           글쓰기
@@ -120,13 +119,13 @@ export default async function BoardPage({ params, searchParams }: BoardPageProps
       </div>
 
       {/* Post List */}
-      <PostList posts={posts} categorySlug={params.category} />
+      <PostList posts={posts} categorySlug={category} />
 
       {/* Pagination */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        basePath={`/board/${params.category}`}
+        basePath={`/board/${category}`}
       />
     </div>
   );

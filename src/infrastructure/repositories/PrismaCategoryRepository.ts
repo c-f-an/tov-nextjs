@@ -13,10 +13,10 @@ export class PrismaCategoryRepository implements ICategoryRepository {
       name: category.name,
       slug: category.slug,
       description: category.description,
-      parentId: category.parentId,
+      parent_id: category.parentId,
       type: category.type,
-      sortOrder: category.sortOrder,
-      isActive: category.isActive
+      sort_order: category.sortOrder,
+      is_active: category.isActive
     };
 
     const saved = category.id
@@ -48,8 +48,8 @@ export class PrismaCategoryRepository implements ICategoryRepository {
   async findAll(): Promise<Category[]> {
     const categories = await this.prisma.category.findMany({
       orderBy: [
-        { parentId: 'asc' },
-        { sortOrder: 'asc' },
+        { parent_id: 'asc' },
+        { sort_order: 'asc' },
         { name: 'asc' }
       ]
     });
@@ -59,9 +59,9 @@ export class PrismaCategoryRepository implements ICategoryRepository {
 
   async findByParentId(parentId: number | null): Promise<Category[]> {
     const categories = await this.prisma.category.findMany({
-      where: { parentId },
+      where: { parent_id: parentId },
       orderBy: [
-        { sortOrder: 'asc' },
+        { sort_order: 'asc' },
         { name: 'asc' }
       ]
     });
@@ -81,12 +81,12 @@ export class PrismaCategoryRepository implements ICategoryRepository {
       prismaCategory.name,
       prismaCategory.slug,
       prismaCategory.description,
-      prismaCategory.parentId,
+      prismaCategory.parent_id,
       prismaCategory.type as CategoryType,
-      prismaCategory.sortOrder,
-      prismaCategory.isActive,
-      prismaCategory.createdAt,
-      prismaCategory.updatedAt
+      prismaCategory.sort_order,
+      prismaCategory.is_active,
+      prismaCategory.created_at,
+      prismaCategory.updated_at
     );
   }
 }

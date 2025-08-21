@@ -36,7 +36,24 @@ export class GetPostsUseCase {
     });
 
     return {
-      posts: posts.map(PostDto.fromEntity),
+      posts: posts.map(post => {
+        const dto = PostDto.fromEntity(post);
+        return {
+          id: dto.id,
+          categoryId: dto.categoryId,
+          userId: dto.userId,
+          title: dto.title,
+          content: dto.content,
+          status: dto.status,
+          viewCount: dto.viewCount,
+          isNotice: dto.isNotice,
+          attachmentUrls: dto.attachmentUrls,
+          createdAt: dto.createdAt,
+          updatedAt: dto.updatedAt,
+          category: dto.category,
+          user: dto.user
+        };
+      }),
       total,
       page,
       totalPages: Math.ceil(total / limit)

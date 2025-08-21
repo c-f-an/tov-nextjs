@@ -17,13 +17,13 @@ export class PrismaPostRepository implements IPostRepository {
 
   async save(post: Post): Promise<Post> {
     const data = {
-      categoryId: post.categoryId,
-      userId: post.userId,
+      category_id: post.categoryId,
+      user_id: post.userId,
       title: post.title,
       content: post.content,
       status: post.status as string,
-      viewCount: post.viewCount,
-      isNotice: post.isNotice,
+      view_count: post.viewCount,
+      is_notice: post.isNotice,
       attachmentUrls: post.attachmentUrls
     };
 
@@ -49,11 +49,11 @@ export class PrismaPostRepository implements IPostRepository {
     const where: any = {};
 
     if (options.categoryId) {
-      where.categoryId = options.categoryId;
+      where.category_id = options.categoryId;
     }
 
     if (!options.includeNotices) {
-      where.isNotice = false;
+      where.is_notice = false;
     }
 
     const [posts, total] = await Promise.all([
@@ -62,8 +62,8 @@ export class PrismaPostRepository implements IPostRepository {
         skip: options.offset,
         take: options.limit,
         orderBy: [
-          { isNotice: 'desc' },
-          { createdAt: 'desc' }
+          { is_notice: 'desc' },
+          { created_at: 'desc' }
         ]
       }),
       this.prisma.post.count({ where })
@@ -77,11 +77,11 @@ export class PrismaPostRepository implements IPostRepository {
 
   async findByCategory(categoryId: number, limit?: number): Promise<Post[]> {
     const posts = await this.prisma.post.findMany({
-      where: { categoryId },
+      where: { category_id: categoryId },
       take: limit,
       orderBy: [
-        { isNotice: 'desc' },
-        { createdAt: 'desc' }
+        { is_notice: 'desc' },
+        { created_at: 'desc' }
       ]
     });
 
@@ -92,7 +92,7 @@ export class PrismaPostRepository implements IPostRepository {
     await this.prisma.post.update({
       where: { id },
       data: {
-        viewCount: { increment: 1 }
+        view_count: { increment: 1 }
       }
     });
   }
@@ -106,16 +106,16 @@ export class PrismaPostRepository implements IPostRepository {
   private mapToEntity(prismaPost: any): Post {
     return new Post({
       id: prismaPost.id,
-      categoryId: prismaPost.categoryId,
-      userId: prismaPost.userId,
+      categoryId: prismaPost.category_id,
+      userId: prismaPost.user_id,
       title: prismaPost.title,
       content: prismaPost.content,
       status: prismaPost.status as PostStatus,
-      viewCount: prismaPost.viewCount,
-      isNotice: prismaPost.isNotice,
+      viewCount: prismaPost.view_count,
+      isNotice: prismaPost.is_notice,
       attachmentUrls: prismaPost.attachmentUrls,
-      createdAt: prismaPost.createdAt,
-      updatedAt: prismaPost.updatedAt
+      createdAt: prismaPost.created_at,
+      updatedAt: prismaPost.updated_at
     });
   }
 }
