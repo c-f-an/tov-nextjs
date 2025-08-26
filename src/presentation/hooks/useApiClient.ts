@@ -14,7 +14,7 @@ export function useApiClient() {
   // Update ref when token changes
   tokenRef.current = accessToken;
 
-  const apiCall = useCallback(async <T = any>(
+  const apiCall = useCallback(async <T = unknown>(
     url: string,
     options: ApiClientOptions = {}
   ): Promise<T> => {

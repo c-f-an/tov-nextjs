@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 
+interface JwtPayload {
+  userId: string;
+  email: string;
+  iat?: number;
+  exp?: number;
+}
+
 export interface AuthRequest extends NextRequest {
-  user?: any;
+  user?: JwtPayload;
 }
 
 export function withAuth(handler: (req: AuthRequest) => Promise<NextResponse>) {
@@ -11,12 +18,12 @@ export function withAuth(handler: (req: AuthRequest) => Promise<NextResponse>) {
       const token = req.headers.get('authorization')?.replace('Bearer ', '');
       
       if (token) {
-        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!);
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as JwtPayload;
         (req as AuthRequest).user = decoded;
       }
       
       return handler(req as AuthRequest);
-    } catch (error) {
+    } catch {
       return handler(req as AuthRequest);
     }
   };
