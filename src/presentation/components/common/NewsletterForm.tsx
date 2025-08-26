@@ -31,7 +31,7 @@ export function NewsletterForm() {
       } else {
         setMessage({ type: 'error', text: data.error });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: '구독 신청 중 오류가 발생했습니다.' });
     } finally {
       setIsLoading(false);

@@ -10,7 +10,7 @@ export function verifyAccessToken(token: string, secret: string): TokenPayload |
   try {
     const decoded = jwt.verify(token, secret) as TokenPayload;
     return decoded;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

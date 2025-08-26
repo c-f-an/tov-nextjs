@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
           headers: requestHeaders,
         },
       });
-    } catch (error) {
+    } catch {
       // For API routes, return 401
       if (pathname.startsWith('/api')) {
         return NextResponse.json(

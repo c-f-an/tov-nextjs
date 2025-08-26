@@ -59,10 +59,6 @@ const mockNews = [
 ];
 
 export function LatestNews() {
-  const [activeTab, setActiveTab] = useState<'notice' | 'news'>('notice');
-
-  const currentList = activeTab === 'notice' ? mockNotices : mockNews;
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* 공지사항 */}
