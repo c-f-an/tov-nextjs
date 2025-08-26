@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 import { Category, CategoryType } from '@/core/domain/entities/Category';
-import { ICategoryRepository } from '@/core/domain/repositories/ICategoryRepository';
+import type { ICategoryRepository } from '@/core/domain/repositories/ICategoryRepository';
 import { CategoryDto } from '../../dtos/CategoryDto';
 
 interface CreateCategoryRequest {

@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe';
-import { ICategoryRepository } from '@/core/domain/repositories/ICategoryRepository';
+import type { ICategoryRepository } from '@/core/domain/repositories/ICategoryRepository';
 import { CategoryDto } from '../../dtos/CategoryDto';
 
 @injectable()
