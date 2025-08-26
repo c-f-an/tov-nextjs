@@ -61,7 +61,7 @@ jobs:
           chmod 600 ~/.ssh/bastion_key ~/.ssh/ec2_key
 
           # SSH config for ProxyJump
-          cat > ~/.ssh/config << 'CONFIG'
+          cat > ~/.ssh/config << CONFIG
           Host bastion
             HostName ${{ secrets.BASTION_HOST }}
             User ${{ secrets.BASTION_USER }}
@@ -79,6 +79,9 @@ jobs:
           CONFIG
 
       - name: Deploy to EC2 via Bastion
+        env:
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+          EC2_USER: ${{ secrets.EC2_USER }}
         run: |
           ssh private-ec2 << 'EOF'
             # Create app directory if not exists
@@ -86,7 +89,7 @@ jobs:
             cd /apps/tov-homepage
             
             # Download latest deployment from S3
-            aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deployments/latest.tar.gz ./
+            aws s3 cp s3://'$S3_BUCKET_NAME'/deployments/latest.tar.gz ./
             
             # Stop existing application
             sudo systemctl stop tov-homepage || true
@@ -102,21 +105,21 @@ jobs:
             sudo rm latest.tar.gz
             
             # Set permissions
-            sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} /apps/tov-homepage/current
+            sudo chown -R '$EC2_USER':'$EC2_USER' /apps/tov-homepage/current
             
             # Start application
             cd current
             npm install --production
             
             # Create or update systemd service
-            sudo tee /etc/systemd/system/tov-homepage.service > /dev/null << 'SERVICE'
+            sudo tee /etc/systemd/system/tov-homepage.service > /dev/null << SERVICE
             [Unit]
             Description=TOV Homepage Next.js Application
             After=network.target
 
             [Service]
             Type=simple
-            User=${{ secrets.EC2_USER }}
+            User='$EC2_USER'
             WorkingDirectory=/apps/tov-homepage/current
             ExecStart=/usr/bin/npm start
             Restart=on-failure
