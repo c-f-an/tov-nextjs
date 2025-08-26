@@ -94,11 +94,20 @@ jobs:
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
           EC2_USER: ${{ secrets.EC2_USER }}
         run: |
+          # Use direct ProxyCommand instead of SSH config
+          SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30"
+          
           # Test connection first
-          ssh -o ConnectTimeout=30 private-ec2 "echo 'SSH connection established successfully'"
+          echo "Testing SSH connection to EC2 via Bastion..."
+          $SSH_COMMAND -i ~/.ssh/ec2_key \
+            -o ProxyCommand="$SSH_COMMAND -i ~/.ssh/bastion_key -W %h:%p ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }}" \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_PRIVATE_IP }} \
+            "echo 'SSH connection established successfully'"
           
           # Deploy to EC2
-          ssh private-ec2 << 'EOF'
+          $SSH_COMMAND -i ~/.ssh/ec2_key \
+            -o ProxyCommand="$SSH_COMMAND -i ~/.ssh/bastion_key -W %h:%p ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }}" \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_PRIVATE_IP }} << 'EOF'
             # Create app directory if not exists
             sudo mkdir -p /apps/tov-homepage
             cd /apps/tov-homepage
