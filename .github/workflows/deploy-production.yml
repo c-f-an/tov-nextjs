@@ -1,0 +1,161 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-2
+  S3_BUCKET_NAME: ${{ env.S3_BUCKET_NAME }}
+  BASTION_HOST: ${{ secrets.BASTION_HOST }}
+  BASTION_USER: ${{ secrets.BASTION_USER }}
+  EC2_PRIVATE_IP: ${{ secrets.EC2_PRIVATE_IP }}
+  EC2_USER: ${{ secrets.EC2_USER }}
+  NODE_VERSION: "18"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js application
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ env.NEXT_PUBLIC_API_URL }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Create deployment package
+        run: |
+          mkdir -p deploy-package
+          cp -r .next deploy-package/
+          cp -r public deploy-package/
+          cp package.json deploy-package/
+          cp package-lock.json deploy-package/
+          cp -r node_modules deploy-package/
+          tar -czf deploy-package.tar.gz deploy-package/
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp deploy-package.tar.gz s3://${{ secrets.S3_BUCKET_NAME }}/deployments/deploy-$(date +%Y%m%d%H%M%S).tar.gz
+          aws s3 cp deploy-package.tar.gz s3://${{ secrets.S3_BUCKET_NAME }}/deployments/latest.tar.gz
+
+      - name: Setup SSH keys
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.BASTION_SSH_KEY }}" > ~/.ssh/bastion_key
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
+          chmod 600 ~/.ssh/bastion_key ~/.ssh/ec2_key
+
+          # SSH config for ProxyJump
+          cat > ~/.ssh/config << 'CONFIG'
+          Host bastion
+            HostName ${{ env.BASTION_HOST }}
+            User ${{ env.BASTION_USER }}
+            IdentityFile ~/.ssh/bastion_key
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+
+          Host private-ec2
+            HostName ${{ env.EC2_PRIVATE_IP }}
+            User ${{ env.EC2_USER }}
+            IdentityFile ~/.ssh/ec2_key
+            ProxyJump bastion
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+          CONFIG
+
+      - name: Deploy to EC2 via Bastion
+        run: |
+          ssh private-ec2 << 'EOF'
+            # Create app directory if not exists
+            sudo mkdir -p /apps/tov-homepage
+            cd /apps/tov-homepage
+            
+            # Download latest deployment from S3
+            aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/deployments/latest.tar.gz ./
+            
+            # Stop existing application
+            sudo systemctl stop tov-homepage || true
+            
+            # Backup current deployment
+            if [ -d "current" ]; then
+              sudo mv current backup-$(date +%Y%m%d%H%M%S)
+            fi
+            
+            # Extract new deployment
+            sudo tar -xzf latest.tar.gz
+            sudo mv deploy-package current
+            sudo rm latest.tar.gz
+            
+            # Set permissions
+            sudo chown -R ${{ env.EC2_USER }}:${{ env.EC2_USER }} /apps/tov-homepage/current
+            
+            # Start application
+            cd current
+            npm install --production
+            
+            # Create or update systemd service
+            sudo tee /etc/systemd/system/tov-homepage.service > /dev/null << 'SERVICE'
+            [Unit]
+            Description=TOV Homepage Next.js Application
+            After=network.target
+
+            [Service]
+            Type=simple
+            User=${{ env.EC2_USER }}
+            WorkingDirectory=/apps/tov-homepage/current
+            ExecStart=/usr/bin/npm start
+            Restart=on-failure
+            RestartSec=10
+            StandardOutput=syslog
+            StandardError=syslog
+            SyslogIdentifier=tov-homepage
+            Environment="NODE_ENV=production"
+            Environment="PORT=3000"
+
+            [Install]
+            WantedBy=multi-user.target
+            SERVICE
+            
+            # Reload systemd and start service
+            sudo systemctl daemon-reload
+            sudo systemctl enable tov-homepage
+            sudo systemctl start tov-homepage
+            
+            # Check service status
+            sudo systemctl status tov-homepage
+          EOF
+
+      - name: Clean up SSH keys
+        if: always()
+        run: |
+          rm -f ~/.ssh/bastion_key ~/.ssh/ec2_key
+          rm -f ~/.ssh/config
+
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo " Deployment successful!"
+          else
+            echo "L Deployment failed!"
+          fi
