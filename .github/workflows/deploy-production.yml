@@ -7,11 +7,6 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2
-  S3_BUCKET_NAME: ${{ env.S3_BUCKET_NAME }}
-  BASTION_HOST: ${{ secrets.BASTION_HOST }}
-  BASTION_USER: ${{ secrets.BASTION_USER }}
-  EC2_PRIVATE_IP: ${{ secrets.EC2_PRIVATE_IP }}
-  EC2_USER: ${{ secrets.EC2_USER }}
   NODE_VERSION: "18"
 
 jobs:
@@ -34,14 +29,14 @@ jobs:
       - name: Build Next.js application
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: ${{ env.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Create deployment package
         run: |
@@ -68,15 +63,15 @@ jobs:
           # SSH config for ProxyJump
           cat > ~/.ssh/config << 'CONFIG'
           Host bastion
-            HostName ${{ env.BASTION_HOST }}
-            User ${{ env.BASTION_USER }}
+            HostName ${{ secrets.BASTION_HOST }}
+            User ${{ secrets.BASTION_USER }}
             IdentityFile ~/.ssh/bastion_key
             StrictHostKeyChecking no
             UserKnownHostsFile=/dev/null
 
           Host private-ec2
-            HostName ${{ env.EC2_PRIVATE_IP }}
-            User ${{ env.EC2_USER }}
+            HostName ${{ secrets.EC2_PRIVATE_IP }}
+            User ${{ secrets.EC2_USER }}
             IdentityFile ~/.ssh/ec2_key
             ProxyJump bastion
             StrictHostKeyChecking no
@@ -91,7 +86,7 @@ jobs:
             cd /apps/tov-homepage
             
             # Download latest deployment from S3
-            aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/deployments/latest.tar.gz ./
+            aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deployments/latest.tar.gz ./
             
             # Stop existing application
             sudo systemctl stop tov-homepage || true
@@ -107,7 +102,7 @@ jobs:
             sudo rm latest.tar.gz
             
             # Set permissions
-            sudo chown -R ${{ env.EC2_USER }}:${{ env.EC2_USER }} /apps/tov-homepage/current
+            sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} /apps/tov-homepage/current
             
             # Start application
             cd current
@@ -121,7 +116,7 @@ jobs:
 
             [Service]
             Type=simple
-            User=${{ env.EC2_USER }}
+            User=${{ secrets.EC2_USER }}
             WorkingDirectory=/apps/tov-homepage/current
             ExecStart=/usr/bin/npm start
             Restart=on-failure
