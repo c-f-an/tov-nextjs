@@ -6,7 +6,6 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: ap-northeast-2
   NODE_VERSION: "18"
 
 jobs:
@@ -29,7 +28,7 @@ jobs:
       - name: Build Next.js application
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: ${{ env.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
 
       - name: Debug secrets
         run: |
