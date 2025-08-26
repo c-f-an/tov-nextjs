@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 import { Donation, DonationType } from '@/core/domain/entities/DonationNew';
-import { IDonationRepository } from '@/core/domain/repositories/IDonationNewRepository';
+import { IDonationRepository } from '@/core/domain/repositories/IDonationRepository';
 import { DonationDto } from '../../dtos/DonationDto';
 
 interface CreateDonationRequest {

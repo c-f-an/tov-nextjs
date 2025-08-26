@@ -1,7 +1,7 @@
 import { injectable } from 'tsyringe';
 import { PrismaClient } from '@prisma/client';
 import { Donation, DonationType } from '@/core/domain/entities/DonationNew';
-import { IDonationRepository } from '@/core/domain/repositories/IDonationNewRepository';
+import { IDonationRepository } from '@/core/domain/repositories/IDonationRepository';
 import { prisma } from '../database/prisma';
 
 interface FindPaginatedOptions {

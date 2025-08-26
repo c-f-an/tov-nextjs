@@ -8,7 +8,7 @@ import { ICategoryRepository } from '@/core/domain/repositories/ICategoryReposit
 import { IPostRepository } from '@/core/domain/repositories/IPostRepository';
 import { IConsultationRepository } from '@/core/domain/repositories/IConsultationRepository';
 import { ISponsorRepository } from '@/core/domain/repositories/ISponsorRepository';
-import { IDonationRepository } from '@/core/domain/repositories/IDonationNewRepository';
+import { IDonationRepository } from '@/core/domain/repositories/IDonationRepository';
 import { IUserProfileRepository } from '@/core/domain/repositories/IUserProfileRepository';
 import { IAttachmentRepository } from '@/core/domain/repositories/IAttachmentRepository';
 import { IFAQRepository } from '@/core/domain/repositories/IFAQRepository';

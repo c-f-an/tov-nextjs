@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { User, Mail, Phone, Building, Lock, Save } from 'lucide-react'
-import AdminLayout from '@/presentation/components/layout/AdminLayout'
+import { AdminLayout } from '@/presentation/components/admin/AdminLayout'
 
 export default function AdminProfilePage() {
   const [profile, setProfile] = useState({

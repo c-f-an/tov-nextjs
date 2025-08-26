@@ -1,74 +1,130 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { User, FileText, Heart, MessageCircle, Settings, LogOut, Download, Calendar } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  User,
+  FileText,
+  Heart,
+  Settings,
+  LogOut,
+  Download,
+} from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/presentation/contexts/AuthContext";
 
 const menuItems = [
-  { icon: User, label: '내 정보', href: '#profile' },
-  { icon: FileText, label: '상담 내역', href: '#consultations' },
-  { icon: Heart, label: '후원 내역', href: '#donations' },
-  { icon: Download, label: '다운로드 내역', href: '#downloads' },
-  { icon: Settings, label: '설정', href: '#settings' }
-]
+  { icon: User, label: "내 정보", href: "#profile" },
+  { icon: FileText, label: "상담 내역", href: "#consultations" },
+  { icon: Heart, label: "후원 내역", href: "#donations" },
+  { icon: Download, label: "다운로드 내역", href: "#downloads" },
+  { icon: Settings, label: "설정", href: "#settings" },
+];
 
 const consultationHistory = [
   {
     id: 1,
-    date: '2024.03.15',
-    type: '온라인 상담',
-    category: '종교인 소득세',
-    status: '답변완료',
-    title: '비과세 소득 범위 문의'
+    date: "2024.03.15",
+    type: "온라인 상담",
+    category: "종교인 소득세",
+    status: "답변완료",
+    title: "비과세 소득 범위 문의",
   },
   {
     id: 2,
-    date: '2024.02.28',
-    type: '전화 상담',
-    category: '법인세',
-    status: '답변완료',
-    title: '수익사업 판정 기준'
+    date: "2024.02.28",
+    type: "전화 상담",
+    category: "법인세",
+    status: "답변완료",
+    title: "수익사업 판정 기준",
   },
   {
     id: 3,
-    date: '2024.02.10',
-    type: '방문 상담',
-    category: '회계',
-    status: '답변완료',
-    title: '재무제표 작성 방법'
-  }
-]
+    date: "2024.02.10",
+    type: "방문 상담",
+    category: "회계",
+    status: "답변완료",
+    title: "재무제표 작성 방법",
+  },
+];
 
 const donationHistory = [
   {
-    date: '2024.03.01',
-    type: '정기후원',
-    amount: '30,000',
-    method: '신용카드'
+    date: "2024.03.01",
+    type: "정기후원",
+    amount: "30,000",
+    method: "신용카드",
   },
   {
-    date: '2024.02.01',
-    type: '정기후원',
-    amount: '30,000',
-    method: '신용카드'
+    date: "2024.02.01",
+    type: "정기후원",
+    amount: "30,000",
+    method: "신용카드",
   },
   {
-    date: '2024.01.15',
-    type: '일시후원',
-    amount: '100,000',
-    method: '계좌이체'
-  }
-]
+    date: "2024.01.15",
+    type: "일시후원",
+    amount: "100,000",
+    method: "계좌이체",
+  },
+];
+
+// interface UserProfile {
+//   id: number;
+//   userId: number;
+//   churchName: string | null;
+//   position: string | null;
+//   phoneNumber?: string | null;
+//   address: string | null;
+//   addressDetail?: string | null;
+//   postcode: string | null;
+//   denomination: string | null;
+//   birthDate: Date | null;
+//   gender: 'M' | 'F' | null;
+//   profileImage: string | null;
+//   newsletterSubscribe: boolean;
+//   marketingAgree: boolean;
+// }
 
 export default function MyPage() {
-  const [activeTab, setActiveTab] = useState('profile')
+  const [activeTab, setActiveTab] = useState("profile");
+  const { user, logout, loading } = useAuth();
+  const router = useRouter();
+  // const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
+  };
+
+  if (loading || !user) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-600">로딩 중...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-4">마이페이지</h1>
-        <p className="text-lg text-gray-600">회원님의 활동 내역을 확인하실 수 있습니다.</p>
+        <p className="text-lg text-gray-600">
+          회원님의 활동 내역을 확인하실 수 있습니다.
+        </p>
       </div>
 
       <div className="grid lg:grid-cols-4 gap-8">
@@ -78,29 +134,30 @@ export default function MyPage() {
             <CardContent className="p-4">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                <h3 className="font-semibold">홍길동</h3>
-                <p className="text-sm text-gray-600">hong@email.com</p>
+                <h3 className="font-semibold">{user?.name || "사용자"}</h3>
+                <p className="text-sm text-gray-600">{user?.email}</p>
               </div>
               <nav className="space-y-1">
                 {menuItems.map((item) => {
-                  const Icon = item.icon
-                  const isActive = activeTab === item.href.slice(1)
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.href.slice(1);
                   return (
                     <button
                       key={item.label}
                       onClick={() => setActiveTab(item.href.slice(1))}
                       className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
-                        isActive
-                          ? 'bg-primary text-white'
-                          : 'hover:bg-gray-100'
+                        isActive ? "bg-primary text-white" : "hover:bg-gray-100"
                       }`}
                     >
                       <Icon className="h-5 w-5" />
                       <span>{item.label}</span>
                     </button>
-                  )
+                  );
                 })}
-                <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 text-red-600">
+                <button 
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 text-red-600"
+                >
                   <LogOut className="h-5 w-5" />
                   <span>로그아웃</span>
                 </button>
@@ -111,7 +168,7 @@ export default function MyPage() {
 
         {/* 콘텐츠 영역 */}
         <div className="lg:col-span-3">
-          {activeTab === 'profile' && (
+          {activeTab === "profile" && (
             <Card>
               <CardHeader>
                 <CardTitle>내 정보</CardTitle>
@@ -120,53 +177,63 @@ export default function MyPage() {
                 <div className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium mb-2">이름</label>
+                      <label className="block text-sm font-medium mb-2">
+                        이름
+                      </label>
                       <input
                         type="text"
-                        value="홍길동"
+                        value={user?.name || ""}
                         className="w-full px-3 py-2 border rounded-lg"
                         readOnly
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">이메일</label>
+                      <label className="block text-sm font-medium mb-2">
+                        이메일
+                      </label>
                       <input
                         type="email"
-                        value="hong@email.com"
+                        value={user?.email || ""}
                         className="w-full px-3 py-2 border rounded-lg"
                         readOnly
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">휴대폰</label>
+                      <label className="block text-sm font-medium mb-2">
+                        휴대폰
+                      </label>
                       <input
                         type="tel"
-                        value="010-1234-5678"
+                        value=""
                         className="w-full px-3 py-2 border rounded-lg"
                         readOnly
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">교회명</label>
+                      <label className="block text-sm font-medium mb-2">
+                        교회명
+                      </label>
                       <input
                         type="text"
-                        value="샘플교회"
+                        value=""
                         className="w-full px-3 py-2 border rounded-lg"
                         readOnly
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">주소</label>
+                    <label className="block text-sm font-medium mb-2">
+                      주소
+                    </label>
                     <input
                       type="text"
-                      value="서울특별시 강남구 테헤란로 123"
+                      value=""
                       className="w-full px-3 py-2 border rounded-lg mb-2"
                       readOnly
                     />
                     <input
                       type="text"
-                      value="건물명 101호"
+                      value=""
                       className="w-full px-3 py-2 border rounded-lg"
                       readOnly
                     />
@@ -181,7 +248,7 @@ export default function MyPage() {
             </Card>
           )}
 
-          {activeTab === 'consultations' && (
+          {activeTab === "consultations" && (
             <Card>
               <CardHeader>
                 <CardTitle>상담 내역</CardTitle>
@@ -189,7 +256,10 @@ export default function MyPage() {
               <CardContent>
                 <div className="space-y-4">
                   {consultationHistory.map((item) => (
-                    <div key={item.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                    <div
+                      key={item.id}
+                      className="border rounded-lg p-4 hover:bg-gray-50"
+                    >
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <h4 className="font-semibold">{item.title}</h4>
@@ -197,16 +267,20 @@ export default function MyPage() {
                             {item.type} • {item.category}
                           </p>
                         </div>
-                        <span className={`px-2 py-1 text-xs rounded ${
-                          item.status === '답변완료' 
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-yellow-100 text-yellow-700'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 text-xs rounded ${
+                            item.status === "답변완료"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
                           {item.status}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500">{item.date}</span>
+                        <span className="text-sm text-gray-500">
+                          {item.date}
+                        </span>
                         <button className="text-sm text-primary hover:text-primary/80">
                           상세보기 →
                         </button>
@@ -226,7 +300,7 @@ export default function MyPage() {
             </Card>
           )}
 
-          {activeTab === 'donations' && (
+          {activeTab === "donations" && (
             <Card>
               <CardHeader>
                 <CardTitle>후원 내역</CardTitle>
@@ -235,7 +309,9 @@ export default function MyPage() {
                 <div className="mb-6 p-4 bg-blue-50 rounded-lg">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-sm text-gray-600">2024년 총 후원금액</p>
+                      <p className="text-sm text-gray-600">
+                        2024년 총 후원금액
+                      </p>
                       <p className="text-2xl font-bold">190,000원</p>
                     </div>
                     <button className="px-4 py-2 bg-white border rounded hover:bg-gray-50">
@@ -245,10 +321,15 @@ export default function MyPage() {
                 </div>
                 <div className="space-y-3">
                   {donationHistory.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-4 border rounded-lg">
+                    <div
+                      key={index}
+                      className="flex justify-between items-center p-4 border rounded-lg"
+                    >
                       <div>
                         <p className="font-medium">{item.type}</p>
-                        <p className="text-sm text-gray-600">{item.date} • {item.method}</p>
+                        <p className="text-sm text-gray-600">
+                          {item.date} • {item.method}
+                        </p>
                       </div>
                       <span className="font-semibold">{item.amount}원</span>
                     </div>
@@ -266,7 +347,7 @@ export default function MyPage() {
             </Card>
           )}
 
-          {activeTab === 'downloads' && (
+          {activeTab === "downloads" && (
             <Card>
               <CardHeader>
                 <CardTitle>다운로드 내역</CardTitle>
@@ -277,8 +358,12 @@ export default function MyPage() {
                     <div className="flex items-center gap-3">
                       <FileText className="h-5 w-5 text-gray-400" />
                       <div>
-                        <p className="font-medium">2024년 종교인 소득세 신고 가이드</p>
-                        <p className="text-sm text-gray-600">2024.03.10 다운로드</p>
+                        <p className="font-medium">
+                          2024년 종교인 소득세 신고 가이드
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          2024.03.10 다운로드
+                        </p>
                       </div>
                     </div>
                     <button className="text-sm text-primary hover:text-primary/80">
@@ -289,8 +374,12 @@ export default function MyPage() {
                     <div className="flex items-center gap-3">
                       <FileText className="h-5 w-5 text-gray-400" />
                       <div>
-                        <p className="font-medium">비영리법인 회계기준 실무 가이드</p>
-                        <p className="text-sm text-gray-600">2024.02.25 다운로드</p>
+                        <p className="font-medium">
+                          비영리법인 회계기준 실무 가이드
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          2024.02.25 다운로드
+                        </p>
                       </div>
                     </div>
                     <button className="text-sm text-primary hover:text-primary/80">
@@ -310,7 +399,7 @@ export default function MyPage() {
             </Card>
           )}
 
-          {activeTab === 'settings' && (
+          {activeTab === "settings" && (
             <Card>
               <CardHeader>
                 <CardTitle>설정</CardTitle>
@@ -321,11 +410,19 @@ export default function MyPage() {
                     <h3 className="font-semibold mb-3">알림 설정</h3>
                     <div className="space-y-3">
                       <label className="flex items-center gap-3">
-                        <input type="checkbox" className="w-4 h-4" defaultChecked />
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4"
+                          defaultChecked
+                        />
                         <span>이메일 알림 받기</span>
                       </label>
                       <label className="flex items-center gap-3">
-                        <input type="checkbox" className="w-4 h-4" defaultChecked />
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4"
+                          defaultChecked
+                        />
                         <span>SMS 알림 받기</span>
                       </label>
                       <label className="flex items-center gap-3">
@@ -356,5 +453,5 @@ export default function MyPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

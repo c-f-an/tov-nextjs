@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data = await response.json();
     setUser(data.user);
     setAccessToken(data.accessToken);
-    router.push('/dashboard');
+    router.push('/');
   };
 
   const register = async (registerData: RegisterData) => {

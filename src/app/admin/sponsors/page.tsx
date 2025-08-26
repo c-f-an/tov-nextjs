@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Search, Download, Mail, Filter } from 'lucide-react'
-import AdminLayout from '@/presentation/components/layout/AdminLayout'
+import { AdminLayout } from '@/presentation/components/admin/AdminLayout'
 
 interface Sponsor {
   id: number

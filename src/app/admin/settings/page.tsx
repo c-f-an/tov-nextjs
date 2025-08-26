@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Save, Globe, Mail, Shield, Bell } from 'lucide-react'
-import AdminLayout from '@/presentation/components/layout/AdminLayout'
+import { AdminLayout } from '@/presentation/components/admin/AdminLayout'
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({

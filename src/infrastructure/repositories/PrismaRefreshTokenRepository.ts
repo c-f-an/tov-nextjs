@@ -7,21 +7,21 @@ export class PrismaRefreshTokenRepository implements IRefreshTokenRepository {
   private toDomain(prismaToken: PrismaRefreshToken): RefreshToken {
     return new RefreshToken(
       prismaToken.id,
-      prismaToken.userId,
-      prismaToken.tokenHash,
-      prismaToken.expiresAt,
-      prismaToken.deviceInfo,
-      prismaToken.ipAddress,
-      prismaToken.revokedAt,
-      prismaToken.revokedReason,
-      prismaToken.createdAt,
-      prismaToken.updatedAt
+      prismaToken.user_id,
+      prismaToken.token_hash,
+      prismaToken.expires_at,
+      prismaToken.device_info,
+      prismaToken.ip_address,
+      prismaToken.revoked_at,
+      prismaToken.revoked_reason,
+      prismaToken.created_at,
+      prismaToken.updated_at
     );
   }
 
   async findByTokenHash(tokenHash: string): Promise<RefreshToken | null> {
     const refreshToken = await prisma.refreshToken.findUnique({
-      where: { tokenHash }
+      where: { token_hash: tokenHash }
     });
 
     return refreshToken ? this.toDomain(refreshToken) : null;
@@ -29,8 +29,8 @@ export class PrismaRefreshTokenRepository implements IRefreshTokenRepository {
 
   async findByUserId(userId: number): Promise<RefreshToken[]> {
     const tokens = await prisma.refreshToken.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' }
+      where: { user_id: userId },
+      orderBy: { created_at: 'desc' }
     });
 
     return tokens.map(token => this.toDomain(token));
@@ -39,15 +39,15 @@ export class PrismaRefreshTokenRepository implements IRefreshTokenRepository {
   async save(refreshToken: RefreshToken): Promise<void> {
     await prisma.refreshToken.create({
       data: {
-        userId: refreshToken.userId,
-        tokenHash: refreshToken.tokenHash,
-        deviceInfo: refreshToken.deviceInfo,
-        ipAddress: refreshToken.ipAddress,
-        expiresAt: refreshToken.expiresAt,
-        revokedAt: refreshToken.revokedAt,
-        revokedReason: refreshToken.revokedReason,
-        createdAt: refreshToken.createdAt,
-        updatedAt: refreshToken.updatedAt
+        user_id: refreshToken.userId,
+        token_hash: refreshToken.tokenHash,
+        device_info: refreshToken.deviceInfo,
+        ip_address: refreshToken.ipAddress,
+        expires_at: refreshToken.expiresAt,
+        revoked_at: refreshToken.revokedAt,
+        revoked_reason: refreshToken.revokedReason,
+        created_at: refreshToken.createdAt,
+        updated_at: refreshToken.updatedAt
       }
     });
   }
@@ -56,29 +56,29 @@ export class PrismaRefreshTokenRepository implements IRefreshTokenRepository {
     await prisma.refreshToken.update({
       where: { id: refreshToken.id },
       data: {
-        revokedAt: refreshToken.revokedAt,
-        revokedReason: refreshToken.revokedReason,
-        updatedAt: refreshToken.updatedAt
+        revoked_at: refreshToken.revokedAt,
+        revoked_reason: refreshToken.revokedReason,
+        updated_at: refreshToken.updatedAt
       }
     });
   }
 
   async deleteByTokenHash(tokenHash: string): Promise<void> {
     await prisma.refreshToken.delete({
-      where: { tokenHash }
+      where: { token_hash: tokenHash }
     });
   }
 
   async deleteByUserId(userId: number): Promise<void> {
     await prisma.refreshToken.deleteMany({
-      where: { userId }
+      where: { user_id: userId }
     });
   }
 
   async deleteExpiredTokens(): Promise<void> {
     await prisma.refreshToken.deleteMany({
       where: {
-        expiresAt: {
+        expires_at: {
           lt: new Date()
         }
       }

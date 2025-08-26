@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '../contexts/AuthContext';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 interface ApiClientOptions extends RequestInit {
   skipAuth?: boolean;
@@ -9,6 +9,10 @@ interface ApiClientOptions extends RequestInit {
 
 export function useApiClient() {
   const { accessToken, refreshToken } = useAuth();
+  const tokenRef = useRef(accessToken);
+  
+  // Update ref when token changes
+  tokenRef.current = accessToken;
 
   const apiCall = useCallback(async <T = any>(
     url: string,
@@ -16,34 +20,31 @@ export function useApiClient() {
   ): Promise<T> => {
     const { skipAuth = false, headers = {}, ...restOptions } = options;
 
-    const requestHeaders: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...headers,
+    const makeRequest = async (token: string | null) => {
+      const requestHeaders: HeadersInit = {
+        'Content-Type': 'application/json',
+        ...headers,
+      };
+
+      if (!skipAuth && token) {
+        requestHeaders['Authorization'] = `Bearer ${token}`;
+      }
+
+      return fetch(url, {
+        ...restOptions,
+        headers: requestHeaders,
+        credentials: 'include',
+      });
     };
 
-    if (!skipAuth && accessToken) {
-      requestHeaders['Authorization'] = `Bearer ${accessToken}`;
-    }
-
-    let response = await fetch(url, {
-      ...restOptions,
-      headers: requestHeaders,
-      credentials: 'include',
-    });
+    let response = await makeRequest(tokenRef.current);
 
     // If unauthorized, try to refresh token
     if (response.status === 401 && !skipAuth) {
       await refreshToken();
       
-      // Retry the request with new token
-      if (accessToken) {
-        requestHeaders['Authorization'] = `Bearer ${accessToken}`;
-        response = await fetch(url, {
-          ...restOptions,
-          headers: requestHeaders,
-          credentials: 'include',
-        });
-      }
+      // Retry with updated token from ref
+      response = await makeRequest(tokenRef.current);
     }
 
     if (!response.ok) {
@@ -52,7 +53,7 @@ export function useApiClient() {
     }
 
     return response.json();
-  }, [accessToken, refreshToken]);
+  }, [refreshToken]);
 
   return { apiCall };
 }
