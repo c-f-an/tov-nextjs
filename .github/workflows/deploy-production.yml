@@ -153,7 +153,8 @@ jobs:
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then
-            echo " Deployment successful!"
+            echo "✅ Deployment successful!"
           else
-            echo "L Deployment failed!"
+            echo "❌ Deployment failed!"
           fi
+
