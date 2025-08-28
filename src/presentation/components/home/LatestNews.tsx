@@ -1,10 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { Post } from '@/core/domain/entities/Post';
 
-// Mock data - 실제로는 API에서 가져올 데이터
-const mockNotices = [
+interface LatestNewsProps {
+  notices: Post[];
+  news: Post[];
+}
+
+// Default data for when DB has no posts
+const defaultNotices = [
   {
     id: 1,
     title: '2024년 종교인 소득세 신고 안내',
@@ -31,7 +36,7 @@ const mockNotices = [
   }
 ];
 
-const mockNews = [
+const defaultNews = [
   {
     id: 1,
     title: '비영리단체 투명성 강화 세미나 성황리 개최',
@@ -58,7 +63,21 @@ const mockNews = [
   }
 ];
 
-export function LatestNews() {
+export function LatestNews({ notices, news }: LatestNewsProps) {
+  // Use DB data if available, otherwise use default data
+  const displayNotices = notices.length > 0 ? notices.slice(0, 4).map(post => ({
+    id: post.id!,
+    title: post.title,
+    date: post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('ko-KR') : '',
+    category: 'notice'
+  })) : defaultNotices;
+
+  const displayNews = news.length > 0 ? news.slice(0, 4).map(post => ({
+    id: post.id!,
+    title: post.title,
+    date: post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('ko-KR') : '',
+    category: 'news'
+  })) : defaultNews;
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* 공지사항 */}
@@ -70,7 +89,7 @@ export function LatestNews() {
           </Link>
         </div>
         <ul className="space-y-3">
-          {mockNotices.map((item) => (
+          {displayNotices.map((item) => (
             <li key={item.id} className="border-b pb-3 last:border-0">
               <Link href={`/board/notice/${item.id}`} className="block hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
                 <div className="flex justify-between items-start">
@@ -96,7 +115,7 @@ export function LatestNews() {
           </Link>
         </div>
         <ul className="space-y-3">
-          {mockNews.map((item) => (
+          {displayNews.map((item) => (
             <li key={item.id} className="border-b pb-3 last:border-0">
               <Link href={`/board/news/${item.id}`} className="block hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
                 <div className="flex justify-between items-start">

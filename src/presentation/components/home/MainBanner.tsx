@@ -2,15 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { MainBanner as MainBannerEntity } from '@/core/domain/entities/MainBanner';
 
-const banners = [
+interface MainBannerProps {
+  banners: MainBannerEntity[];
+}
+
+const defaultBanners = [
   {
     id: 1,
     title: '비영리 재정 투명성의 시작',
     subtitle: '토브협회가 함께합니다',
     description: '종교인 소득세, 비영리 회계 전문 상담',
-    image: '/images/banner1.jpg',
-    link: '/about',
+    imagePath: '/images/banner1.jpg',
+    linkUrl: '/about',
     linkText: '협회 소개'
   },
   {
@@ -18,8 +23,8 @@ const banners = [
     title: '전문가와 함께하는 재정 상담',
     subtitle: '맞춤형 솔루션 제공',
     description: '회계, 세무, 법률 전문가의 통합 상담',
-    image: '/images/banner2.jpg',
-    link: '/consultation/apply',
+    imagePath: '/images/banner2.jpg',
+    linkUrl: '/consultation/apply',
     linkText: '상담 신청'
   },
   {
@@ -27,26 +32,54 @@ const banners = [
     title: '투명한 재정 운영 교육',
     subtitle: '실무자를 위한 전문 교육',
     description: '비영리 회계 실무 교육 프로그램',
-    image: '/images/banner3.jpg',
-    link: '/resources',
+    imagePath: '/images/banner3.jpg',
+    linkUrl: '/resources',
     linkText: '자료실 바로가기'
   }
 ];
 
-export function MainBanner() {
+// Helper function to generate link text from URL
+function getLinkText(linkUrl?: string | null): string {
+  if (!linkUrl) return '자세히 보기';
+  
+  const linkTextMap: Record<string, string> = {
+    '/about': '협회 소개',
+    '/consultation/apply': '상담 신청',
+    '/resources': '자료실 바로가기',
+    '/donation/apply': '후원하기',
+    '/education': '교육 신청'
+  };
+  
+  return linkTextMap[linkUrl] || '자세히 보기';
+}
+
+export function MainBanner({ banners }: MainBannerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Use DB banners if available, otherwise use default banners
+  const displayBanners = banners.length > 0 ? banners.map(banner => ({
+    id: banner.id!,
+    title: banner.title,
+    subtitle: banner.subtitle || '',
+    description: banner.description || '',
+    imagePath: banner.imagePath,
+    linkUrl: banner.linkUrl || '#',
+    linkText: getLinkText(banner.linkUrl)
+  })) : defaultBanners;
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % banners.length);
-    }, 5000);
+    if (displayBanners.length > 1) {
+      const timer = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % displayBanners.length);
+      }, 5000);
 
-    return () => clearInterval(timer);
-  }, []);
+      return () => clearInterval(timer);
+    }
+  }, [displayBanners.length]);
 
   return (
     <section className="relative h-[500px] bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
-      {banners.map((banner, index) => (
+      {displayBanners.map((banner, index) => (
         <div
           key={banner.id}
           className={`absolute inset-0 transition-opacity duration-1000 ${
@@ -70,7 +103,7 @@ export function MainBanner() {
                   {banner.description}
                 </p>
                 <Link
-                  href={banner.link}
+                  href={banner.linkUrl}
                   className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-md shadow-lg transition-all hover:shadow-xl animate-fadeInUp animation-delay-600"
                 >
                   {banner.linkText}
@@ -83,7 +116,7 @@ export function MainBanner() {
 
       {/* Slide Indicators */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-30">
-        {banners.map((_, index) => (
+        {displayBanners.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
@@ -96,7 +129,7 @@ export function MainBanner() {
 
       {/* Navigation Arrows */}
       <button
-        onClick={() => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length)}
+        onClick={() => setCurrentSlide((prev) => (prev - 1 + displayBanners.length) % displayBanners.length)}
         className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/70 hover:bg-white/90 text-gray-800 p-3 rounded-full shadow-lg transition-all hover:shadow-xl z-30"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,7 +137,7 @@ export function MainBanner() {
         </svg>
       </button>
       <button
-        onClick={() => setCurrentSlide((prev) => (prev + 1) % banners.length)}
+        onClick={() => setCurrentSlide((prev) => (prev + 1) % displayBanners.length)}
         className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/70 hover:bg-white/90 text-gray-800 p-3 rounded-full shadow-lg transition-all hover:shadow-xl z-30"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

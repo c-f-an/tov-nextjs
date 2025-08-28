@@ -94,77 +94,167 @@ jobs:
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
           EC2_USER: ${{ secrets.EC2_USER }}
         run: |
-          # Use direct ProxyCommand instead of SSH config
+          # SSH 명령어 설정
           SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30"
           
-          # Test connection first
-          echo "Testing SSH connection to EC2 via Bastion..."
-          $SSH_COMMAND -i ~/.ssh/ec2_key \
-            -o ProxyCommand="$SSH_COMMAND -i ~/.ssh/bastion_key -W %h:%p ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }}" \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_PRIVATE_IP }} \
-            "echo 'SSH connection established successfully'"
-          
-          # Deploy to EC2
+          # EC2로 배포 스크립트 복사 및 실행
           $SSH_COMMAND -i ~/.ssh/ec2_key \
             -o ProxyCommand="$SSH_COMMAND -i ~/.ssh/bastion_key -W %h:%p ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }}" \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_PRIVATE_IP }} << 'EOF'
-            # Create app directory if not exists
-            sudo mkdir -p /apps/tov-homepage
-            cd /apps/tov-homepage
             
-            # Download latest deployment from S3
-            aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/deployments/latest.tar.gz ./
+            # 환경 변수
+            S3_BUCKET_NAME="${{ secrets.S3_BUCKET_NAME }}"
+            APP_DIR="/apps/tov-homepage"
+            SERVICE_NAME="tov-homepage"
             
-            # Stop existing application
-            sudo systemctl stop tov-homepage || true
+            echo "🚀 Starting deployment from S3..."
             
-            # Backup current deployment
+            # Node.js 경로 확인
+            NODE_PATH=$(which node)
+            echo "📍 Node.js path: $NODE_PATH"
+            
+            # 1. 디렉토리 생성
+            sudo mkdir -p $APP_DIR
+            cd $APP_DIR
+            
+            # 2. S3에서 최신 배포 파일 다운로드
+            aws s3 cp s3://${S3_BUCKET_NAME}/deployments/latest.tar.gz ./
+            
+            # 3. 기존 서비스 중지
+            sudo systemctl stop $SERVICE_NAME || true
+            
+            # 4. 백업 생성
             if [ -d "current" ]; then
               sudo mv current backup-$(date +%Y%m%d%H%M%S)
             fi
             
-            # Extract new deployment
+            # 5. 새 배포 압축 해제
             sudo tar -xzf latest.tar.gz
             sudo mv deploy-package current
             sudo rm latest.tar.gz
             
-            # Set permissions
-            sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} /apps/tov-homepage/current
+            # 6. 권한 설정
+            sudo chown -R $USER:$USER $APP_DIR/current
             
-            # Start application
-            cd current
+            # 7. 디렉토리 이동
+            cd $APP_DIR/current
+            
+            # 8. Keep-Alive 서버 생성 (중요!)
+            echo "⚡ Creating Keep-Alive server configuration..."
+            cat > server.js << 'SERVER_JS'
+const { createServer } = require('http')
+const { parse } = require('url')
+const next = require('next')
+
+const dev = process.env.NODE_ENV !== 'production'
+const hostname = '0.0.0.0'
+const port = process.env.PORT || 3000
+
+const app = next({ dev, hostname, port })
+const handle = app.getRequestHandler()
+
+app.prepare().then(() => {
+  const server = createServer(async (req, res) => {
+    try {
+      const parsedUrl = parse(req.url, true)
+      await handle(req, res, parsedUrl)
+    } catch (err) {
+      console.error('Error occurred handling', req.url, err)
+      res.statusCode = 500
+      res.end('internal server error')
+    }
+  })
+
+  // Keep-Alive 설정
+  server.keepAliveTimeout = 65000
+  server.headersTimeout = 66000
+
+  console.log('Keep-Alive settings applied:')
+  console.log('   - keepAliveTimeout: ' + server.keepAliveTimeout + 'ms')
+  console.log('   - headersTimeout: ' + server.headersTimeout + 'ms')
+
+  server.listen(port, hostname, (err) => {
+    if (err) throw err
+    console.log('> Ready on http://' + hostname + ':' + port)
+    console.log('> Keep-Alive enabled for better HTTPS performance')
+  })
+})
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully')
+  process.exit(0)
+})
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully')
+  process.exit(0)
+})
+SERVER_JS
+            
+            # 9. package.json 수정
+            echo "📝 Updating package.json scripts..."
+            if command -v jq >/dev/null 2>&1; then
+              cp package.json package.json.bak
+              jq '.scripts.start = "NODE_ENV=production node server.js"' package.json.bak > package.json
+            else
+              # jq가 없는 경우 sed 사용
+              sed -i.bak 's/"start": "next start"/"start": "NODE_ENV=production node server.js"/' package.json
+            fi
+            
+            # 10. 환경변수 파일 생성
+            echo "⚙️ Setting up environment variables..."
+            cat > .env << 'ENV_FILE'
+NODE_ENV=production
+PORT=3000
+DATABASE_URL="${{ secrets.DATABASE_URL }}"
+JWT_ACCESS_SECRET="${{ secrets.JWT_ACCESS_SECRET }}"
+JWT_REFRESH_SECRET="${{ secrets.JWT_REFRESH_SECRET }}"
+NEXT_PUBLIC_APP_URL="https://tov.ptax.kr"
+NEXT_PUBLIC_API_URL="https://tov.ptax.kr/api"
+ENV_FILE
+            
+            # 11. npm 설치
             npm install --production
             
-            # Create or update systemd service
-            sudo tee /etc/systemd/system/tov-homepage.service > /dev/null << SERVICE
-            [Unit]
-            Description=TOV Homepage Next.js Application
-            After=network.target
+            # 12. systemd 서비스 생성
+            echo "🔧 Creating systemd service..."
+            sudo tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null << SERVICE_CONFIG
+[Unit]
+Description=TOV Homepage Next.js Application with Keep-Alive
+After=network.target
 
-            [Service]
-            Type=simple
-            User=${{ secrets.EC2_USER }}
-            WorkingDirectory=/apps/tov-homepage/current
-            ExecStart=/usr/bin/npm start
-            Restart=on-failure
-            RestartSec=10
-            StandardOutput=syslog
-            StandardError=syslog
-            SyslogIdentifier=tov-homepage
-            Environment="NODE_ENV=production"
-            Environment="PORT=3000"
+[Service]
+Type=simple
+User=$USER
+WorkingDirectory=$APP_DIR/current
+ExecStart=$NODE_PATH server.js
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=$SERVICE_NAME
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+Environment="NODE_ENV=production"
+Environment="PORT=3000"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
 
-            [Install]
-            WantedBy=multi-user.target
-            SERVICE
+[Install]
+WantedBy=multi-user.target
+SERVICE_CONFIG
             
-            # Reload systemd and start service
+            # 13. 서비스 시작
+            echo "🔄 Reloading systemd and starting service..."
             sudo systemctl daemon-reload
-            sudo systemctl enable tov-homepage
-            sudo systemctl start tov-homepage
+            sudo systemctl enable $SERVICE_NAME
+            sudo systemctl start $SERVICE_NAME
             
-            # Check service status
-            sudo systemctl status tov-homepage
+            # 14. 상태 확인
+            sleep 5
+            sudo systemctl status $SERVICE_NAME --no-pager
+            
+            echo "✅ Deployment completed successfully!"
           EOF
 
       - name: Clean up SSH keys

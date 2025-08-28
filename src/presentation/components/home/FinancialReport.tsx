@@ -1,7 +1,12 @@
 import Link from 'next/link';
+import { FinancialReport as FinancialReportEntity } from '@/core/domain/entities/FinancialReport';
 
-// Mock data - 실제로는 API에서 가져올 데이터
-const mockFinancialData = {
+interface FinancialReportProps {
+  report: FinancialReportEntity | null;
+}
+
+// Default data for when DB has no reports
+const defaultFinancialData = {
   year: 2023,
   totalIncome: 523450000,
   totalExpense: 487320000,
@@ -18,10 +23,21 @@ const mockFinancialData = {
   ]
 };
 
-export function FinancialReport() {
+export function FinancialReport({ report }: FinancialReportProps) {
   const formatCurrency = (amount: number) => {
     return (amount / 100000000).toFixed(1) + '억원';
   };
+  
+  // Use DB report if available, otherwise use default data
+  const displayData = report ? {
+    year: report.reportYear,
+    month: report.reportMonth,
+    totalIncome: report.totalIncome || 0,
+    totalExpense: report.totalExpense || 0,
+    balance: report.balance || 0,
+    title: report.title,
+    content: report.content
+  } : defaultFinancialData;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -32,7 +48,12 @@ export function FinancialReport() {
 
       <div className="bg-white rounded-lg shadow-sm p-8">
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-xl font-semibold">{mockFinancialData.year}년 재정 보고</h3>
+          <h3 className="text-xl font-semibold">
+            {displayData.month 
+              ? `${displayData.year}년 ${displayData.month}월 재정 보고`
+              : `${displayData.year}년 재정 보고`
+            }
+          </h3>
           <Link href="/donation/report" className="text-blue-600 hover:underline text-sm">
             전체 보고서 보기 →
           </Link>
@@ -43,19 +64,19 @@ export function FinancialReport() {
           <div className="bg-blue-50 rounded-lg p-6">
             <div className="text-blue-600 text-sm font-medium mb-2">총 수입</div>
             <div className="text-2xl font-bold text-blue-900">
-              {formatCurrency(mockFinancialData.totalIncome)}
+              {formatCurrency(displayData.totalIncome)}
             </div>
           </div>
           <div className="bg-orange-50 rounded-lg p-6">
             <div className="text-orange-600 text-sm font-medium mb-2">총 지출</div>
             <div className="text-2xl font-bold text-orange-900">
-              {formatCurrency(mockFinancialData.totalExpense)}
+              {formatCurrency(displayData.totalExpense)}
             </div>
           </div>
           <div className="bg-green-50 rounded-lg p-6">
             <div className="text-green-600 text-sm font-medium mb-2">잔액</div>
             <div className="text-2xl font-bold text-green-900">
-              {formatCurrency(mockFinancialData.balance)}
+              {formatCurrency(displayData.balance)}
             </div>
           </div>
         </div>
@@ -66,7 +87,7 @@ export function FinancialReport() {
           <div>
             <h4 className="font-semibold mb-4">수입 내역</h4>
             <div className="space-y-3">
-              {mockFinancialData.incomeBreakdown.map((item, index) => (
+              {defaultFinancialData.incomeBreakdown.map((item, index) => (
                 <div key={index}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-gray-700">{item.category}</span>
@@ -87,7 +108,7 @@ export function FinancialReport() {
           <div>
             <h4 className="font-semibold mb-4">지출 내역</h4>
             <div className="space-y-3">
-              {mockFinancialData.expenseBreakdown.map((item, index) => (
+              {defaultFinancialData.expenseBreakdown.map((item, index) => (
                 <div key={index}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-gray-700">{item.category}</span>

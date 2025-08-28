@@ -6,13 +6,22 @@ export async function GET() {
   let connection;
   
   try {
+    // Parse DATABASE_URL from environment
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL is not configured');
+    }
+
+    // Parse connection details from DATABASE_URL
+    const url = new URL(databaseUrl.replace('mysql://', 'http://'));
+    
     // Create direct MySQL connection
     connection = await mysql.createConnection({
-      host: 'localhost',
-      port: 3307,
-      user: 'tov-client',
-      password: 'A0oMDPDoRn3H6Y0',
-      database: 'tov_prod'
+      host: url.hostname,
+      port: parseInt(url.port || '3306'),
+      user: url.username,
+      password: url.password,
+      database: url.pathname.slice(1)
     });
 
     // Get posts with category and user info
@@ -59,13 +68,22 @@ export async function POST() {
   let connection;
   
   try {
+    // Parse DATABASE_URL from environment
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL is not configured');
+    }
+
+    // Parse connection details from DATABASE_URL
+    const url = new URL(databaseUrl.replace('mysql://', 'http://'));
+    
     // Create direct MySQL connection
     connection = await mysql.createConnection({
-      host: 'localhost',
-      port: 3307,
-      user: 'tov-client',
-      password: 'A0oMDPDoRn3H6Y0',
-      database: 'tov_prod'
+      host: url.hostname,
+      port: parseInt(url.port || '3306'),
+      user: url.username,
+      password: url.password,
+      database: url.pathname.slice(1)
     });
 
     const testPassword = 'password123';

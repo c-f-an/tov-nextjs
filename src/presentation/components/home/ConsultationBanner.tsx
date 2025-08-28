@@ -1,6 +1,11 @@
 import Link from 'next/link';
+import { ConsultationStats } from '@/core/application/use-cases/consultation/GetConsultationStatsUseCase';
 
-export function ConsultationBanner() {
+interface ConsultationBannerProps {
+  stats: ConsultationStats | null;
+}
+
+export function ConsultationBanner({ stats }: ConsultationBannerProps) {
   return (
     <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
       <div className="container mx-auto px-4">
@@ -15,16 +20,22 @@ export function ConsultationBanner() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <div className="bg-white/10 backdrop-blur rounded-lg p-6">
-              <div className="text-4xl font-bold mb-2">15년+</div>
-              <div className="text-blue-100">전문 경력</div>
+              <div className="text-4xl font-bold mb-2">
+                {stats ? stats.totalConsultations.toLocaleString() : '1,000'}+
+              </div>
+              <div className="text-blue-100">전체 상담 건수</div>
             </div>
             <div className="bg-white/10 backdrop-blur rounded-lg p-6">
-              <div className="text-4xl font-bold mb-2">1,000+</div>
-              <div className="text-blue-100">상담 사례</div>
+              <div className="text-4xl font-bold mb-2">
+                {stats ? stats.completedConsultations.toLocaleString() : '950'}+
+              </div>
+              <div className="text-blue-100">완료된 상담</div>
             </div>
             <div className="bg-white/10 backdrop-blur rounded-lg p-6">
-              <div className="text-4xl font-bold mb-2">98%</div>
-              <div className="text-blue-100">만족도</div>
+              <div className="text-4xl font-bold mb-2">
+                {stats ? stats.averageSatisfaction : '95'}%
+              </div>
+              <div className="text-blue-100">평균 만족도</div>
             </div>
           </div>
 
