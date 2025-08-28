@@ -1,6 +1,6 @@
 import { Attachment } from '../entities/Attachment';
 
-export interface IAttachmentRepository {
+interface IAttachmentRepository {
   findById(id: number): Promise<Attachment | null>;
   findByAttachable(attachableType: string, attachableId: number): Promise<Attachment[]>;
   save(attachment: Attachment): Promise<Attachment>;
@@ -8,3 +8,5 @@ export interface IAttachmentRepository {
   delete(id: number): Promise<void>;
   deleteByAttachable(attachableType: string, attachableId: number): Promise<void>;
 }
+
+export type { IAttachmentRepository };

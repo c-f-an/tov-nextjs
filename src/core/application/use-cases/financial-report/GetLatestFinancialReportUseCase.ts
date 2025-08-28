@@ -1,6 +1,7 @@
 import { inject, injectable } from 'tsyringe';
-import { IFinancialReportRepository } from '@/core/domain/repositories/IFinancialReportRepository';
-import { Result } from '@/shared/types/Result';
+import type { IFinancialReportRepository } from '@/core/domain/repositories/IFinancialReportRepository';
+import type { Result } from '@/shared/types/Result';
+import { Ok, Err } from '@/shared/types/Result';
 import { FinancialReport } from '@/core/domain/entities/FinancialReport';
 
 @injectable()
@@ -15,10 +16,10 @@ export class GetLatestFinancialReportUseCase {
       // Get the latest published financial report
       const latestReport = await this.financialReportRepository.findLatest();
       
-      return Result.ok(latestReport);
+      return Ok(latestReport);
     } catch (error) {
       console.error('Error in GetLatestFinancialReportUseCase:', error);
-      return Result.fail('Failed to get latest financial report');
+      return Err(new Error('Failed to get latest financial report'));
     }
   }
 }

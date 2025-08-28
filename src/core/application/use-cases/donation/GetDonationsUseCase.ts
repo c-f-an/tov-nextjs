@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe';
-import { IDonationRepository } from '@/core/domain/repositories/IDonationRepository';
+import type { IDonationRepository } from '@/core/domain/repositories/IDonationRepository';
 import { DonationDto } from '../../dtos/DonationDto';
 
 interface GetDonationsRequest {

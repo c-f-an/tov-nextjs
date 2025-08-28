@@ -1,6 +1,6 @@
 import { FAQ } from '../entities/FAQ';
 
-export interface IFAQRepository {
+interface IFAQRepository {
   findById(id: number): Promise<FAQ | null>;
   findByCategory(category: string): Promise<FAQ[]>;
   findAll(onlyActive?: boolean): Promise<FAQ[]>;
@@ -10,3 +10,5 @@ export interface IFAQRepository {
   delete(id: number): Promise<void>;
   search(query: string): Promise<FAQ[]>;
 }
+
+export type { IFAQRepository };

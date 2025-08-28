@@ -1,7 +1,7 @@
 import { Donation, DonationStatus, DonationType } from '../entities/Donation';
 import { PaginatedResult, PaginationParams } from './IPostRepository';
 
-export interface DonationFilters {
+interface DonationFilters {
   userId?: string;
   type?: DonationType;
   status?: DonationStatus;
@@ -11,7 +11,7 @@ export interface DonationFilters {
   dateTo?: Date;
 }
 
-export interface DonationStats {
+interface DonationStats {
   totalAmount: number;
   totalDonors: number;
   regularDonors: number;
@@ -19,7 +19,7 @@ export interface DonationStats {
   averageAmount: number;
 }
 
-export interface IDonationRepository {
+interface IDonationRepository {
   findById(id: string): Promise<Donation | null>;
   findByUserId(userId: string, pagination: PaginationParams): Promise<PaginatedResult<Donation>>;
   findAll(filters: DonationFilters, pagination: PaginationParams): Promise<PaginatedResult<Donation>>;
@@ -29,3 +29,5 @@ export interface IDonationRepository {
   delete(id: string): Promise<void>;
   getStats(dateFrom?: Date, dateTo?: Date): Promise<DonationStats>;
 }
+
+export type { IDonationRepository, DonationFilters, DonationStats };

@@ -1,6 +1,7 @@
 import { inject, injectable } from 'tsyringe';
-import { IQuickLinkRepository } from '@/core/domain/repositories/IQuickLinkRepository';
-import { Result } from '@/shared/types/Result';
+import type { IQuickLinkRepository } from '@/core/domain/repositories/IQuickLinkRepository';
+import type { Result } from '@/shared/types/Result';
+import { Ok, Err } from '@/shared/types/Result';
 import { QuickLink } from '@/core/domain/entities/QuickLink';
 
 export interface GetQuickLinksInput {
@@ -24,10 +25,10 @@ export class GetQuickLinksUseCase {
         quickLinks = await this.quickLinkRepository.findAll();
       }
 
-      return Result.ok(quickLinks);
+      return Ok(quickLinks);
     } catch (error) {
       console.error('Error in GetQuickLinksUseCase:', error);
-      return Result.fail('Failed to get quick links');
+      return Err(new Error('Failed to get quick links'));
     }
   }
 }

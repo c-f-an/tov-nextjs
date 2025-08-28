@@ -1,6 +1,6 @@
 import { FinancialReport } from '../entities/FinancialReport';
 
-export interface IFinancialReportRepository {
+interface IFinancialReportRepository {
   findAll(): Promise<FinancialReport[]>;
   findById(id: number): Promise<FinancialReport | null>;
   findByYear(year: number): Promise<FinancialReport[]>;
@@ -9,3 +9,5 @@ export interface IFinancialReportRepository {
   save(report: FinancialReport): Promise<FinancialReport>;
   delete(id: number): Promise<boolean>;
 }
+
+export type { IFinancialReportRepository };

@@ -1,6 +1,7 @@
 import { inject, injectable } from 'tsyringe';
-import { IMainBannerRepository } from '@/core/domain/repositories/IMainBannerRepository';
-import { Result } from '@/shared/types/Result';
+import type { IMainBannerRepository } from '@/core/domain/repositories/IMainBannerRepository';
+import type { Result } from '@/shared/types/Result';
+import { Ok, Err } from '@/shared/types/Result';
 import { MainBanner } from '@/core/domain/entities/MainBanner';
 
 export interface GetMainBannersInput {
@@ -24,10 +25,10 @@ export class GetMainBannersUseCase {
         banners = await this.mainBannerRepository.findAll();
       }
 
-      return Result.ok(banners);
+      return Ok(banners);
     } catch (error) {
       console.error('Error in GetMainBannersUseCase:', error);
-      return Result.fail('Failed to get main banners');
+      return Err(new Error('Failed to get main banners'));
     }
   }
 }

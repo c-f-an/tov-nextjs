@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 import { Post, PostStatus } from '@/core/domain/entities/Post';
-import { IPostRepository } from '@/core/domain/repositories/IPostRepository';
+import type { IPostRepository } from '@/core/domain/repositories/IPostRepository';
 import { PostDto } from '../../dtos/PostDto';
 
 interface CreatePostRequest {

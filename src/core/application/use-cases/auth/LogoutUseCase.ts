@@ -1,4 +1,4 @@
-import { IAuthService } from '@/core/domain/services/IAuthService';
+import type { IAuthService } from '@/core/domain/services/IAuthService';
 
 export class LogoutUseCase {
   constructor(

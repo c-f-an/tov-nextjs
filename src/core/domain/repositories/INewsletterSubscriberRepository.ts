@@ -1,6 +1,6 @@
 import { NewsletterSubscriber } from '../entities/NewsletterSubscriber';
 
-export interface INewsletterSubscriberRepository {
+interface INewsletterSubscriberRepository {
   findById(id: number): Promise<NewsletterSubscriber | null>;
   findByEmail(email: string): Promise<NewsletterSubscriber | null>;
   findAll(onlyActive?: boolean): Promise<NewsletterSubscriber[]>;
@@ -10,3 +10,5 @@ export interface INewsletterSubscriberRepository {
   countActive(): Promise<number>;
   getRecentSubscribers(days: number): Promise<NewsletterSubscriber[]>;
 }
+
+export type { INewsletterSubscriberRepository };

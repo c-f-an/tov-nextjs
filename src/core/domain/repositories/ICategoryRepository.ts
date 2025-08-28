@@ -1,6 +1,6 @@
 import { Category } from '../entities/Category';
 
-export interface ICategoryRepository {
+interface ICategoryRepository {
   save(category: Category): Promise<Category>;
   findById(id: number): Promise<Category | null>;
   findBySlug(slug: string): Promise<Category | null>;
@@ -8,3 +8,5 @@ export interface ICategoryRepository {
   findByParentId(parentId: number | null): Promise<Category[]>;
   delete(id: number): Promise<void>;
 }
+
+export type { ICategoryRepository };

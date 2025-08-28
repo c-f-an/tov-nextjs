@@ -1,6 +1,7 @@
 import { inject, injectable } from 'tsyringe';
-import { IConsultationRepository } from '@/core/domain/repositories/IConsultationRepository';
-import { Result } from '@/shared/types/Result';
+import type { IConsultationRepository } from '@/core/domain/repositories/IConsultationRepository';
+import type { Result } from '@/shared/types/Result';
+import { Ok, Err } from '@/shared/types/Result';
 
 export interface ConsultationStats {
   totalConsultations: number;
@@ -47,10 +48,10 @@ export class GetConsultationStatsUseCase {
         thisMonthConsultations
       };
 
-      return Result.ok(stats);
+      return Ok(stats);
     } catch (error) {
       console.error('Error in GetConsultationStatsUseCase:', error);
-      return Result.fail('Failed to get consultation statistics');
+      return Err(new Error('Failed to get consultation statistics'));
     }
   }
 }

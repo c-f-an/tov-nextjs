@@ -1,6 +1,6 @@
 import { RefreshToken } from '../entities/RefreshToken';
 
-export interface IRefreshTokenRepository {
+interface IRefreshTokenRepository {
   findByTokenHash(tokenHash: string): Promise<RefreshToken | null>;
   findByUserId(userId: number): Promise<RefreshToken[]>;
   save(refreshToken: RefreshToken): Promise<void>;
@@ -9,3 +9,5 @@ export interface IRefreshTokenRepository {
   deleteByUserId(userId: number): Promise<void>;
   deleteExpiredTokens(): Promise<void>;
 }
+
+export type { IRefreshTokenRepository };

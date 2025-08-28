@@ -1,25 +1,25 @@
 import { Post, PostCategory, PostStatus } from '../entities/Post';
 
-export interface PostFilters {
+interface PostFilters {
   category?: PostCategory;
   status?: PostStatus;
   authorId?: string;
   search?: string;
 }
 
-export interface PaginationParams {
+interface PaginationParams {
   page: number;
   limit: number;
 }
 
-export interface PaginatedResult<T> {
+interface PaginatedResult<T> {
   data: T[];
   total: number;
   page: number;
   totalPages: number;
 }
 
-export interface IPostRepository {
+interface IPostRepository {
   findById(id: string): Promise<Post | null>;
   findBySlug(slug: string): Promise<Post | null>;
   findAll(filters: PostFilters, pagination: PaginationParams): Promise<PaginatedResult<Post>>;
@@ -28,3 +28,5 @@ export interface IPostRepository {
   delete(id: string): Promise<void>;
   incrementViewCount(id: string): Promise<void>;
 }
+
+export type { IPostRepository, PostFilters, PaginationParams, PaginatedResult };

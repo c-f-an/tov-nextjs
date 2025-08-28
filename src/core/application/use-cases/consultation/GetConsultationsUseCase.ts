@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe';
-import { IConsultationRepository } from '@/core/domain/repositories/IConsultationRepository';
+import type { IConsultationRepository } from '@/core/domain/repositories/IConsultationRepository';
 import { ConsultationDto } from '../../dtos/ConsultationDto';
 import { ConsultationStatus } from '@/core/domain/entities/Consultation';
 

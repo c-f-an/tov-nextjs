@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 import { Sponsor, SponsorType, SponsorStatus } from '@/core/domain/entities/Sponsor';
-import { ISponsorRepository } from '@/core/domain/repositories/ISponsorRepository';
+import type { ISponsorRepository } from '@/core/domain/repositories/ISponsorRepository';
 import { SponsorDto } from '../../dtos/SponsorDto';
 
 interface CreateSponsorRequest {

@@ -12,55 +12,66 @@ import { GetConsultationStatsUseCase } from '@/core/application/use-cases/consul
 import { GetLatestFinancialReportUseCase } from '@/core/application/use-cases/financial-report/GetLatestFinancialReportUseCase';
 
 export default async function Home() {
-  // Fetch main banners from database
-  const getMainBannersUseCase = container.resolve(GetMainBannersUseCase);
-  const bannersResult = await getMainBannersUseCase.execute({ activeOnly: true });
-  const banners = bannersResult.isSuccess ? bannersResult.value : [];
+  let banners = [];
+  let categories = [];
+  let notices = [];
+  let news = [];
+  let quickLinks = [];
+  let consultationStats = null;
+  let financialReport = null;
 
-  // Fetch categories
-  const getCategoriesUseCase = container.resolve(GetCategoriesUseCase);
-  const categoriesResult = await getCategoriesUseCase.execute();
-  const categories = categoriesResult.isSuccess ? categoriesResult.value : [];
+  // Skip database queries during build
+  if (process.env.SKIP_DB_QUERIES !== 'true') {
+    // Fetch main banners from database
+    const getMainBannersUseCase = container.resolve(GetMainBannersUseCase);
+    const bannersResult = await getMainBannersUseCase.execute({ activeOnly: true });
+    banners = bannersResult.ok ? bannersResult.value : [];
 
-  // Find notice and news category IDs
-  const noticeCategory = categories.find(cat => cat.slug === 'notice');
-  const newsCategory = categories.find(cat => cat.slug === 'news');
+    // Fetch categories
+    const getCategoriesUseCase = container.resolve(GetCategoriesUseCase);
+    const categoriesResult = await getCategoriesUseCase.execute();
+    categories = categoriesResult.isSuccess ? categoriesResult.value : [];
 
-  // Fetch latest posts
-  const getPostsUseCase = container.resolve(GetPostsUseCase);
-  
-  // Fetch latest notices
-  const noticesResult = noticeCategory ? await getPostsUseCase.execute({
-    categoryId: noticeCategory.id,
-    status: 'published',
-    limit: 4,
-    page: 1
-  }) : null;
-  const notices = noticesResult?.isSuccess ? noticesResult.value.posts : [];
+    // Find notice and news category IDs
+    const noticeCategory = categories.find(cat => cat.slug === 'notice');
+    const newsCategory = categories.find(cat => cat.slug === 'news');
 
-  // Fetch latest news
-  const newsResult = newsCategory ? await getPostsUseCase.execute({
-    categoryId: newsCategory.id,
-    status: 'published',
-    limit: 4,
-    page: 1
-  }) : null;
-  const news = newsResult?.isSuccess ? newsResult.value.posts : [];
+    // Fetch latest posts
+    const getPostsUseCase = container.resolve(GetPostsUseCase);
+    
+    // Fetch latest notices
+    const noticesResult = noticeCategory ? await getPostsUseCase.execute({
+      categoryId: noticeCategory.id,
+      status: 'published',
+      limit: 4,
+      page: 1
+    }) : null;
+    notices = noticesResult?.isSuccess ? noticesResult.value.posts : [];
 
-  // Fetch quick links
-  const getQuickLinksUseCase = container.resolve(GetQuickLinksUseCase);
-  const quickLinksResult = await getQuickLinksUseCase.execute({ activeOnly: true });
-  const quickLinks = quickLinksResult.isSuccess ? quickLinksResult.value : [];
+    // Fetch latest news
+    const newsResult = newsCategory ? await getPostsUseCase.execute({
+      categoryId: newsCategory.id,
+      status: 'published',
+      limit: 4,
+      page: 1
+    }) : null;
+    news = newsResult?.isSuccess ? newsResult.value.posts : [];
 
-  // Fetch consultation stats
-  const getConsultationStatsUseCase = container.resolve(GetConsultationStatsUseCase);
-  const statsResult = await getConsultationStatsUseCase.execute();
-  const consultationStats = statsResult.isSuccess ? statsResult.value : null;
+    // Fetch quick links
+    const getQuickLinksUseCase = container.resolve(GetQuickLinksUseCase);
+    const quickLinksResult = await getQuickLinksUseCase.execute({ activeOnly: true });
+    quickLinks = quickLinksResult.ok ? quickLinksResult.value : [];
 
-  // Fetch latest financial report
-  const getLatestFinancialReportUseCase = container.resolve(GetLatestFinancialReportUseCase);
-  const reportResult = await getLatestFinancialReportUseCase.execute();
-  const financialReport = reportResult.isSuccess ? reportResult.value : null;
+    // Fetch consultation stats
+    const getConsultationStatsUseCase = container.resolve(GetConsultationStatsUseCase);
+    const statsResult = await getConsultationStatsUseCase.execute();
+    consultationStats = statsResult.ok ? statsResult.value : null;
+
+    // Fetch latest financial report
+    const getLatestFinancialReportUseCase = container.resolve(GetLatestFinancialReportUseCase);
+    const reportResult = await getLatestFinancialReportUseCase.execute();
+    financialReport = reportResult.ok ? reportResult.value : null;
+  }
 
   return (
     <>

@@ -1,8 +1,8 @@
 import { User, LoginType } from '@/core/domain/entities/User';
 import { UserProfile } from '@/core/domain/entities/UserProfile';
-import { IUserRepository } from '@/core/domain/repositories/IUserRepository';
-import { IUserProfileRepository } from '@/core/domain/repositories/IUserProfileRepository';
-import { IAuthService } from '@/core/domain/services/IAuthService';
+import type { IUserRepository } from '@/core/domain/repositories/IUserRepository';
+import type { IUserProfileRepository } from '@/core/domain/repositories/IUserProfileRepository';
+import type { IAuthService } from '@/core/domain/services/IAuthService';
 import { RegisterDto, AuthResponseDto } from '../../dto/AuthDto';
 import { Password } from '@/core/domain/value-objects/Password';
 import { Email } from '@/core/domain/value-objects/Email';

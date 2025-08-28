@@ -1,6 +1,6 @@
-import { IUserRepository } from '@/core/domain/repositories/IUserRepository';
-import { IRefreshTokenRepository } from '@/core/domain/repositories/IRefreshTokenRepository';
-import { IAuthService } from '@/core/domain/services/IAuthService';
+import type { IUserRepository } from '@/core/domain/repositories/IUserRepository';
+import type { IRefreshTokenRepository } from '@/core/domain/repositories/IRefreshTokenRepository';
+import type { IAuthService } from '@/core/domain/services/IAuthService';
 import { RefreshTokenDto, AuthResponseDto } from '../../dto/AuthDto';
 
 export class RefreshTokenUseCase {

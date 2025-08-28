@@ -1,5 +1,5 @@
-import { IUserRepository } from '@/core/domain/repositories/IUserRepository';
-import { IAuthService } from '@/core/domain/services/IAuthService';
+import type { IUserRepository } from '@/core/domain/repositories/IUserRepository';
+import type { IAuthService } from '@/core/domain/services/IAuthService';
 import { LoginDto, AuthResponseDto } from '../../dto/AuthDto';
 import { Password } from '@/core/domain/value-objects/Password';
 import { UserStatus, User } from '@/core/domain/entities/User';

@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 import { Consultation, ConsultationStatus } from '@/core/domain/entities/Consultation';
-import { IConsultationRepository } from '@/core/domain/repositories/IConsultationRepository';
+import type { IConsultationRepository } from '@/core/domain/repositories/IConsultationRepository';
 import { ConsultationDto } from '../../dtos/ConsultationDto';
 
 interface CreateConsultationRequest {

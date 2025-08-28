@@ -1,7 +1,7 @@
 import { Consultation, ConsultationStatus, ConsultationType } from '../entities/Consultation';
 import { PaginatedResult, PaginationParams } from './IPostRepository';
 
-export interface ConsultationFilters {
+interface ConsultationFilters {
   userId?: string;
   counselorId?: string;
   type?: ConsultationType;
@@ -10,7 +10,7 @@ export interface ConsultationFilters {
   dateTo?: Date;
 }
 
-export interface IConsultationRepository {
+interface IConsultationRepository {
   findById(id: string): Promise<Consultation | null>;
   findByUserId(userId: string, pagination: PaginationParams): Promise<PaginatedResult<Consultation>>;
   findByCounselorId(counselorId: string, pagination: PaginationParams): Promise<PaginatedResult<Consultation>>;
@@ -20,3 +20,5 @@ export interface IConsultationRepository {
   delete(id: string): Promise<void>;
   countByStatus(status: ConsultationStatus): Promise<number>;
 }
+
+export type { IConsultationRepository, ConsultationFilters };
