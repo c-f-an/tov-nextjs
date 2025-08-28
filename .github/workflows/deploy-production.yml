@@ -31,15 +31,6 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
 
-      - name: Debug secrets
-        run: |
-          echo "Checking if secrets are available..."
-          echo "AWS_ACCESS_KEY_ID exists: ${{ secrets.AWS_ACCESS_KEY_ID != '' }}"
-          echo "AWS_SECRET_ACCESS_KEY exists: ${{ secrets.AWS_SECRET_ACCESS_KEY != '' }}"
-          echo "AWS_ACCESS_KEY_ID length: ${#AWS_ACCESS_KEY_ID}"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -47,20 +38,88 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
+      - name: Create server.js file
+        run: |
+          cat > server.js << 'SERVERJS'
+          const { createServer } = require('http')
+          const { parse } = require('url')
+          const next = require('next')
+
+          const dev = process.env.NODE_ENV !== 'production'
+          const hostname = '0.0.0.0'
+          const port = process.env.PORT || 3000
+
+          const app = next({ dev, hostname, port })
+          const handle = app.getRequestHandler()
+
+          app.prepare().then(() => {
+            const server = createServer(async (req, res) => {
+              try {
+                if (req.url === '/health') {
+                  res.writeHead(200, { 'Content-Type': 'text/plain' });
+                  res.end('OK');
+                  return;
+                }
+                
+                const parsedUrl = parse(req.url, true)
+                await handle(req, res, parsedUrl)
+              } catch (err) {
+                console.error('Error occurred handling', req.url, err)
+                res.statusCode = 500
+                res.end('internal server error')
+              }
+            })
+
+            server.keepAliveTimeout = 65000
+            server.headersTimeout = 66000
+
+            console.log('Keep-Alive settings applied:')
+            console.log('   - keepAliveTimeout: ' + server.keepAliveTimeout + 'ms')
+            console.log('   - headersTimeout: ' + server.headersTimeout + 'ms')
+
+            server.listen(port, hostname, (err) => {
+              if (err) throw err
+              console.log('> Ready on http://' + hostname + ':' + port)
+              console.log('> Keep-Alive enabled for better HTTPS performance')
+            })
+          })
+
+          process.on('SIGTERM', () => {
+            console.log('SIGTERM received, shutting down gracefully')
+            process.exit(0)
+          })
+
+          process.on('SIGINT', () => {
+            console.log('SIGINT received, shutting down gracefully')
+            process.exit(0)
+          })
+          SERVERJS
+
+      - name: Update package.json
+        run: |
+          node -e "
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          pkg.scripts.start = 'NODE_ENV=production node server.js';
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+          "
+
       - name: Create deployment package
         run: |
           mkdir -p deploy-package
           cp -r .next deploy-package/
-          cp -r public deploy-package/
+          cp -r public deploy-package/ 2>/dev/null || echo "No public directory"
           cp package.json deploy-package/
           cp package-lock.json deploy-package/
-          cp -r node_modules deploy-package/
+          cp server.js deploy-package/
+          cp next.config.js deploy-package/ 2>/dev/null || echo "No next.config.js"
           tar -czf deploy-package.tar.gz deploy-package/
 
       - name: Upload to S3
         run: |
-          aws s3 cp deploy-package.tar.gz s3://${{ secrets.S3_BUCKET_NAME }}/deployments/deploy-$(date +%Y%m%d%H%M%S).tar.gz
-          aws s3 cp deploy-package.tar.gz s3://${{ secrets.S3_BUCKET_NAME }}/deployments/latest.tar.gz
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          aws s3 cp deploy-package.tar.gz s3://${{ secrets.S3_BUCKET_NAME }}/production/deploy-${TIMESTAMP}.tar.gz
+          aws s3 cp deploy-package.tar.gz s3://${{ secrets.S3_BUCKET_NAME }}/production/latest.tar.gz
 
       - name: Setup SSH keys
         run: |
@@ -69,199 +128,134 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
           chmod 600 ~/.ssh/bastion_key ~/.ssh/ec2_key
 
-          # SSH config for ProxyJump
-          cat > ~/.ssh/config << CONFIG
-          Host bastion
-            HostName ${{ secrets.BASTION_HOST }}
-            User ${{ secrets.BASTION_USER }}
-            IdentityFile ~/.ssh/bastion_key
-            StrictHostKeyChecking no
-            UserKnownHostsFile=/dev/null
-            ConnectTimeout 30
-
-          Host private-ec2
-            HostName ${{ secrets.EC2_PRIVATE_IP }}
-            User ${{ secrets.EC2_USER }}
-            IdentityFile ~/.ssh/ec2_key
-            ProxyJump bastion
-            StrictHostKeyChecking no
-            UserKnownHostsFile=/dev/null
-            ConnectTimeout 30
-          CONFIG
-
       - name: Deploy to EC2 via Bastion
         env:
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
           EC2_USER: ${{ secrets.EC2_USER }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
         run: |
-          # SSH 명령어 설정
           SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30"
-          
-          # EC2로 배포 스크립트 복사 및 실행
+
           $SSH_COMMAND -i ~/.ssh/ec2_key \
             -o ProxyCommand="$SSH_COMMAND -i ~/.ssh/bastion_key -W %h:%p ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }}" \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_PRIVATE_IP }} << 'EOF'
-            
-            # 환경 변수
-            S3_BUCKET_NAME="${{ secrets.S3_BUCKET_NAME }}"
-            APP_DIR="/apps/tov-homepage"
-            SERVICE_NAME="tov-homepage"
-            
-            echo "🚀 Starting deployment from S3..."
-            
-            # Node.js 경로 확인
-            NODE_PATH=$(which node)
-            echo "📍 Node.js path: $NODE_PATH"
-            
-            # 1. 디렉토리 생성
-            sudo mkdir -p $APP_DIR
-            cd $APP_DIR
-            
-            # 2. S3에서 최신 배포 파일 다운로드
-            aws s3 cp s3://${S3_BUCKET_NAME}/deployments/latest.tar.gz ./
-            
-            # 3. 기존 서비스 중지
-            sudo systemctl stop $SERVICE_NAME || true
-            
-            # 4. 백업 생성
-            if [ -d "current" ]; then
-              sudo mv current backup-$(date +%Y%m%d%H%M%S)
-            fi
-            
-            # 5. 새 배포 압축 해제
-            sudo tar -xzf latest.tar.gz
-            sudo mv deploy-package current
-            sudo rm latest.tar.gz
-            
-            # 6. 권한 설정
-            sudo chown -R $USER:$USER $APP_DIR/current
-            
-            # 7. 디렉토리 이동
-            cd $APP_DIR/current
-            
-            # 8. Keep-Alive 서버 생성 (중요!)
-            echo "⚡ Creating Keep-Alive server configuration..."
-            cat > server.js << 'SERVER_JS'
-const { createServer } = require('http')
-const { parse } = require('url')
-const next = require('next')
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_PRIVATE_IP }} bash << 'DEPLOY_SCRIPT'
 
-const dev = process.env.NODE_ENV !== 'production'
-const hostname = '0.0.0.0'
-const port = process.env.PORT || 3000
+          # 환경 변수
+          S3_BUCKET_NAME="${{ secrets.S3_BUCKET_NAME }}/production"
+          APP_DIR="/apps/tov-homepage"
+          SERVICE_NAME="tov-homepage"
 
-const app = next({ dev, hostname, port })
-const handle = app.getRequestHandler()
+          echo "Starting deployment from S3..."
 
-app.prepare().then(() => {
-  const server = createServer(async (req, res) => {
-    try {
-      const parsedUrl = parse(req.url, true)
-      await handle(req, res, parsedUrl)
-    } catch (err) {
-      console.error('Error occurred handling', req.url, err)
-      res.statusCode = 500
-      res.end('internal server error')
-    }
-  })
+          # Node.js 경로 확인
+          NODE_PATH=$(which node)
+          echo "Node.js path: $NODE_PATH"
 
-  // Keep-Alive 설정
-  server.keepAliveTimeout = 65000
-  server.headersTimeout = 66000
+          # 디렉토리 생성
+          sudo mkdir -p $APP_DIR
+          cd $APP_DIR
 
-  console.log('Keep-Alive settings applied:')
-  console.log('   - keepAliveTimeout: ' + server.keepAliveTimeout + 'ms')
-  console.log('   - headersTimeout: ' + server.headersTimeout + 'ms')
+          # S3에서 다운로드
+          aws s3 cp s3://${S3_BUCKET_NAME}/latest.tar.gz ./
 
-  server.listen(port, hostname, (err) => {
-    if (err) throw err
-    console.log('> Ready on http://' + hostname + ':' + port)
-    console.log('> Keep-Alive enabled for better HTTPS performance')
-  })
-})
+          # 서비스 중지
+          sudo systemctl stop $SERVICE_NAME || true
 
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully')
-  process.exit(0)
-})
+          # 백업
+          if [ -d "current" ]; then
+            sudo mv current backup-$(date +%Y%m%d%H%M%S)
+          fi
 
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully')
-  process.exit(0)
-})
-SERVER_JS
-            
-            # 9. package.json 수정
-            echo "📝 Updating package.json scripts..."
-            if command -v jq >/dev/null 2>&1; then
-              cp package.json package.json.bak
-              jq '.scripts.start = "NODE_ENV=production node server.js"' package.json.bak > package.json
-            else
-              # jq가 없는 경우 sed 사용
-              sed -i.bak 's/"start": "next start"/"start": "NODE_ENV=production node server.js"/' package.json
-            fi
-            
-            # 10. 환경변수 파일 생성
-            echo "⚙️ Setting up environment variables..."
-            cat > .env << 'ENV_FILE'
-NODE_ENV=production
-PORT=3000
-DATABASE_URL="${{ secrets.DATABASE_URL }}"
-JWT_ACCESS_SECRET="${{ secrets.JWT_ACCESS_SECRET }}"
-JWT_REFRESH_SECRET="${{ secrets.JWT_REFRESH_SECRET }}"
-NEXT_PUBLIC_APP_URL="https://tov.ptax.kr"
-NEXT_PUBLIC_API_URL="https://tov.ptax.kr/api"
-ENV_FILE
-            
-            # 11. npm 설치
-            npm install --production
-            
-            # 12. systemd 서비스 생성
-            echo "🔧 Creating systemd service..."
-            sudo tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null << SERVICE_CONFIG
-[Unit]
-Description=TOV Homepage Next.js Application with Keep-Alive
-After=network.target
+          # 압축 해제
+          sudo tar -xzf latest.tar.gz
+          sudo mv deploy-package current
+          sudo rm latest.tar.gz
 
-[Service]
-Type=simple
-User=$USER
-WorkingDirectory=$APP_DIR/current
-ExecStart=$NODE_PATH server.js
-Restart=on-failure
-RestartSec=10
-StandardOutput=journal
-StandardError=journal
-SyslogIdentifier=$SERVICE_NAME
-KillMode=mixed
-KillSignal=SIGTERM
-TimeoutStopSec=30
-Environment="NODE_ENV=production"
-Environment="PORT=3000"
-Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+          # 권한 설정
+          sudo chown -R $USER:$USER $APP_DIR/current
 
-[Install]
-WantedBy=multi-user.target
-SERVICE_CONFIG
-            
-            # 13. 서비스 시작
-            echo "🔄 Reloading systemd and starting service..."
-            sudo systemctl daemon-reload
-            sudo systemctl enable $SERVICE_NAME
-            sudo systemctl start $SERVICE_NAME
-            
-            # 14. 상태 확인
-            sleep 5
-            sudo systemctl status $SERVICE_NAME --no-pager
-            
-            echo "✅ Deployment completed successfully!"
-          EOF
+          cd $APP_DIR/current
+
+          # 환경변수 파일 생성
+          cat > .env << ENVFILE
+          NODE_ENV=production
+          PORT=3000
+          DATABASE_URL="${{ secrets.DATABASE_URL }}"
+          JWT_ACCESS_SECRET="${{ secrets.JWT_ACCESS_SECRET }}"
+          JWT_REFRESH_SECRET="${{ secrets.JWT_REFRESH_SECRET }}"
+          NEXT_PUBLIC_APP_URL="https://tov.ptax.kr"
+          NEXT_PUBLIC_API_URL="https://tov.ptax.kr/api"
+          ENVFILE
+
+          # npm 설치
+          npm ci --only=production
+
+          # systemd 서비스 파일 생성
+          sudo tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null << SERVICECONFIG
+          [Unit]
+          Description=TOV Homepage Next.js Application with Keep-Alive
+          After=network.target
+
+          [Service]
+          Type=simple
+          User=$USER
+          WorkingDirectory=$APP_DIR/current
+          ExecStart=$NODE_PATH server.js
+          Restart=on-failure
+          RestartSec=10
+          StandardOutput=journal
+          StandardError=journal
+          SyslogIdentifier=$SERVICE_NAME
+          KillMode=mixed
+          KillSignal=SIGTERM
+          TimeoutStopSec=30
+          Environment="NODE_ENV=production"
+          Environment="PORT=3000"
+          Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+
+          [Install]
+          WantedBy=multi-user.target
+          SERVICECONFIG
+
+          # 서비스 시작
+          sudo systemctl daemon-reload
+          sudo systemctl enable $SERVICE_NAME
+          sudo systemctl start $SERVICE_NAME
+
+          # 상태 확인
+          sleep 5
+          sudo systemctl status $SERVICE_NAME --no-pager
+
+          # 헬스체크
+          sleep 2
+          curl -f http://localhost:3000/health || echo "Health check endpoint not ready yet"
+
+          echo "Deployment completed!"
+
+          DEPLOY_SCRIPT
 
       - name: Clean up SSH keys
         if: always()
         run: |
           rm -f ~/.ssh/bastion_key ~/.ssh/ec2_key
-          rm -f ~/.ssh/config
+
+      - name: Verify deployment
+        run: |
+          echo "Verifying deployment..."
+          sleep 10
+
+          for i in {1..10}; do
+            if curl -s -f https://tov.ptax.kr > /dev/null 2>&1; then
+              echo "Deployment verified successfully!"
+              exit 0
+            fi
+            echo "Waiting for deployment... (attempt $i/10)"
+            sleep 5
+          done
+
+          echo "Warning: Could not verify deployment through ALB"
 
       - name: Notify deployment status
         if: always()
