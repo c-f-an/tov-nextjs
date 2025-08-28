@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { IUserProfileRepository } from '@/core/domain/repositories/IUserProfileRepository';
-import { IAuthService } from '@/core/domain/services/IAuthService';
+import { Container } from '@/infrastructure/config/container';
 import { UserProfile } from '@/core/domain/entities/UserProfile';
 
 export async function GET(request: NextRequest) {
@@ -12,14 +10,15 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const container = Container.getInstance();
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload || typeof payload.userId !== 'number') {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const profileRepository = container.resolve<IUserProfileRepository>('IUserProfileRepository');
+    const profileRepository = container.getUserProfileRepository();
     const profile = await profileRepository.findByUserId(payload.userId);
 
     if (!profile) {
@@ -63,7 +62,8 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const container = Container.getInstance();
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload || typeof payload.userId !== 'number') {
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const profileRepository = container.resolve<IUserProfileRepository>('IUserProfileRepository');
+    const profileRepository = container.getUserProfileRepository();
 
     // Check if profile already exists
     const existingProfile = await profileRepository.findByUserId(payload.userId);
@@ -138,7 +138,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const container = Container.getInstance();
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload || typeof payload.userId !== 'number') {
@@ -146,7 +147,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const profileRepository = container.resolve<IUserProfileRepository>('IUserProfileRepository');
+    const profileRepository = container.getUserProfileRepository();
 
     const profile = await profileRepository.findByUserId(payload.userId);
     if (!profile) {

@@ -1,5 +1,6 @@
 import 'server-only';
 import { IUserRepository } from '@/core/domain/repositories/IUserRepository';
+import { IUserProfileRepository } from '@/core/domain/repositories/IUserProfileRepository';
 import { IRefreshTokenRepository } from '@/core/domain/repositories/IRefreshTokenRepository';
 import { IAuthService } from '@/core/domain/services/IAuthService';
 import { CreateUserUseCase } from '@/core/application/use-cases/CreateUserUseCase';
@@ -9,18 +10,21 @@ import { RegisterUseCase } from '@/core/application/use-cases/auth/RegisterUseCa
 import { RefreshTokenUseCase } from '@/core/application/use-cases/auth/RefreshTokenUseCase';
 import { LogoutUseCase } from '@/core/application/use-cases/auth/LogoutUseCase';
 import { PrismaUserRepository } from '../repositories/PrismaUserRepository';
+import { PrismaUserProfileRepository } from '../repositories/PrismaUserProfileRepository';
 import { PrismaRefreshTokenRepository } from '../repositories/PrismaRefreshTokenRepository';
 import { JwtAuthService } from '../services/JwtAuthService.server';
 
 export class Container {
   private static instance: Container;
   private userRepository: IUserRepository;
+  private userProfileRepository: IUserProfileRepository;
   private refreshTokenRepository: IRefreshTokenRepository;
   private authService: IAuthService;
 
   private constructor() {
     // Initialize repositories
     this.userRepository = new PrismaUserRepository();
+    this.userProfileRepository = new PrismaUserProfileRepository();
     this.refreshTokenRepository = new PrismaRefreshTokenRepository();
     
     // Initialize services
@@ -41,6 +45,10 @@ export class Container {
   // Repositories
   getUserRepository(): IUserRepository {
     return this.userRepository;
+  }
+
+  getUserProfileRepository(): IUserProfileRepository {
+    return this.userProfileRepository;
   }
 
   getRefreshTokenRepository(): IRefreshTokenRepository {
@@ -66,7 +74,7 @@ export class Container {
   }
 
   getRegisterUseCase(): RegisterUseCase {
-    return new RegisterUseCase(this.userRepository, this.authService);
+    return new RegisterUseCase(this.userRepository, this.userProfileRepository, this.authService);
   }
 
   getRefreshTokenUseCase(): RefreshTokenUseCase {

@@ -70,28 +70,26 @@ const donationHistory = [
   },
 ];
 
-// interface UserProfile {
-//   id: number;
-//   userId: number;
-//   churchName: string | null;
-//   position: string | null;
-//   phoneNumber?: string | null;
-//   address: string | null;
-//   addressDetail?: string | null;
-//   postcode: string | null;
-//   denomination: string | null;
-//   birthDate: Date | null;
-//   gender: 'M' | 'F' | null;
-//   profileImage: string | null;
-//   newsletterSubscribe: boolean;
-//   marketingAgree: boolean;
-// }
+interface UserProfile {
+  userId: number;
+  churchName: string | null;
+  position: string | null;
+  denomination: string | null;
+  address: string | null;
+  postcode: string | null;
+  birthDate: Date | null;
+  gender: 'M' | 'F' | null;
+  profileImage: string | null;
+  newsletterSubscribe: boolean;
+  marketingAgree: boolean;
+}
 
 export default function MyPage() {
   const [activeTab, setActiveTab] = useState("profile");
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading, accessToken } = useAuth();
   const router = useRouter();
-  // const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   useEffect(() => {
@@ -99,6 +97,34 @@ export default function MyPage() {
       router.push("/login");
     }
   }, [user, loading, router]);
+
+  // UserProfile 데이터 가져오기
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user && accessToken) {
+        try {
+          const response = await fetch('/api/user/profile', {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            setUserProfile(data.profile);
+          }
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error);
+        } finally {
+          setProfileLoading(false);
+        }
+      } else {
+        setProfileLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user, accessToken]);
 
   const handleLogout = async () => {
     await logout();
@@ -215,7 +241,18 @@ export default function MyPage() {
                       </label>
                       <input
                         type="text"
-                        value=""
+                        value={userProfile?.churchName || ""}
+                        className="w-full px-3 py-2 border rounded-lg"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        직분
+                      </label>
+                      <input
+                        type="text"
+                        value={userProfile?.position || ""}
                         className="w-full px-3 py-2 border rounded-lg"
                         readOnly
                       />
@@ -227,15 +264,17 @@ export default function MyPage() {
                     </label>
                     <input
                       type="text"
-                      value=""
+                      value={userProfile?.address || ""}
                       className="w-full px-3 py-2 border rounded-lg mb-2"
                       readOnly
+                      placeholder="기본 주소"
                     />
                     <input
                       type="text"
                       value=""
                       className="w-full px-3 py-2 border rounded-lg"
                       readOnly
+                      placeholder="상세 주소"
                     />
                   </div>
                   <div className="flex justify-end">

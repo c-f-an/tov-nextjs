@@ -1,5 +1,7 @@
 import { User, LoginType } from '@/core/domain/entities/User';
+import { UserProfile } from '@/core/domain/entities/UserProfile';
 import { IUserRepository } from '@/core/domain/repositories/IUserRepository';
+import { IUserProfileRepository } from '@/core/domain/repositories/IUserProfileRepository';
 import { IAuthService } from '@/core/domain/services/IAuthService';
 import { RegisterDto, AuthResponseDto } from '../../dto/AuthDto';
 import { Password } from '@/core/domain/value-objects/Password';
@@ -9,6 +11,7 @@ import { PhoneNumber } from '@/core/domain/value-objects/PhoneNumber';
 export class RegisterUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
+    private readonly userProfileRepository: IUserProfileRepository,
     private readonly authService: IAuthService
   ) {}
 
@@ -49,6 +52,27 @@ export class RegisterUseCase {
     const savedUser = await this.userRepository.findByEmail(email.getValue());
     if (!savedUser) {
       throw new Error('Failed to create user');
+    }
+
+    // Create user profile if additional data is provided
+    if (dto.churchName || dto.position) {
+      const userProfile = UserProfile.create({
+        userId: savedUser.id,
+        churchName: dto.churchName || null,
+        position: dto.position || null,
+        denomination: null,
+        address: null,
+        postcode: null,
+        birthDate: null,
+        gender: null,
+        profileImage: null,
+        newsletterSubscribe: false,
+        marketingAgree: false,
+        privacyAgreeDate: new Date(),
+        termsAgreeDate: new Date()
+      });
+
+      await this.userProfileRepository.save(userProfile);
     }
 
     // Generate tokens
