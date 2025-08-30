@@ -17,22 +17,22 @@ export class PrismaConsultationRepository implements IConsultationRepository {
 
   async save(consultation: Consultation): Promise<Consultation> {
     const data = {
-      userId: consultation.userId,
+      user_id: consultation.userId,
       name: consultation.name,
       phone: consultation.phone,
       email: consultation.email,
-      churchName: consultation.churchName,
+      church_name: consultation.churchName,
       position: consultation.position,
-      consultationType: consultation.consultationType,
-      preferredDate: consultation.preferredDate,
-      preferredTime: consultation.preferredTime,
+      consultation_type: consultation.consultationType,
+      preferred_date: consultation.preferredDate,
+      preferred_time: consultation.preferredTime,
       title: consultation.title,
       content: consultation.content,
       status: consultation.status as string,
-      assignedTo: consultation.assignedTo,
-      consultationDate: consultation.consultationDate,
-      consultationNotes: consultation.consultationNotes,
-      privacyAgree: consultation.privacyAgree
+      assigned_to: consultation.assignedTo,
+      consultation_date: consultation.consultationDate,
+      consultation_notes: consultation.consultationNotes,
+      privacy_agree: consultation.privacyAgree
     };
 
     const saved = consultation.id
@@ -57,7 +57,7 @@ export class PrismaConsultationRepository implements IConsultationRepository {
     const where: any = {};
 
     if (options.userId) {
-      where.userId = options.userId;
+      where.user_id = options.userId;
     }
 
     if (options.status) {
@@ -69,7 +69,7 @@ export class PrismaConsultationRepository implements IConsultationRepository {
         where,
         skip: options.offset,
         take: options.limit,
-        orderBy: { createdAt: 'desc' }
+        orderBy: { created_at: 'desc' }
       }),
       this.prisma.consultation.count({ where })
     ]);
@@ -82,7 +82,7 @@ export class PrismaConsultationRepository implements IConsultationRepository {
 
   async findByUserId(userId: number): Promise<Consultation[]> {
     const consultations = await this.prisma.consultation.findMany({
-      where: { userId },
+      where: { user_id: userId },
       orderBy: { createdAt: 'desc' }
     });
 
@@ -102,27 +102,35 @@ export class PrismaConsultationRepository implements IConsultationRepository {
     });
   }
 
+  async findAll(): Promise<Consultation[]> {
+    const consultations = await this.prisma.consultation.findMany({
+      orderBy: { created_at: 'desc' }
+    });
+
+    return consultations.map(this.mapToEntity);
+  }
+
   private mapToEntity(prismaConsultation: any): Consultation {
     return new Consultation(
       prismaConsultation.id,
-      prismaConsultation.userId,
+      prismaConsultation.user_id,
       prismaConsultation.name,
       prismaConsultation.phone,
       prismaConsultation.email,
-      prismaConsultation.churchName,
+      prismaConsultation.church_name,
       prismaConsultation.position,
-      prismaConsultation.consultationType,
-      prismaConsultation.preferredDate,
-      prismaConsultation.preferredTime,
+      prismaConsultation.consultation_type,
+      prismaConsultation.preferred_date,
+      prismaConsultation.preferred_time,
       prismaConsultation.title,
       prismaConsultation.content,
       prismaConsultation.status as ConsultationStatus,
-      prismaConsultation.assignedTo,
-      prismaConsultation.consultationDate,
-      prismaConsultation.consultationNotes,
-      prismaConsultation.privacyAgree,
-      prismaConsultation.createdAt,
-      prismaConsultation.updatedAt
+      prismaConsultation.assigned_to,
+      prismaConsultation.consultation_date,
+      prismaConsultation.consultation_notes,
+      prismaConsultation.privacy_agree,
+      prismaConsultation.created_at,
+      prismaConsultation.updated_at
     );
   }
 }

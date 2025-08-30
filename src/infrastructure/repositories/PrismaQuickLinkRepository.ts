@@ -9,12 +9,12 @@ export class PrismaQuickLinkRepository implements IQuickLinkRepository {
       prismaQuickLink.id,
       prismaQuickLink.title,
       prismaQuickLink.icon,
-      prismaQuickLink.linkUrl,
+      prismaQuickLink.link_url,
       prismaQuickLink.description,
-      prismaQuickLink.sortOrder,
-      prismaQuickLink.isActive,
-      prismaQuickLink.createdAt || new Date(),
-      prismaQuickLink.updatedAt || new Date()
+      prismaQuickLink.sort_order,
+      prismaQuickLink.is_active,
+      prismaQuickLink.created_at || new Date(),
+      prismaQuickLink.updated_at || new Date()
     );
   }
 
@@ -28,10 +28,22 @@ export class PrismaQuickLinkRepository implements IQuickLinkRepository {
 
   async findAll(onlyActive: boolean = true): Promise<QuickLink[]> {
     const quickLinks = await prisma.quickLink.findMany({
-      where: onlyActive ? { isActive: true } : undefined,
+      where: onlyActive ? { is_active: true } : undefined,
       orderBy: [
-        { sortOrder: 'asc' },
-        { createdAt: 'desc' }
+        { sort_order: 'asc' },
+        { created_at: 'desc' }
+      ]
+    });
+
+    return quickLinks.map(quickLink => this.toDomain(quickLink));
+  }
+
+  async findActive(): Promise<QuickLink[]> {
+    const quickLinks = await prisma.quickLink.findMany({
+      where: { is_active: true },
+      orderBy: [
+        { sort_order: 'asc' },
+        { created_at: 'desc' }
       ]
     });
 
@@ -43,10 +55,10 @@ export class PrismaQuickLinkRepository implements IQuickLinkRepository {
       data: {
         title: quickLink.title,
         icon: quickLink.icon,
-        linkUrl: quickLink.linkUrl,
+        link_url: quickLink.linkUrl,
         description: quickLink.description,
-        sortOrder: quickLink.sortOrder,
-        isActive: quickLink.isActive
+        sort_order: quickLink.sortOrder,
+        is_active: quickLink.isActive
       }
     });
 
@@ -59,10 +71,10 @@ export class PrismaQuickLinkRepository implements IQuickLinkRepository {
       data: {
         title: quickLink.title,
         icon: quickLink.icon,
-        linkUrl: quickLink.linkUrl,
+        link_url: quickLink.linkUrl,
         description: quickLink.description,
-        sortOrder: quickLink.sortOrder,
-        isActive: quickLink.isActive
+        sort_order: quickLink.sortOrder,
+        is_active: quickLink.isActive
       }
     });
   }

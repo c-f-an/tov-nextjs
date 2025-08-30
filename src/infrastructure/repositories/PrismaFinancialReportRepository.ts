@@ -8,23 +8,23 @@ export class PrismaFinancialReportRepository implements IFinancialReportReposito
   async findAll(): Promise<FinancialReport[]> {
     const reports = await prisma.financialReport.findMany({
       orderBy: [
-        { reportYear: 'desc' },
-        { reportMonth: 'desc' }
+        { report_year: 'desc' },
+        { report_month: 'desc' }
       ]
     });
 
     return reports.map(report => new FinancialReport(
       report.id,
-      report.reportYear,
-      report.reportMonth,
+      report.report_year,
+      report.report_month,
       report.title,
       report.content,
-      report.totalIncome ? Number(report.totalIncome) : null,
-      report.totalExpense ? Number(report.totalExpense) : null,
+      report.total_income ? Number(report.total_income) : null,
+      report.total_expense ? Number(report.total_expense) : null,
       report.balance ? Number(report.balance) : null,
-      report.publishedAt,
-      report.createdAt,
-      report.updatedAt
+      report.published_at,
+      report.created_at,
+      report.updated_at
     ));
   }
 
@@ -37,45 +37,45 @@ export class PrismaFinancialReportRepository implements IFinancialReportReposito
 
     return new FinancialReport(
       report.id,
-      report.reportYear,
-      report.reportMonth,
+      report.report_year,
+      report.report_month,
       report.title,
       report.content,
-      report.totalIncome ? Number(report.totalIncome) : null,
-      report.totalExpense ? Number(report.totalExpense) : null,
+      report.total_income ? Number(report.total_income) : null,
+      report.total_expense ? Number(report.total_expense) : null,
       report.balance ? Number(report.balance) : null,
-      report.publishedAt,
-      report.createdAt,
-      report.updatedAt
+      report.published_at,
+      report.created_at,
+      report.updated_at
     );
   }
 
   async findByYear(year: number): Promise<FinancialReport[]> {
     const reports = await prisma.financialReport.findMany({
-      where: { reportYear: year },
-      orderBy: { reportMonth: 'desc' }
+      where: { report_year: year },
+      orderBy: { report_month: 'desc' }
     });
 
     return reports.map(report => new FinancialReport(
       report.id,
-      report.reportYear,
-      report.reportMonth,
+      report.report_year,
+      report.report_month,
       report.title,
       report.content,
-      report.totalIncome ? Number(report.totalIncome) : null,
-      report.totalExpense ? Number(report.totalExpense) : null,
+      report.total_income ? Number(report.total_income) : null,
+      report.total_expense ? Number(report.total_expense) : null,
       report.balance ? Number(report.balance) : null,
-      report.publishedAt,
-      report.createdAt,
-      report.updatedAt
+      report.published_at,
+      report.created_at,
+      report.updated_at
     ));
   }
 
   async findByYearMonth(year: number, month: number): Promise<FinancialReport | null> {
     const report = await prisma.financialReport.findFirst({
       where: { 
-        reportYear: year,
-        reportMonth: month
+        report_year: year,
+        report_month: month
       }
     });
 
@@ -83,29 +83,29 @@ export class PrismaFinancialReportRepository implements IFinancialReportReposito
 
     return new FinancialReport(
       report.id,
-      report.reportYear,
-      report.reportMonth,
+      report.report_year,
+      report.report_month,
       report.title,
       report.content,
-      report.totalIncome ? Number(report.totalIncome) : null,
-      report.totalExpense ? Number(report.totalExpense) : null,
+      report.total_income ? Number(report.total_income) : null,
+      report.total_expense ? Number(report.total_expense) : null,
       report.balance ? Number(report.balance) : null,
-      report.publishedAt,
-      report.createdAt,
-      report.updatedAt
+      report.published_at,
+      report.created_at,
+      report.updated_at
     );
   }
 
   async findLatest(): Promise<FinancialReport | null> {
     const report = await prisma.financialReport.findFirst({
       where: {
-        publishedAt: {
+        published_at: {
           not: null
         }
       },
       orderBy: [
-        { reportYear: 'desc' },
-        { reportMonth: 'desc' }
+        { report_year: 'desc' },
+        { report_month: 'desc' }
       ]
     });
 
@@ -113,29 +113,29 @@ export class PrismaFinancialReportRepository implements IFinancialReportReposito
 
     return new FinancialReport(
       report.id,
-      report.reportYear,
-      report.reportMonth,
+      report.report_year,
+      report.report_month,
       report.title,
       report.content,
-      report.totalIncome ? Number(report.totalIncome) : null,
-      report.totalExpense ? Number(report.totalExpense) : null,
+      report.total_income ? Number(report.total_income) : null,
+      report.total_expense ? Number(report.total_expense) : null,
       report.balance ? Number(report.balance) : null,
-      report.publishedAt,
-      report.createdAt,
-      report.updatedAt
+      report.published_at,
+      report.created_at,
+      report.updated_at
     );
   }
 
   async save(financialReport: FinancialReport): Promise<FinancialReport> {
     const data = {
-      reportYear: financialReport.reportYear,
-      reportMonth: financialReport.reportMonth,
+      report_year: financialReport.report_year,
+      report_month: financialReport.report_month,
       title: financialReport.title,
       content: financialReport.content,
-      totalIncome: financialReport.totalIncome,
-      totalExpense: financialReport.totalExpense,
+      total_income: financialReport.total_income,
+      total_expense: financialReport.total_expense,
       balance: financialReport.balance,
-      publishedAt: financialReport.publishedAt
+      published_at: financialReport.published_at
     };
 
     const savedReport = financialReport.id
@@ -149,16 +149,16 @@ export class PrismaFinancialReportRepository implements IFinancialReportReposito
 
     return new FinancialReport(
       savedReport.id,
-      savedReport.reportYear,
-      savedReport.reportMonth,
+      savedReport.report_year,
+      savedReport.report_month,
       savedReport.title,
       savedReport.content,
-      savedReport.totalIncome ? Number(savedReport.totalIncome) : null,
-      savedReport.totalExpense ? Number(savedReport.totalExpense) : null,
+      savedReport.total_income ? Number(savedReport.total_income) : null,
+      savedReport.total_expense ? Number(savedReport.total_expense) : null,
       savedReport.balance ? Number(savedReport.balance) : null,
-      savedReport.publishedAt,
-      savedReport.createdAt,
-      savedReport.updatedAt
+      savedReport.published_at,
+      savedReport.created_at,
+      savedReport.updated_at
     );
   }
 

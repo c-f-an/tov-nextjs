@@ -24,7 +24,11 @@ export class PrismaPostRepository implements IPostRepository {
       status: post.status as string,
       view_count: post.viewCount,
       is_notice: post.isNotice,
-      attachmentUrls: post.attachmentUrls
+      slug: post.slug,
+      excerpt: post.excerpt,
+      featured_image: post.featuredImage,
+      is_featured: post.isFeatured,
+      published_at: post.publishedAt
     };
 
     const saved = post.id
@@ -109,11 +113,15 @@ export class PrismaPostRepository implements IPostRepository {
       categoryId: prismaPost.category_id,
       userId: prismaPost.user_id,
       title: prismaPost.title,
+      slug: prismaPost.slug,
       content: prismaPost.content,
+      excerpt: prismaPost.excerpt,
+      featuredImage: prismaPost.featured_image,
       status: prismaPost.status as PostStatus,
-      viewCount: prismaPost.view_count,
       isNotice: prismaPost.is_notice,
-      attachmentUrls: prismaPost.attachmentUrls,
+      isFeatured: prismaPost.is_featured,
+      viewCount: prismaPost.view_count,
+      publishedAt: prismaPost.published_at,
       createdAt: prismaPost.created_at,
       updatedAt: prismaPost.updated_at
     });

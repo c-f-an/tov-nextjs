@@ -10,15 +10,15 @@ export class PrismaMainBannerRepository implements IMainBannerRepository {
       prismaBanner.title,
       prismaBanner.subtitle,
       prismaBanner.description,
-      prismaBanner.imagePath,
-      prismaBanner.linkUrl,
-      prismaBanner.linkTarget as LinkTarget,
-      prismaBanner.sortOrder,
-      prismaBanner.isActive,
-      prismaBanner.startDate,
-      prismaBanner.endDate,
-      prismaBanner.createdAt || new Date(),
-      prismaBanner.updatedAt || new Date()
+      prismaBanner.image_path,
+      prismaBanner.link_url,
+      prismaBanner.link_target as LinkTarget,
+      prismaBanner.sort_order,
+      prismaBanner.is_active,
+      prismaBanner.start_date,
+      prismaBanner.end_date,
+      prismaBanner.created_at || new Date(),
+      prismaBanner.updated_at || new Date()
     );
   }
 
@@ -32,10 +32,10 @@ export class PrismaMainBannerRepository implements IMainBannerRepository {
 
   async findAll(onlyActive: boolean = true): Promise<MainBanner[]> {
     const banners = await prisma.mainBanner.findMany({
-      where: onlyActive ? { isActive: true } : undefined,
+      where: onlyActive ? { is_active: true } : undefined,
       orderBy: [
-        { sortOrder: 'asc' },
-        { createdAt: 'desc' }
+        { sort_order: 'asc' },
+        { created_at: 'desc' }
       ]
     });
 
@@ -47,17 +47,17 @@ export class PrismaMainBannerRepository implements IMainBannerRepository {
     
     const banners = await prisma.mainBanner.findMany({
       where: {
-        isActive: true,
+        is_active: true,
         OR: [
-          { startDate: null, endDate: null },
-          { startDate: { lte: now }, endDate: null },
-          { startDate: null, endDate: { gte: now } },
-          { startDate: { lte: now }, endDate: { gte: now } }
+          { start_date: null, end_date: null },
+          { start_date: { lte: now }, end_date: null },
+          { start_date: null, end_date: { gte: now } },
+          { start_date: { lte: now }, end_date: { gte: now } }
         ]
       },
       orderBy: [
-        { sortOrder: 'asc' },
-        { createdAt: 'desc' }
+        { sort_order: 'asc' },
+        { created_at: 'desc' }
       ]
     });
 
@@ -70,13 +70,13 @@ export class PrismaMainBannerRepository implements IMainBannerRepository {
         title: banner.title,
         subtitle: banner.subtitle,
         description: banner.description,
-        imagePath: banner.imagePath,
-        linkUrl: banner.linkUrl,
-        linkTarget: banner.linkTarget as PrismaLinkTarget,
-        sortOrder: banner.sortOrder,
-        isActive: banner.isActive,
-        startDate: banner.startDate,
-        endDate: banner.endDate
+        image_path: banner.imagePath,
+        link_url: banner.linkUrl,
+        link_target: banner.linkTarget as PrismaLinkTarget,
+        sort_order: banner.sortOrder,
+        is_active: banner.isActive,
+        start_date: banner.startDate,
+        end_date: banner.endDate
       }
     });
 
@@ -90,13 +90,13 @@ export class PrismaMainBannerRepository implements IMainBannerRepository {
         title: banner.title,
         subtitle: banner.subtitle,
         description: banner.description,
-        imagePath: banner.imagePath,
-        linkUrl: banner.linkUrl,
-        linkTarget: banner.linkTarget as PrismaLinkTarget,
-        sortOrder: banner.sortOrder,
-        isActive: banner.isActive,
-        startDate: banner.startDate,
-        endDate: banner.endDate
+        image_path: banner.imagePath,
+        link_url: banner.linkUrl,
+        link_target: banner.linkTarget as PrismaLinkTarget,
+        sort_order: banner.sortOrder,
+        is_active: banner.isActive,
+        start_date: banner.startDate,
+        end_date: banner.endDate
       }
     });
   }
