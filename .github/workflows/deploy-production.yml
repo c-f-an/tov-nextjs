@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
       - name: Build Next.js application
         run: npm run build
         env:
@@ -111,6 +114,7 @@ jobs:
           mkdir -p deploy-package
           cp -r .next deploy-package/
           cp -r public deploy-package/ 2>/dev/null || echo "No public directory"
+          cp -r prisma deploy-package/ 2>/dev/null || echo "No prisma directory"
           cp package.json deploy-package/
           cp package-lock.json deploy-package/
           cp server.js deploy-package/
@@ -193,6 +197,9 @@ jobs:
 
           # npm 설치
           npm ci --only=production
+          
+          # Prisma 클라이언트 생성
+          npx prisma generate
 
           # systemd 서비스 파일 생성
           sudo tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null << SERVICECONFIG
