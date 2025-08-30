@@ -90,6 +90,8 @@ export default function MyPage() {
   const router = useRouter();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<Partial<UserProfile>>({});
 
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   useEffect(() => {
@@ -112,6 +114,7 @@ export default function MyPage() {
           if (response.ok) {
             const data = await response.json();
             setUserProfile(data.profile);
+            setEditForm(data.profile || {});
           }
         } catch (error) {
           console.error('Failed to fetch user profile:', error);
@@ -129,6 +132,45 @@ export default function MyPage() {
   const handleLogout = async () => {
     await logout();
     router.push("/");
+  };
+
+  const handleEditToggle = () => {
+    if (isEditing) {
+      // 취소 시 원래 데이터로 복원
+      setEditForm(userProfile || {});
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const handleInputChange = (field: keyof UserProfile, value: any) => {
+    setEditForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveProfile = async () => {
+    if (!accessToken) return;
+
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(editForm)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUserProfile(data.profile);
+        setIsEditing(false);
+        alert('프로필이 성공적으로 업데이트되었습니다.');
+      } else {
+        alert('프로필 업데이트에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      alert('프로필 업데이트 중 오류가 발생했습니다.');
+    }
   };
 
   if (loading || !user) {
@@ -200,89 +242,113 @@ export default function MyPage() {
                 <CardTitle>내 정보</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
+                {profileLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                    <p className="text-gray-600">프로필 정보를 불러오는 중...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          이름
+                        </label>
+                        <input
+                          type="text"
+                          value={user?.name || ""}
+                          className="w-full px-3 py-2 border rounded-lg bg-gray-100"
+                          readOnly
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          이메일
+                        </label>
+                        <input
+                          type="email"
+                          value={user?.email || ""}
+                          className="w-full px-3 py-2 border rounded-lg bg-gray-100"
+                          readOnly
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          교회명
+                        </label>
+                        <input
+                          type="text"
+                          value={isEditing ? editForm.churchName || "" : userProfile?.churchName || ""}
+                          onChange={(e) => handleInputChange('churchName', e.target.value)}
+                          className={`w-full px-3 py-2 border rounded-lg ${isEditing ? '' : 'bg-gray-100'}`}
+                          readOnly={!isEditing}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          직분
+                        </label>
+                        <input
+                          type="text"
+                          value={isEditing ? editForm.position || "" : userProfile?.position || ""}
+                          onChange={(e) => handleInputChange('position', e.target.value)}
+                          className={`w-full px-3 py-2 border rounded-lg ${isEditing ? '' : 'bg-gray-100'}`}
+                          readOnly={!isEditing}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          교단
+                        </label>
+                        <input
+                          type="text"
+                          value={isEditing ? editForm.denomination || "" : userProfile?.denomination || ""}
+                          onChange={(e) => handleInputChange('denomination', e.target.value)}
+                          className={`w-full px-3 py-2 border rounded-lg ${isEditing ? '' : 'bg-gray-100'}`}
+                          readOnly={!isEditing}
+                        />
+                      </div>
+                    </div>
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        이름
+                        주소
                       </label>
                       <input
                         type="text"
-                        value={user?.name || ""}
-                        className="w-full px-3 py-2 border rounded-lg"
-                        readOnly
+                        value={isEditing ? editForm.address || "" : userProfile?.address || ""}
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg mb-2 ${isEditing ? '' : 'bg-gray-100'}`}
+                        readOnly={!isEditing}
+                        placeholder="주소"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        이메일
-                      </label>
-                      <input
-                        type="email"
-                        value={user?.email || ""}
-                        className="w-full px-3 py-2 border rounded-lg"
-                        readOnly
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        휴대폰
-                      </label>
-                      <input
-                        type="tel"
-                        value=""
-                        className="w-full px-3 py-2 border rounded-lg"
-                        readOnly
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        교회명
-                      </label>
-                      <input
-                        type="text"
-                        value={userProfile?.churchName || ""}
-                        className="w-full px-3 py-2 border rounded-lg"
-                        readOnly
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        직분
-                      </label>
-                      <input
-                        type="text"
-                        value={userProfile?.position || ""}
-                        className="w-full px-3 py-2 border rounded-lg"
-                        readOnly
-                      />
+                    <div className="flex justify-end gap-2">
+                      {isEditing ? (
+                        <>
+                          <button 
+                            onClick={handleEditToggle}
+                            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+                          >
+                            취소
+                          </button>
+                          <button 
+                            onClick={handleSaveProfile}
+                            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+                          >
+                            저장
+                          </button>
+                        </>
+                      ) : (
+                        <button 
+                          onClick={handleEditToggle}
+                          className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+                        >
+                          정보 수정
+                        </button>
+                      )}
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      주소
-                    </label>
-                    <input
-                      type="text"
-                      value={userProfile?.address || ""}
-                      className="w-full px-3 py-2 border rounded-lg mb-2"
-                      readOnly
-                      placeholder="기본 주소"
-                    />
-                    <input
-                      type="text"
-                      value=""
-                      className="w-full px-3 py-2 border rounded-lg"
-                      readOnly
-                      placeholder="상세 주소"
-                    />
-                  </div>
-                  <div className="flex justify-end">
-                    <button className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">
-                      정보 수정
-                    </button>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           )}
