@@ -185,19 +185,19 @@ jobs:
           cd $APP_DIR/current
 
           # 환경변수 파일 생성
-          cat > .env << ENVFILE
+          cat > .env << 'ENVFILE'
           NODE_ENV=production
           PORT=3000
-          DATABASE_URL="${{ secrets.DATABASE_URL }}"
-          JWT_ACCESS_SECRET="${{ secrets.JWT_ACCESS_SECRET }}"
-          JWT_REFRESH_SECRET="${{ secrets.JWT_REFRESH_SECRET }}"
-          NEXT_PUBLIC_APP_URL="https://tov.ptax.kr"
-          NEXT_PUBLIC_API_URL="https://tov.ptax.kr/api"
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+          NEXT_PUBLIC_APP_URL=https://tov.ptax.kr
+          NEXT_PUBLIC_API_URL=https://tov.ptax.kr/api
           ENVFILE
 
           # npm 설치
           npm ci --only=production
-          
+
           # Prisma 클라이언트 생성
           npx prisma generate
 
