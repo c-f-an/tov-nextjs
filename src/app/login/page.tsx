@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useAuth } from '@/presentation/contexts/AuthContext';
+import { useState } from "react";
+import Link from "next/link";
+import { useAuth } from "@/presentation/contexts/AuthContext";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       await login(email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setLoading(false);
     }
@@ -32,8 +32,11 @@ export default function LoginPage() {
           로그인
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          계정이 없으신가요?{' '}
-          <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+          계정이 없으신가요?{" "}
+          <Link
+            href="/register"
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
             회원가입
           </Link>
         </p>
@@ -49,7 +52,10 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 이메일
               </label>
               <div className="mt-1">
@@ -67,7 +73,10 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 비밀번호
               </label>
               <div className="mt-1">
@@ -92,13 +101,19 @@ export default function LoginPage() {
                   type="checkbox"
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                <label
+                  htmlFor="remember-me"
+                  className="ml-2 block text-sm text-gray-900"
+                >
                   로그인 상태 유지
                 </label>
               </div>
 
               <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link
+                  href="/forgot-password"
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                >
                   비밀번호 찾기
                 </Link>
               </div>
@@ -110,7 +125,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? '로그인 중...' : '로그인'}
+                {loading ? "로그인 중..." : "로그인"}
               </button>
             </div>
           </form>
@@ -125,14 +140,14 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
+            {/* <div className="mt-6 grid grid-cols-2 gap-3">
               <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                 Google
               </button>
               <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                 Naver
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
