@@ -3,13 +3,7 @@ import { QuickLinks } from '@/presentation/components/home/QuickLinks';
 import { LatestNews } from '@/presentation/components/home/LatestNews';
 import { ConsultationBanner } from '@/presentation/components/home/ConsultationBanner';
 import { FinancialReport } from '@/presentation/components/home/FinancialReport';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { GetMainBannersUseCase } from '@/core/application/use-cases/main-banner/GetMainBannersUseCase';
-import { GetPostsUseCase } from '@/core/application/use-cases/post/GetPostsUseCase';
-import { GetCategoriesUseCase } from '@/core/application/use-cases/category/GetCategoriesUseCase';
-import { GetQuickLinksUseCase } from '@/core/application/use-cases/quick-link/GetQuickLinksUseCase';
-import { GetConsultationStatsUseCase } from '@/core/application/use-cases/consultation/GetConsultationStatsUseCase';
-import { GetLatestFinancialReportUseCase } from '@/core/application/use-cases/financial-report/GetLatestFinancialReportUseCase';
+import { getContainer } from '@/infrastructure/config/getContainer';
 
 export default async function Home() {
   let banners = [];
@@ -23,12 +17,13 @@ export default async function Home() {
   // Skip database queries during build
   if (process.env.SKIP_DB_QUERIES !== 'true') {
     // Fetch main banners from database
-    const getMainBannersUseCase = container.resolve(GetMainBannersUseCase);
+    const container = getContainer();
+    const getMainBannersUseCase = container.getGetMainBannersUseCase();
     const bannersResult = await getMainBannersUseCase.execute({ activeOnly: true });
     banners = bannersResult.ok ? bannersResult.value : [];
 
     // Fetch categories
-    const getCategoriesUseCase = container.resolve(GetCategoriesUseCase);
+    const getCategoriesUseCase = container.getGetCategoriesUseCase();
     const categoriesResult = await getCategoriesUseCase.execute();
     categories = categoriesResult.isSuccess ? categoriesResult.value : [];
 
@@ -37,7 +32,7 @@ export default async function Home() {
     const newsCategory = categories.find(cat => cat.slug === 'news');
 
     // Fetch latest posts
-    const getPostsUseCase = container.resolve(GetPostsUseCase);
+    const getPostsUseCase = container.getGetPostsUseCase();
     
     // Fetch latest notices
     const noticesResult = noticeCategory ? await getPostsUseCase.execute({
@@ -58,17 +53,17 @@ export default async function Home() {
     news = newsResult?.isSuccess ? newsResult.value.posts : [];
 
     // Fetch quick links
-    const getQuickLinksUseCase = container.resolve(GetQuickLinksUseCase);
+    const getQuickLinksUseCase = container.getGetQuickLinksUseCase();
     const quickLinksResult = await getQuickLinksUseCase.execute({ activeOnly: true });
     quickLinks = quickLinksResult.ok ? quickLinksResult.value : [];
 
     // Fetch consultation stats
-    const getConsultationStatsUseCase = container.resolve(GetConsultationStatsUseCase);
+    const getConsultationStatsUseCase = container.getGetConsultationStatsUseCase();
     const statsResult = await getConsultationStatsUseCase.execute();
     consultationStats = statsResult.ok ? statsResult.value : null;
 
     // Fetch latest financial report
-    const getLatestFinancialReportUseCase = container.resolve(GetLatestFinancialReportUseCase);
+    const getLatestFinancialReportUseCase = container.getGetLatestFinancialReportUseCase();
     const reportResult = await getLatestFinancialReportUseCase.execute();
     financialReport = reportResult.ok ? reportResult.value : null;
   }

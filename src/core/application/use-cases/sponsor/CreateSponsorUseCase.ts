@@ -1,8 +1,6 @@
-import { inject, injectable } from 'tsyringe';
 import { Sponsor, SponsorType, SponsorStatus } from '@/core/domain/entities/Sponsor';
 import type { ISponsorRepository } from '@/core/domain/repositories/ISponsorRepository';
 import { SponsorDto } from '../../dtos/SponsorDto';
-
 interface CreateSponsorRequest {
   userId?: number;
   sponsorType: SponsorType;
@@ -15,19 +13,14 @@ interface CreateSponsorRequest {
   receiptRequired?: boolean;
   privacyAgree: boolean;
 }
-
-@injectable()
 export class CreateSponsorUseCase {
   constructor(
-    @inject('ISponsorRepository')
     private sponsorRepository: ISponsorRepository
   ) {}
-
   async execute(request: CreateSponsorRequest): Promise<SponsorDto> {
     if (!request.privacyAgree) {
       throw new Error('Privacy agreement is required');
     }
-
     const sponsor = new Sponsor(
       0, // Will be assigned by database
       request.userId || null,
@@ -44,9 +37,7 @@ export class CreateSponsorUseCase {
       new Date(),
       new Date()
     );
-
     const savedSponsor = await this.sponsorRepository.save(sponsor);
-
     return SponsorDto.fromEntity(savedSponsor);
   }
 }

@@ -1,5 +1,6 @@
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
+
 import { IAttachmentRepository } from '@/core/domain/repositories/IAttachmentRepository';
 import { readFile } from 'fs/promises';
 import path from 'path';
@@ -18,7 +19,8 @@ export async function GET(
       );
     }
 
-    const attachmentRepository = container.resolve<IAttachmentRepository>('IAttachmentRepository');
+    const container = getContainer();
+    const attachmentRepository = container.getAttachmentRepository();
     const attachment = await attachmentRepository.findById(attachmentId);
 
     if (!attachment) {

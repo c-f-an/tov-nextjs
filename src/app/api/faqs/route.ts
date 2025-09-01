@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { IFAQRepository } from '@/core/domain/repositories/IFAQRepository';
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { FAQ } from '@/core/domain/entities/FAQ';
-import { IAuthService } from '@/core/domain/services/IAuthService';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,7 +9,8 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const includeInactive = searchParams.get('includeInactive') === 'true';
 
-    const faqRepository = container.resolve<IFAQRepository>('IFAQRepository');
+    const container = getContainer();
+    const faqRepository = container.getFAQRepository();
 
     let faqs: FAQ[];
     
@@ -61,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload) {
@@ -77,7 +76,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const faqRepository = container.resolve<IFAQRepository>('IFAQRepository');
+    const faqRepository = container.getFAQRepository();
     
     const newFaq = FAQ.create({
       category: body.category,

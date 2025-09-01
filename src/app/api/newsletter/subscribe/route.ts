@@ -1,5 +1,6 @@
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
+
 import { INewsletterSubscriberRepository } from '@/core/domain/repositories/INewsletterSubscriberRepository';
 import { NewsletterSubscriber } from '@/core/domain/entities/NewsletterSubscriber';
 
@@ -23,7 +24,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const subscriberRepository = container.resolve<INewsletterSubscriberRepository>('INewsletterSubscriberRepository');
+    const container = getContainer();
+    const subscriberRepository = container.getNewsletterSubscriberRepository();
     
     // Check if already subscribed
     const existingSubscriber = await subscriberRepository.findByEmail(body.email);

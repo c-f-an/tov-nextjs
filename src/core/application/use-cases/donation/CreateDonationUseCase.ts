@@ -1,8 +1,6 @@
-import { inject, injectable } from 'tsyringe';
 import { Donation, DonationType } from '@/core/domain/entities/DonationNew';
 import type { IDonationRepository } from '@/core/domain/repositories/IDonationRepository';
 import { DonationDto } from '../../dtos/DonationDto';
-
 interface CreateDonationRequest {
   sponsorId: number;
   donationType: DonationType;
@@ -13,14 +11,10 @@ interface CreateDonationRequest {
   purpose?: string;
   memo?: string;
 }
-
-@injectable()
 export class CreateDonationUseCase {
   constructor(
-    @inject('IDonationRepository')
     private donationRepository: IDonationRepository
   ) {}
-
   async execute(request: CreateDonationRequest): Promise<DonationDto> {
     const donation = new Donation(
       0, // Will be assigned by database
@@ -35,9 +29,7 @@ export class CreateDonationUseCase {
       new Date(),
       new Date()
     );
-
     const savedDonation = await this.donationRepository.save(donation);
-
     return DonationDto.fromEntity(savedDonation);
   }
 }

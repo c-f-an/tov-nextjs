@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { GetCategoriesUseCase } from '@/core/application/use-cases/category/GetCategoriesUseCase';
-import { CreateCategoryUseCase } from '@/core/application/use-cases/category/CreateCategoryUseCase';
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { withAuth } from '@/presentation/middleware/authMiddleware';
 
 export async function GET(request: NextRequest) {
@@ -11,7 +9,8 @@ export async function GET(request: NextRequest) {
     const withHierarchy = searchParams.get('withHierarchy') === 'true';
     const slug = searchParams.get('slug');
 
-    const getCategoriesUseCase = container.resolve(GetCategoriesUseCase);
+    const container = getContainer();
+    const getCategoriesUseCase = container.getGetCategoriesUseCase();
     
     let categories = withHierarchy
       ? await getCategoriesUseCase.executeWithHierarchy(includeInactive)
@@ -43,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const createCategoryUseCase = container.resolve(CreateCategoryUseCase);
+    const createCategoryUseCase = container.getCreateCategoryUseCase();
     
     const category = await createCategoryUseCase.execute(body);
 

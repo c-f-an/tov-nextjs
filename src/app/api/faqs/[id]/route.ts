@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { IFAQRepository } from '@/core/domain/repositories/IFAQRepository';
-import { IAuthService } from '@/core/domain/services/IAuthService';
+import { getContainer } from '@/infrastructure/config/getContainer';
 
 export async function GET(
   request: NextRequest,
@@ -17,7 +15,8 @@ export async function GET(
       );
     }
 
-    const faqRepository = container.resolve<IFAQRepository>('IFAQRepository');
+    const container = getContainer();
+    const faqRepository = container.getFAQRepository();
     const faq = await faqRepository.findById(faqId);
 
     if (!faq) {
@@ -65,7 +64,7 @@ export async function PUT(
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload) {
@@ -82,7 +81,8 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const faqRepository = container.resolve<IFAQRepository>('IFAQRepository');
+    const container = getContainer();
+    const faqRepository = container.getFAQRepository();
     const faq = await faqRepository.findById(faqId);
 
     if (!faq) {
@@ -147,7 +147,7 @@ export async function DELETE(
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload) {
@@ -163,7 +163,8 @@ export async function DELETE(
       );
     }
 
-    const faqRepository = container.resolve<IFAQRepository>('IFAQRepository');
+    const container = getContainer();
+    const faqRepository = container.getFAQRepository();
     const faq = await faqRepository.findById(faqId);
 
     if (!faq) {

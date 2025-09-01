@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { GetConsultationsUseCase } from '@/core/application/use-cases/consultation/GetConsultationsUseCase';
-import { CreateConsultationUseCase } from '@/core/application/use-cases/consultation/CreateConsultationUseCase';
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { withAuth } from '@/presentation/middleware/authMiddleware';
 
 export async function GET(request: NextRequest) {
@@ -12,7 +10,8 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const status = searchParams.get('status');
 
-    const getConsultationsUseCase = container.resolve(GetConsultationsUseCase);
+    const container = getContainer();
+    const getConsultationsUseCase = container.getGetConsultationsUseCase();
     
     const result = await getConsultationsUseCase.execute({
       userId: user?.id,
@@ -47,7 +46,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const createConsultationUseCase = container.resolve(CreateConsultationUseCase);
+    const createConsultationUseCase = container.getCreateConsultationUseCase();
     
     const consultation = await createConsultationUseCase.execute({
       ...body,

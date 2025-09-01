@@ -1,5 +1,6 @@
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
+
 import { IAuthService } from '@/core/domain/services/IAuthService';
 import { FileUploadService } from '@/infrastructure/services/FileUploadService';
 import { IAttachmentRepository } from '@/core/domain/repositories/IAttachmentRepository';
@@ -14,7 +15,8 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const container = getContainer();
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload) {
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Determine upload options based on file type
-    const fileUploadService = container.resolve<FileUploadService>('FileUploadService');
+    const fileUploadService = container.getFileUploadService();
     const isImage = file.type.startsWith('image/');
     
     const uploadOptions = {
@@ -55,7 +57,7 @@ export async function POST(request: NextRequest) {
     // Save attachment record if attachable info provided
     let attachment = null;
     if (attachableType && attachableId) {
-      const attachmentRepository = container.resolve<IAttachmentRepository>('IAttachmentRepository');
+      const attachmentRepository = container.getAttachmentRepository();
       
       const newAttachment = Attachment.create({
         attachableType,
@@ -104,7 +106,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload) {
@@ -122,11 +124,11 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const fileUploadService = container.resolve<FileUploadService>('FileUploadService');
+    const fileUploadService = container.getFileUploadService();
 
     // If attachment ID provided, delete from database and file system
     if (attachmentId) {
-      const attachmentRepository = container.resolve<IAttachmentRepository>('IAttachmentRepository');
+      const attachmentRepository = container.getAttachmentRepository();
       const attachment = await attachmentRepository.findById(parseInt(attachmentId));
       
       if (!attachment) {

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { GetPostUseCase } from '@/core/application/use-cases/post/GetPostUseCase';
+import { getContainer } from '@/infrastructure/config/getContainer';
 
 export async function GET(
   request: NextRequest,
@@ -16,7 +15,8 @@ export async function GET(
       );
     }
 
-    const getPostUseCase = container.resolve(GetPostUseCase);
+    const container = getContainer();
+    const getPostUseCase = container.getGetPostUseCase();
     const post = await getPostUseCase.execute(postId);
 
     if (!post) {

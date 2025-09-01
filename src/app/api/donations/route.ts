@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { GetDonationsUseCase } from '@/core/application/use-cases/donation/GetDonationsUseCase';
-import { CreateDonationUseCase } from '@/core/application/use-cases/donation/CreateDonationUseCase';
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { withAuth } from '@/presentation/middleware/authMiddleware';
 
 export async function GET(request: NextRequest) {
@@ -13,7 +11,8 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
-    const getDonationsUseCase = container.resolve(GetDonationsUseCase);
+    const container = getContainer();
+    const getDonationsUseCase = container.getGetDonationsUseCase();
     
     const result = await getDonationsUseCase.execute({
       sponsorId: sponsorId ? parseInt(sponsorId) : undefined,
@@ -48,7 +47,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const createDonationUseCase = container.resolve(CreateDonationUseCase);
+    const createDonationUseCase = container.getCreateDonationUseCase();
     
     const donation = await createDonationUseCase.execute({
       ...body,

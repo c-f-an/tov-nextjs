@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { GetConsultationUseCase } from '@/core/application/use-cases/consultation/GetConsultationUseCase';
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { withAuth } from '@/presentation/middleware/authMiddleware';
 
 export async function GET(
@@ -18,7 +17,8 @@ export async function GET(
       );
     }
 
-    const getConsultationUseCase = container.resolve(GetConsultationUseCase);
+    const container = getContainer();
+    const getConsultationUseCase = container.getGetConsultationUseCase();
     const consultation = await getConsultationUseCase.execute(consultationId, user?.id);
 
     if (!consultation) {

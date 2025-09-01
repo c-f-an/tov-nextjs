@@ -2,9 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { PostList } from '@/presentation/components/board/PostList';
 import { Pagination } from '@/presentation/components/board/Pagination';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { GetPostsUseCase } from '@/core/application/use-cases/post/GetPostsUseCase';
-import { GetCategoriesUseCase } from '@/core/application/use-cases/category/GetCategoriesUseCase';
+import { getContainer } from '@/infrastructure/config/getContainer';
 
 // Category slug mapping
 const categoryMapping: Record<string, { name: string; description: string }> = {
@@ -23,7 +21,8 @@ interface BoardPageProps {
 
 async function getCategory(slug: string) {
   try {
-    const getCategoriesUseCase = container.resolve(GetCategoriesUseCase);
+    const container = getContainer();
+    const getCategoriesUseCase = container.getGetCategoriesUseCase();
     const categories = await getCategoriesUseCase.execute();
     return categories.find((cat: any) => cat.slug === slug);
   } catch (error) {
@@ -34,7 +33,8 @@ async function getCategory(slug: string) {
 
 async function getPosts(categoryId: number, page: number) {
   try {
-    const getPostsUseCase = container.resolve(GetPostsUseCase);
+    const container = getContainer();
+    const getPostsUseCase = container.getGetPostsUseCase();
     const result = await getPostsUseCase.execute({
       categoryId,
       page,

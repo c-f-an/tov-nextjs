@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { IQuickLinkRepository } from '@/core/domain/repositories/IQuickLinkRepository';
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { QuickLink } from '@/core/domain/entities/QuickLink';
-import { IAuthService } from '@/core/domain/services/IAuthService';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const includeInactive = searchParams.get('includeInactive') === 'true';
 
-    const quickLinkRepository = container.resolve<IQuickLinkRepository>('IQuickLinkRepository');
+    const container = getContainer();
+    const quickLinkRepository = container.getQuickLinkRepository();
     const quickLinks = await quickLinkRepository.findAll(!includeInactive);
 
     return NextResponse.json({
@@ -42,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload) {
@@ -58,7 +57,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const quickLinkRepository = container.resolve<IQuickLinkRepository>('IQuickLinkRepository');
+    const quickLinkRepository = container.getQuickLinkRepository();
     
     const newQuickLink = QuickLink.create({
       title: body.title,

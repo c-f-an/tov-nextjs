@@ -1,5 +1,6 @@
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
+
 import { IMenuRepository } from '@/core/domain/repositories/IMenuRepository';
 import { IAuthService } from '@/core/domain/services/IAuthService';
 import { MenuType, LinkTarget } from '@/core/domain/entities/Menu';
@@ -18,7 +19,8 @@ export async function GET(
       );
     }
 
-    const menuRepository = container.resolve<IMenuRepository>('IMenuRepository');
+    const container = getContainer();
+    const menuRepository = container.getMenuRepository();
     const menu = await menuRepository.findById(menuId);
 
     if (!menu) {
@@ -74,7 +76,7 @@ export async function PUT(
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload) {
@@ -91,7 +93,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const menuRepository = container.resolve<IMenuRepository>('IMenuRepository');
+    const menuRepository = container.getMenuRepository();
     const menu = await menuRepository.findById(menuId);
 
     if (!menu) {
@@ -162,7 +164,7 @@ export async function DELETE(
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload) {
@@ -178,7 +180,7 @@ export async function DELETE(
       );
     }
 
-    const menuRepository = container.resolve<IMenuRepository>('IMenuRepository');
+    const menuRepository = container.getMenuRepository();
     const menu = await menuRepository.findById(menuId);
 
     if (!menu) {

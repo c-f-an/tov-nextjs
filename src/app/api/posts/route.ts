@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { GetPostsUseCase } from '@/core/application/use-cases/post/GetPostsUseCase';
-import { CreatePostUseCase } from '@/core/application/use-cases/post/CreatePostUseCase';
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { withAuth } from '@/presentation/middleware/authMiddleware';
 
 export async function GET(request: NextRequest) {
@@ -12,7 +10,8 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const includeNotices = searchParams.get('includeNotices') === 'true';
 
-    const getPostsUseCase = container.resolve(GetPostsUseCase);
+    const container = getContainer();
+    const getPostsUseCase = container.getGetPostsUseCase();
     
     const result = await getPostsUseCase.execute({
       categoryId: categoryId ? parseInt(categoryId) : undefined,
@@ -42,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const createPostUseCase = container.resolve(CreatePostUseCase);
+    const createPostUseCase = container.getCreatePostUseCase();
     
     const post = await createPostUseCase.execute({
       ...body,

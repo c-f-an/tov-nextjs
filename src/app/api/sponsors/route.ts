@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
-import { CreateSponsorUseCase } from '@/core/application/use-cases/sponsor/CreateSponsorUseCase';
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { withAuth } from '@/presentation/middleware/authMiddleware';
 
 export async function POST(request: NextRequest) {
@@ -19,7 +18,8 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await withAuth(request);
-    const createSponsorUseCase = container.resolve(CreateSponsorUseCase);
+    const container = getContainer();
+    const createSponsorUseCase = container.getCreateSponsorUseCase();
     
     const sponsor = await createSponsorUseCase.execute({
       ...body,

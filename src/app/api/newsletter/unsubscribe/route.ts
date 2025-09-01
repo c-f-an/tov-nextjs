@@ -1,5 +1,6 @@
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
+
 import { INewsletterSubscriberRepository } from '@/core/domain/repositories/INewsletterSubscriberRepository';
 
 export async function POST(request: NextRequest) {
@@ -13,7 +14,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const subscriberRepository = container.resolve<INewsletterSubscriberRepository>('INewsletterSubscriberRepository');
+    const container = getContainer();
+    const subscriberRepository = container.getNewsletterSubscriberRepository();
     const subscriber = await subscriberRepository.findByEmail(body.email);
 
     if (!subscriber) {
@@ -58,7 +60,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const subscriberRepository = container.resolve<INewsletterSubscriberRepository>('INewsletterSubscriberRepository');
+    const subscriberRepository = container.getNewsletterSubscriberRepository();
     const subscriber = await subscriberRepository.findByEmail(email);
 
     if (!subscriber) {

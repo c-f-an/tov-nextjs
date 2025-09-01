@@ -1,5 +1,6 @@
+import { getContainer } from '@/infrastructure/config/getContainer';
 import { NextRequest, NextResponse } from 'next/server';
-import { container } from '@/infrastructure/config/container.tsyringe';
+
 import { IMenuRepository } from '@/core/domain/repositories/IMenuRepository';
 import { Menu, MenuType } from '@/core/domain/entities/Menu';
 import { IAuthService } from '@/core/domain/services/IAuthService';
@@ -10,7 +11,8 @@ export async function GET(request: NextRequest) {
     const menuType = searchParams.get('type') as MenuType | null;
     const includeInactive = searchParams.get('includeInactive') === 'true';
 
-    const menuRepository = container.resolve<IMenuRepository>('IMenuRepository');
+    const container = getContainer();
+    const menuRepository = container.getMenuRepository();
 
     let menus;
     if (menuType) {
@@ -53,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const authService = container.resolve<IAuthService>('IAuthService');
+    const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
     if (!payload) {
@@ -69,7 +71,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const menuRepository = container.resolve<IMenuRepository>('IMenuRepository');
+    const menuRepository = container.getMenuRepository();
     
     const newMenu = Menu.create({
       parentId: body.parentId,
