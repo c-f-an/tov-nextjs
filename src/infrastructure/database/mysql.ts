@@ -36,9 +36,11 @@ async function warmupPool() {
   }
 }
 
-// Start warmup when module loads
+// Start warmup when module loads - delayed to avoid connection issues during startup
 if (typeof window === 'undefined') {
-  warmupPool().catch(console.error);
+  setTimeout(() => {
+    warmupPool().catch(console.error);
+  }, 1000); // 1 second delay
 }
 
 // Keep-Alive functionality

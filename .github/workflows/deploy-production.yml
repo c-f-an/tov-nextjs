@@ -197,6 +197,10 @@ jobs:
           NEXT_PUBLIC_API_URL=https://tov.ptax.kr/api
           ENVFILE
 
+          # Install build dependencies for native modules
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3 libvips-dev
+          
           # npm 설치
           npm ci --only=production
 
@@ -212,6 +216,7 @@ jobs:
           Type=simple
           User=$USER
           WorkingDirectory=$APP_DIR/current
+          EnvironmentFile=$APP_DIR/current/.env
           ExecStart=$NODE_PATH server.js
           Restart=on-failure
           RestartSec=10
