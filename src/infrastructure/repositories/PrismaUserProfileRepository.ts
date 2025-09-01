@@ -7,21 +7,21 @@ export class PrismaUserProfileRepository implements IUserProfileRepository {
   private toDomain(prismaProfile: PrismaUserProfile): UserProfile {
     return new UserProfile(
       prismaProfile.id,
-      prismaProfile.userId,
-      prismaProfile.churchName,
+      prismaProfile.user_id,
+      prismaProfile.church_name,
       prismaProfile.position,
       prismaProfile.denomination,
       prismaProfile.address,
       prismaProfile.postcode,
-      prismaProfile.birthDate,
+      prismaProfile.birth_date,
       prismaProfile.gender as 'M' | 'F' | null,
-      prismaProfile.profileImage,
-      prismaProfile.newsletterSubscribe,
-      prismaProfile.marketingAgree,
-      prismaProfile.privacyAgreeDate,
-      prismaProfile.termsAgreeDate,
-      prismaProfile.createdAt || new Date(),
-      prismaProfile.updatedAt || new Date()
+      prismaProfile.profile_image,
+      prismaProfile.newsletter_subscribe,
+      prismaProfile.marketing_agree,
+      prismaProfile.privacy_agree_date,
+      prismaProfile.terms_agree_date,
+      prismaProfile.created_at || new Date(),
+      prismaProfile.updated_at || new Date()
     );
   }
 
@@ -34,8 +34,8 @@ export class PrismaUserProfileRepository implements IUserProfileRepository {
   }
 
   async findByUserId(userId: number): Promise<UserProfile | null> {
-    const profile = await prisma.userProfile.findUnique({
-      where: { userId }
+    const profile = await prisma.userProfile.findFirst({
+      where: { user_id: userId }
     });
 
     return profile ? this.toDomain(profile) : null;
@@ -44,19 +44,19 @@ export class PrismaUserProfileRepository implements IUserProfileRepository {
   async save(profile: UserProfile): Promise<UserProfile> {
     const savedProfile = await prisma.userProfile.create({
       data: {
-        userId: profile.userId,
-        churchName: profile.churchName,
+        user_id: profile.userId,
+        church_name: profile.churchName,
         position: profile.position,
         denomination: profile.denomination,
         address: profile.address,
         postcode: profile.postcode,
-        birthDate: profile.birthDate,
+        birth_date: profile.birthDate,
         gender: profile.gender as Gender | undefined,
-        profileImage: profile.profileImage,
-        newsletterSubscribe: profile.newsletterSubscribe,
-        marketingAgree: profile.marketingAgree,
-        privacyAgreeDate: profile.privacyAgreeDate,
-        termsAgreeDate: profile.termsAgreeDate
+        profile_image: profile.profileImage,
+        newsletter_subscribe: profile.newsletterSubscribe,
+        marketing_agree: profile.marketingAgree,
+        privacy_agree_date: profile.privacyAgreeDate,
+        terms_agree_date: profile.termsAgreeDate
       }
     });
 
@@ -67,18 +67,18 @@ export class PrismaUserProfileRepository implements IUserProfileRepository {
     await prisma.userProfile.update({
       where: { id: profile.id },
       data: {
-        churchName: profile.churchName,
+        church_name: profile.churchName,
         position: profile.position,
         denomination: profile.denomination,
         address: profile.address,
         postcode: profile.postcode,
-        birthDate: profile.birthDate,
+        birth_date: profile.birthDate,
         gender: profile.gender as Gender | undefined,
-        profileImage: profile.profileImage,
-        newsletterSubscribe: profile.newsletterSubscribe,
-        marketingAgree: profile.marketingAgree,
-        privacyAgreeDate: profile.privacyAgreeDate,
-        termsAgreeDate: profile.termsAgreeDate
+        profile_image: profile.profileImage,
+        newsletter_subscribe: profile.newsletterSubscribe,
+        marketing_agree: profile.marketingAgree,
+        privacy_agree_date: profile.privacyAgreeDate,
+        terms_agree_date: profile.termsAgreeDate
       }
     });
   }
