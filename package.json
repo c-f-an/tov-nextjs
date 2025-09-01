@@ -4,13 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3004",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start -p 3004",
-    "lint": "next lint",
-    "postinstall": "node postinstall.js"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^6.13.0",
     "@tailwindcss/typography": "^0.5.16",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
@@ -19,7 +17,6 @@
     "lucide-react": "^0.540.0",
     "mysql2": "^3.14.4",
     "next": "15.4.6",
-    "prisma": "^6.13.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "reflect-metadata": "^0.2.2",

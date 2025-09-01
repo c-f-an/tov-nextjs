@@ -26,9 +26,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate Prisma Client
-        run: npx prisma generate
-
       - name: Build Next.js application
         run: npm run build
         env:
@@ -114,7 +111,7 @@ jobs:
           mkdir -p deploy-package
           cp -r .next deploy-package/
           cp -r public deploy-package/ 2>/dev/null || echo "No public directory"
-          cp -r prisma deploy-package/ 2>/dev/null || echo "No prisma directory"
+          # Prisma removed - using mysql2 package instead
           cp package.json deploy-package/
           cp package-lock.json deploy-package/
           cp server.js deploy-package/
@@ -189,6 +186,11 @@ jobs:
           NODE_ENV=production
           PORT=3000
           DATABASE_URL=${{ secrets.DATABASE_URL }}
+          DATABASE_HOST=${{ secrets.DATABASE_HOST }}
+          DATABASE_PORT=${{ secrets.DATABASE_PORT }}
+          DATABASE_USER=${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_NAME=${{ secrets.DATABASE_NAME }}
           JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}
           JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
           NEXT_PUBLIC_APP_URL=https://tov.ptax.kr
@@ -198,8 +200,7 @@ jobs:
           # npm 설치
           npm ci --only=production
 
-          # Prisma 클라이언트 생성
-          npx prisma generate
+          # Prisma removed - using mysql2 package instead
 
           # systemd 서비스 파일 생성
           sudo tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null << SERVICECONFIG
