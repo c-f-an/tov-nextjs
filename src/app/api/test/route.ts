@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { query, queryOne } from '@/infrastructure/database/mysql';
 
 export async function GET() {
   try {
     // Get posts with category and user info
-    const posts = await prisma.$queryRaw`
+    const posts = await query(`
       SELECT 
         p.id,
         p.title,
@@ -23,18 +21,18 @@ export async function GET() {
       WHERE p.status = 'published'
       ORDER BY p.published_at DESC
       LIMIT 10
-    `;
+    `);
 
     return NextResponse.json({
       success: true,
       data: posts
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching posts:', error);
     return NextResponse.json(
       { 
         success: false,
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error' 
       },
       { status: 500 }
     );
@@ -48,21 +46,24 @@ export async function POST() {
     const testPassword = 'password123';
     
     // Get admin user
-    const user = await prisma.$queryRaw`
+    const adminUser = await queryOne<{
+      id: number;
+      email: string;
+      password: string;
+      name: string;
+    }>(`
       SELECT id, email, password, name
       FROM users
-      WHERE email = 'admin@tov.or.kr'
+      WHERE email = ?
       LIMIT 1
-    `;
+    `, ['admin@tov.or.kr']);
 
-    if (!Array.isArray(user) || user.length === 0) {
+    if (!adminUser) {
       return NextResponse.json({ 
         success: false,
         error: 'User not found' 
       });
     }
-
-    const adminUser = user[0] as any;
     const isValidPassword = await bcrypt.compare(testPassword, adminUser.password);
 
     return NextResponse.json({
@@ -76,12 +77,12 @@ export async function POST() {
         passwordValid: isValidPassword
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error testing login:', error);
     return NextResponse.json(
       { 
         success: false,
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error' 
       },
       { status: 500 }
     );
