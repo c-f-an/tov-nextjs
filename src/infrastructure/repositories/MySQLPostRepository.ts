@@ -44,6 +44,11 @@ export class MySQLPostRepository implements IPostRepository {
     let whereConditions: string[] = [];
     let params: any[] = [];
 
+    if (filters.categoryId) {
+      whereConditions.push('category_id = ?');
+      params.push(filters.categoryId);
+    }
+
     if (filters.status) {
       whereConditions.push('status = ?');
       params.push(filters.status);
@@ -57,6 +62,11 @@ export class MySQLPostRepository implements IPostRepository {
     if (filters.search) {
       whereConditions.push('(title LIKE ? OR content LIKE ?)');
       params.push(`%${filters.search}%`, `%${filters.search}%`);
+    }
+
+    // Handle includeNotices filter
+    if (filters.includeNotices === false) {
+      whereConditions.push('is_notice = 0');
     }
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';

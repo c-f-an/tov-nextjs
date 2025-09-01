@@ -19,15 +19,17 @@ export class GetPostsUseCase {
   async execute(request: GetPostsRequest): Promise<GetPostsResponse> {
     const page = request.page || 1;
     const limit = request.limit || 10;
-    const offset = (page - 1) * limit;
-    const { posts, total } = await this.postRepository.findPaginated({
+    
+    const result = await this.postRepository.findAll({
       categoryId: request.categoryId,
-      offset,
-      limit,
       includeNotices: request.includeNotices
+    }, {
+      page,
+      limit
     });
+    
     return {
-      posts: posts.map(post => {
+      posts: result.data.map(post => {
         const dto = PostDto.fromEntity(post);
         return {
           id: dto.id,
@@ -45,9 +47,9 @@ export class GetPostsUseCase {
           user: dto.user
         };
       }),
-      total,
-      page,
-      totalPages: Math.ceil(total / limit)
+      total: result.total,
+      page: result.page,
+      totalPages: result.totalPages
     };
   }
 }

@@ -1,10 +1,11 @@
 import { Post, PostCategory, PostStatus } from '../entities/Post';
 
 interface PostFilters {
-  category?: PostCategory;
+  categoryId?: number;
   status?: PostStatus;
   authorId?: string;
   search?: string;
+  includeNotices?: boolean;
 }
 
 interface PaginationParams {
