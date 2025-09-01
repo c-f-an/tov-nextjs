@@ -12,6 +12,10 @@ module.exports = {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
       },
+      fontFamily: {
+        sans: ['var(--font-nanum-gothic)', '"Nanum Gothic"', 'sans-serif'],
+        mono: ['var(--font-nanum-gothic)', '"Nanum Gothic"', 'sans-serif'],
+      },
     },
   },
   plugins: [

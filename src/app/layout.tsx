@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Nanum_Gothic } from "next/font/google";
 import { AuthProvider } from "@/presentation/contexts/AuthContext";
 import { MainLayout } from "@/presentation/components/layout/MainLayout";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const nanumGothic = Nanum_Gothic({
+  weight: ["400", "700", "800"],
+  variable: "--font-nanum-gothic",
   subsets: ["latin"],
 });
 
@@ -27,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${nanumGothic.variable} antialiased`}
       >
         <AuthProvider>
           <MainLayout>
