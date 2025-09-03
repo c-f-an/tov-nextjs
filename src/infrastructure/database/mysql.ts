@@ -13,22 +13,34 @@ const poolConfig = {
   idleTimeout: 60000,
   queueLimit: 0,
   enableKeepAlive: true,
-  keepAliveInitialDelay: 0
+  keepAliveInitialDelay: 0,
+  // Disable prepared statements to avoid parameter type issues
+  namedPlaceholders: false,
+  // Additional options for better compatibility
+  timezone: '+00:00',
+  charset: 'utf8mb4'
 };
 
 // Create connection pool
-const pool = mysql.createPool(poolConfig);
+let pool: mysql.Pool;
+
+try {
+  pool = mysql.createPool(poolConfig);
+  console.log('[MySQL] Connection pool created successfully');
+} catch (error) {
+  console.error('[MySQL] Failed to create connection pool:', error);
+  throw error;
+}
 
 // Pool warming up function
 async function warmupPool() {
   if (typeof window === 'undefined') {
-    const promises = [];
-    // Warm up the connection pool
-    for (let i = 0; i < 5; i++) {
-      promises.push(pool.execute('SELECT 1'));
-    }
     try {
-      await Promise.all(promises);
+      // Test connection
+      const connection = await pool.getConnection();
+      await connection.ping();
+      connection.release();
+      
       console.log('[MySQL] Connection pool warmed up');
     } catch (error) {
       console.error('[MySQL] Pool warmup failed:', error);
@@ -36,35 +48,10 @@ async function warmupPool() {
   }
 }
 
-// Start warmup when module loads - delayed to avoid connection issues during startup
+// Start warmup when module loads
 if (typeof window === 'undefined') {
-  setTimeout(() => {
-    warmupPool().catch(console.error);
-  }, 1000); // 1 second delay
-}
-
-// Keep-Alive functionality
-if (typeof window === 'undefined') {
-  const keepAliveInterval = setInterval(async () => {
-    try {
-      await pool.execute('SELECT 1');
-      console.log(`[${new Date().toISOString()}] MySQL DB Keep-alive OK`);
-    } catch (error) {
-      console.error('MySQL Keep-alive failed:', error);
-    }
-  }, 5 * 60 * 1000); // Every 5 minutes
-
-  // Cleanup on process termination
-  if (process.env.NODE_ENV !== 'production') {
-    process.on('SIGTERM', () => {
-      clearInterval(keepAliveInterval);
-      pool.end();
-    });
-    process.on('SIGINT', () => {
-      clearInterval(keepAliveInterval);
-      pool.end();
-    });
-  }
+  // Immediate warmup
+  warmupPool().catch(console.error);
 }
 
 // Export pool and helper functions
@@ -75,10 +62,30 @@ export async function getConnection() {
   return await pool.getConnection();
 }
 
-// Helper function to execute a query
+// Helper function to execute a query - using query instead of execute for better compatibility
 export async function query<T = any>(sql: string, params?: any[]): Promise<T[]> {
-  const [rows] = await pool.execute(sql, params);
-  return rows as T[];
+  try {
+    // Clean up parameters
+    const cleanParams = params ? params.map(param => {
+      // Handle undefined as null
+      if (param === undefined) return null;
+      
+      // Ensure numbers are properly typed
+      if (typeof param === 'string' && /^\d+$/.test(param)) {
+        const num = parseInt(param, 10);
+        if (!isNaN(num)) return num;
+      }
+      
+      return param;
+    }) : [];
+    
+    // Use query() instead of execute() to avoid prepared statement issues
+    const [rows] = await pool.query(sql, cleanParams);
+    return rows as T[];
+  } catch (error) {
+    console.error('[MySQL] Query error:', error);
+    throw error;
+  }
 }
 
 // Helper function to execute a single row query
@@ -103,4 +110,19 @@ export async function withTransaction<T>(
   } finally {
     connection.release();
   }
+}
+
+// Graceful shutdown
+if (typeof window === 'undefined' && process.env.NODE_ENV !== 'production') {
+  const shutdown = async () => {
+    try {
+      await pool.end();
+      console.log('[MySQL] Connection pool closed');
+    } catch (error) {
+      console.error('[MySQL] Error closing pool:', error);
+    }
+  };
+
+  process.once('SIGTERM', shutdown);
+  process.once('SIGINT', shutdown);
 }

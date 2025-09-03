@@ -41,7 +41,7 @@ export class MySQLConsultationRepository implements IConsultationRepository {
     const offset = (pagination.page - 1) * pagination.limit;
     const rows = await query<ConsultationRow>(
       'SELECT * FROM consultations WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-      [userId, pagination.limit, offset]
+      [userId, Number(pagination.limit), Number(offset)]
     );
 
     return {
@@ -62,7 +62,7 @@ export class MySQLConsultationRepository implements IConsultationRepository {
     const offset = (pagination.page - 1) * pagination.limit;
     const rows = await query<ConsultationRow>(
       'SELECT * FROM consultations WHERE counselor_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-      [counselorId, pagination.limit, offset]
+      [counselorId, Number(pagination.limit), Number(offset)]
     );
 
     return {
@@ -118,7 +118,7 @@ export class MySQLConsultationRepository implements IConsultationRepository {
     const offset = (pagination.page - 1) * pagination.limit;
     const rows = await query<ConsultationRow>(
       `SELECT * FROM consultations ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-      [...params, pagination.limit, offset]
+      [...params, Number(pagination.limit), Number(offset)]
     );
 
     return {

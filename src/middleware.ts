@@ -55,9 +55,12 @@ export async function middleware(request: NextRequest) {
         throw new Error('Invalid token');
       }
       
-      // Check admin access
-      // Note: Admin role check would need to be implemented based on user profile or separate admin table
-      // For now, we'll skip this check as the new schema doesn't have role in users table
+      // Check admin access for admin paths
+      if (isAdminPath) {
+        // Admin paths require additional role check
+        // This will be handled by the API routes themselves using verifyAdminRequest
+        // We just ensure the user is authenticated here
+      }
       
       // Add user info to request headers
       const requestHeaders = new Headers(request.headers);

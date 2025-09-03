@@ -46,7 +46,7 @@ export class MySQLPostRepository implements IPostRepository {
 
     if (filters.categoryId) {
       whereConditions.push('category_id = ?');
-      params.push(filters.categoryId);
+      params.push(Number(filters.categoryId));
     }
 
     if (filters.status) {
@@ -84,7 +84,7 @@ export class MySQLPostRepository implements IPostRepository {
       ORDER BY is_notice DESC, published_at DESC, created_at DESC
       LIMIT ? OFFSET ?
     `;
-    const rows = await query<PostRow>(dataQuery, [...params, pagination.limit, offset]);
+    const rows = await query<PostRow>(dataQuery, [...params, Number(pagination.limit), Number(offset)]);
 
     return {
       data: rows.map(row => this.mapToPost(row)),

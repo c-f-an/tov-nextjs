@@ -45,7 +45,7 @@ export class MySQLDonationRepository implements IDonationRepository {
     const offset = (pagination.page - 1) * pagination.limit;
     const rows = await query<DonationRow>(
       'SELECT * FROM donations WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-      [userId, pagination.limit, offset]
+      [userId, Number(pagination.limit), Number(offset)]
     );
 
     return {
@@ -106,7 +106,7 @@ export class MySQLDonationRepository implements IDonationRepository {
     const offset = (pagination.page - 1) * pagination.limit;
     const rows = await query<DonationRow>(
       `SELECT * FROM donations ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-      [...params, pagination.limit, offset]
+      [...params, Number(pagination.limit), Number(offset)]
     );
 
     return {
