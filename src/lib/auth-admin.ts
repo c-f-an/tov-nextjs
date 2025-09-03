@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { verifyAccessToken } from './auth-utils';
-import { pool } from '@/lib/db';
+import { pool } from '@/infrastructure/database/mysql';
 
 export interface AdminUser {
   id: number;

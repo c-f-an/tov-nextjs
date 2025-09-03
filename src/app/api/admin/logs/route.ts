@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminRequest } from '@/lib/auth-admin';
-import { pool } from '@/lib/db';
+import { pool } from '@/infrastructure/database/mysql';
 
 export async function GET(request: NextRequest) {
   try {
