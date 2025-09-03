@@ -1,5 +1,5 @@
 import { IUserRepository } from '@/core/domain/repositories/IUserRepository';
-import { User, UserStatus, LoginType } from '@/core/domain/entities/User';
+import { User, UserStatus, LoginType, UserRole } from '@/core/domain/entities/User';
 import { query, queryOne, withTransaction } from '../database/mysql';
 import { RowDataPacket } from 'mysql2';
 
@@ -10,6 +10,7 @@ interface UserRow extends RowDataPacket {
   password: string;
   name: string;
   phone?: string | null;
+  role: string;
   status: string;
   email_verified_at?: Date | null;
   remember_token?: string | null;
@@ -37,6 +38,8 @@ export class MySQLUserRepository implements IUserRepository {
       [email]
     );
     
+    console.log('Raw DB row:', row);
+    
     return row ? this.mapToUser(row) : null;
   }
 
@@ -46,13 +49,13 @@ export class MySQLUserRepository implements IUserRepository {
       await query(
         `UPDATE users 
          SET username = ?, email = ?, password = ?, name = ?, phone = ?, 
-             status = ?, email_verified_at = ?, remember_token = ?, 
+             role = ?, status = ?, email_verified_at = ?, remember_token = ?, 
              login_type = ?, avatar_url = ?, last_login_at = ?, last_login_ip = ?, 
              updated_at = NOW()
          WHERE id = ?`,
         [
           user.username, user.email, user.password, user.name, user.phone,
-          user.status, user.emailVerifiedAt, user.rememberToken,
+          user.role, user.status, user.emailVerifiedAt, user.rememberToken,
           user.loginType, user.avatarUrl, user.lastLoginAt, user.lastLoginIp,
           user.id
         ]
@@ -61,13 +64,13 @@ export class MySQLUserRepository implements IUserRepository {
     } else {
       // Insert new user
       const result = await query<any>(
-        `INSERT INTO users (username, email, password, name, phone, status, 
+        `INSERT INTO users (username, email, password, name, phone, role, status, 
                            email_verified_at, remember_token, login_type, avatar_url, 
                            last_login_at, last_login_ip, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           user.username, user.email, user.password, user.name, user.phone,
-          user.status, user.emailVerifiedAt, user.rememberToken,
+          user.role, user.status, user.emailVerifiedAt, user.rememberToken,
           user.loginType, user.avatarUrl, user.lastLoginAt, user.lastLoginIp
         ]
       );
@@ -76,6 +79,7 @@ export class MySQLUserRepository implements IUserRepository {
         result.insertId,
         user.email,
         user.name,
+        user.role,
         user.status,
         user.loginType,
         user.username,
@@ -101,10 +105,12 @@ export class MySQLUserRepository implements IUserRepository {
   }
 
   private mapToUser(row: UserRow): User {
+    console.log('Mapping user from DB:', { id: row.id, email: row.email, role: row.role });
     return new User(
       row.id,
       row.email,
       row.name,
+      row.role as any, // Will be converted to UserRole enum
       row.status as any, // Will be converted to UserStatus enum
       row.login_type as any, // Will be converted to LoginType enum
       row.username,

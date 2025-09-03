@@ -76,7 +76,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data = await response.json();
     setUser(data.user);
     setAccessToken(data.accessToken);
-    router.push('/');
+    
+    // Redirect based on user role
+    if (data.user.role === 'ADMIN') {
+      router.push('/admin');
+    } else {
+      router.push('/');
+    }
   };
 
   const register = async (registerData: RegisterData) => {

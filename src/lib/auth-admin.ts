@@ -12,9 +12,14 @@ export interface AdminUser {
 
 export async function verifyAdminRequest(request: NextRequest): Promise<AdminUser | null> {
   try {
-    // Get access token from Authorization header
+    // Get access token from Authorization header or cookie
     const authHeader = request.headers.get('Authorization');
-    const accessToken = authHeader?.replace('Bearer ', '');
+    let accessToken = authHeader?.replace('Bearer ', '');
+    
+    // If no Authorization header, check cookies
+    if (!accessToken) {
+      accessToken = request.cookies.get('accessToken')?.value;
+    }
     
     if (!accessToken) {
       return null;

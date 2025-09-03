@@ -14,7 +14,7 @@ interface DashboardStats {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, accessToken } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalPosts: 0,
@@ -29,18 +29,38 @@ export default function AdminDashboard() {
       return;
     }
 
+    // Check if user has admin role
+    if (user.role !== 'ADMIN') {
+      router.push('/');
+      return;
+    }
+
     // Fetch dashboard stats
     fetchDashboardStats();
   }, [user, router]);
 
   const fetchDashboardStats = async () => {
-    // Mock data - replace with actual API calls
-    setStats({
-      totalUsers: 1234,
-      totalPosts: 567,
-      pendingConsultations: 23,
-      monthlyDonations: 4567000
-    });
+    try {
+      const response = await fetch('/api/admin/dashboard/stats', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch dashboard stats:', error);
+      // Set default values on error
+      setStats({
+        totalUsers: 0,
+        totalPosts: 0,
+        pendingConsultations: 0,
+        monthlyDonations: 0
+      });
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -134,19 +154,9 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-semibold">최근 게시글</h2>
             </div>
             <div className="p-6">
-              <ul className="space-y-4">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <li key={i} className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-sm font-medium">게시글 제목 {i}</h3>
-                      <p className="text-sm text-gray-500">작성자 • 2시간 전</p>
-                    </div>
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                      공지사항
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <div className="text-center text-gray-500 py-8">
+                <p>데이터를 불러오는 중...</p>
+              </div>
             </div>
           </div>
 
@@ -156,19 +166,9 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-semibold">최근 상담 신청</h2>
             </div>
             <div className="p-6">
-              <ul className="space-y-4">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <li key={i} className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-sm font-medium">상담 제목 {i}</h3>
-                      <p className="text-sm text-gray-500">신청자 • 3시간 전</p>
-                    </div>
-                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                      대기중
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <div className="text-center text-gray-500 py-8">
+                <p>데이터를 불러오는 중...</p>
+              </div>
             </div>
           </div>
         </div>

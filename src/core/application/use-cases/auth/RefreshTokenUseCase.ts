@@ -36,7 +36,7 @@ export class RefreshTokenUseCase {
     const tokens = await this.authService.generateTokenPair({
       userId: user.id,
       email: user.email,
-      role: user.role
+      loginType: user.loginType
     });
 
     return {
@@ -45,7 +45,8 @@ export class RefreshTokenUseCase {
         email: user.email,
         name: user.name,
         role: user.role,
-        isEmailVerified: user.isEmailVerified
+        loginType: user.loginType,
+        isEmailVerified: user.isEmailVerified()
       },
       tokens
     };

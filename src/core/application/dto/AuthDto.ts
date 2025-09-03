@@ -39,6 +39,7 @@ export interface AuthResponseDto {
     id: number;
     email: string;
     name: string;
+    role: string;
     loginType: string;
     isEmailVerified: boolean;
   };

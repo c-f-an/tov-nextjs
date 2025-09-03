@@ -16,11 +16,21 @@ export async function POST(request: NextRequest) {
       await logoutUseCase.execute(refreshToken, 'User logout');
     }
     
-    // Clear refresh token cookie
+    // Clear cookies
     const response = NextResponse.json({
       message: 'Logged out successfully'
     }, { status: 200 });
 
+    // Clear access token cookie
+    response.cookies.set('accessToken', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 0, // Expire immediately
+      path: '/'
+    });
+
+    // Clear refresh token cookie
     response.cookies.set('refreshToken', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

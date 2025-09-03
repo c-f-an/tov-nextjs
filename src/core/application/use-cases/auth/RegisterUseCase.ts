@@ -89,6 +89,7 @@ export class RegisterUseCase {
         id: savedUser.id,
         email: savedUser.email,
         name: savedUser.name,
+        role: savedUser.role,
         loginType: savedUser.loginType,
         isEmailVerified: savedUser.isEmailVerified()
       },

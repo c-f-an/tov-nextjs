@@ -21,12 +21,22 @@ export async function POST(request: NextRequest) {
     // Execute use case
     const result = await refreshTokenUseCase.execute({ refreshToken });
     
-    // Set new refresh token as HTTP-only cookie
+    // Set tokens as HTTP-only cookies
     const response = NextResponse.json({
       user: result.user,
       accessToken: result.tokens.accessToken
     }, { status: 200 });
 
+    // Set access token cookie
+    response.cookies.set('accessToken', result.tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 15 * 60, // 15 minutes
+      path: '/'
+    });
+
+    // Set refresh token cookie
     response.cookies.set('refreshToken', result.tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

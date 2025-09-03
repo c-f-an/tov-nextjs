@@ -12,6 +12,11 @@ export enum LoginType {
   apple = 'apple'
 }
 
+export enum UserRole {
+  USER = 'USER',
+  ADMIN = 'ADMIN'
+}
+
 export interface IUser {
   id: number;
   username?: string | null;
@@ -19,6 +24,7 @@ export interface IUser {
   password?: string | null;
   name: string;
   phone?: string | null;
+  role: UserRole;
   status: UserStatus;
   emailVerifiedAt?: Date | null;
   rememberToken?: string | null;
@@ -35,6 +41,7 @@ export class User implements IUser {
     public readonly id: number,
     public readonly email: string,
     public readonly name: string,
+    public readonly role: UserRole,
     public readonly status: UserStatus,
     public readonly loginType: LoginType,
     public readonly username?: string | null,
@@ -49,11 +56,12 @@ export class User implements IUser {
     public readonly updatedAt?: Date | null
   ) {}
 
-  static create(params: Omit<IUser, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'emailVerifiedAt' | 'lastLoginAt' | 'lastLoginIp' | 'rememberToken'>): User {
+  static create(params: Omit<IUser, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'emailVerifiedAt' | 'lastLoginAt' | 'lastLoginIp' | 'rememberToken' | 'role'>): User {
     return new User(
       0, // Auto-increment ID will be assigned by database
       params.email,
       params.name,
+      UserRole.USER, // Default role
       UserStatus.active,
       params.loginType || LoginType.email,
       params.username,

@@ -27,9 +27,14 @@ export async function middleware(request: NextRequest) {
   const isAdminPath = adminPaths.some(path => pathname.startsWith(path));
   
   if (isProtectedPath || isAdminPath) {
-    // Get access token from Authorization header
+    // Get access token from Authorization header (for API routes) or cookie (for pages)
     const authHeader = request.headers.get('Authorization');
-    const accessToken = authHeader?.replace('Bearer ', '');
+    let accessToken = authHeader?.replace('Bearer ', '');
+    
+    // If no Authorization header, check cookies
+    if (!accessToken) {
+      accessToken = request.cookies.get('accessToken')?.value;
+    }
     
     if (!accessToken) {
       // For API routes, return 401
