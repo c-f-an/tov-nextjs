@@ -214,7 +214,7 @@ export default function MyPage() {
                       key={item.label}
                       onClick={() => setActiveTab(item.href.slice(1))}
                       className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
-                        isActive ? "bg-primary text-white" : "hover:bg-gray-100"
+                        isActive ? "bg-primary/10 text-primary font-semibold" : "hover:bg-gray-100"
                       }`}
                     >
                       <Icon className="h-5 w-5" />
