@@ -1,15 +1,23 @@
 import { IUserRepository } from '@/core/domain/repositories/IUserRepository';
-import { User } from '@/core/domain/entities/User';
+import { User, UserStatus, LoginType } from '@/core/domain/entities/User';
 import { query, queryOne, withTransaction } from '../database/mysql';
 import { RowDataPacket } from 'mysql2';
 
 interface UserRow extends RowDataPacket {
   id: number;
+  username?: string | null;
   email: string;
   password: string;
   name: string;
-  role: 'admin' | 'user';
-  is_active: boolean;
+  phone?: string | null;
+  status: string;
+  role: string;
+  email_verified_at?: Date | null;
+  remember_token?: string | null;
+  login_type: string;
+  avatar_url?: string | null;
+  last_login_at?: Date | null;
+  last_login_ip?: string | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -34,28 +42,59 @@ export class MySQLUserRepository implements IUserRepository {
   }
 
   async save(user: User): Promise<User> {
-    const { id, email, password, name, role, isActive } = user;
-    
-    if (id) {
+    if (user.id) {
       // Update existing user
       await query(
         `UPDATE users 
-         SET email = ?, password = ?, name = ?, role = ?, is_active = ?, updated_at = NOW()
+         SET username = ?, email = ?, password = ?, name = ?, phone = ?, 
+             status = ?, role = ?, email_verified_at = ?, remember_token = ?, 
+             login_type = ?, avatar_url = ?, last_login_at = ?, last_login_ip = ?, 
+             updated_at = NOW()
          WHERE id = ?`,
-        [email, password, name, role, isActive, id]
+        [
+          user.username, user.email, user.password, user.name, user.phone,
+          user.status, 'USER', user.emailVerifiedAt, user.rememberToken,
+          user.loginType, user.avatarUrl, user.lastLoginAt, user.lastLoginIp,
+          user.id
+        ]
       );
       return user;
     } else {
       // Insert new user
       const result = await query<any>(
-        `INSERT INTO users (email, password, name, role, is_active, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
-        [email, password, name, role, isActive]
+        `INSERT INTO users (username, email, password, name, phone, status, role, 
+                           email_verified_at, remember_token, login_type, avatar_url, 
+                           last_login_at, last_login_ip, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        [
+          user.username, user.email, user.password, user.name, user.phone,
+          user.status, 'USER', user.emailVerifiedAt, user.rememberToken,
+          user.loginType, user.avatarUrl, user.lastLoginAt, user.lastLoginIp
+        ]
       );
       
-      user.id = result.insertId;
-      return user;
+      return new User(
+        result.insertId,
+        user.email,
+        user.name,
+        user.status,
+        user.loginType,
+        user.username,
+        user.password,
+        user.phone,
+        user.emailVerifiedAt,
+        user.rememberToken,
+        user.avatarUrl,
+        user.lastLoginAt,
+        user.lastLoginIp,
+        user.createdAt,
+        user.updatedAt
+      );
     }
+  }
+
+  async update(user: User): Promise<void> {
+    await this.save(user);
   }
 
   async delete(id: number): Promise<void> {
@@ -66,10 +105,17 @@ export class MySQLUserRepository implements IUserRepository {
     return new User(
       row.id,
       row.email,
-      row.password,
       row.name,
-      row.role,
-      row.is_active,
+      row.status as any, // Will be converted to UserStatus enum
+      row.login_type as any, // Will be converted to LoginType enum
+      row.username,
+      row.password,
+      row.phone,
+      row.email_verified_at,
+      row.remember_token,
+      row.avatar_url,
+      row.last_login_at,
+      row.last_login_ip,
       row.created_at,
       row.updated_at
     );
