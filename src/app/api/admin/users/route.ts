@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     let queryParams = [];
 
     if (search) {
-      whereConditions.push('(name LIKE ? OR email LIKE ? OR church LIKE ?)');
+      whereConditions.push('(name LIKE ? OR email LIKE ? OR username LIKE ?)');
       const searchPattern = `%${search}%`;
       queryParams.push(searchPattern, searchPattern, searchPattern);
     }
@@ -52,7 +52,19 @@ export async function GET(request: NextRequest) {
 
     // Get users
     const [users] = await pool.execute(
-      `SELECT id, email, name, phone, church, role, status, login_type, created_at, last_login_at
+      `SELECT 
+        id, 
+        email, 
+        name, 
+        phone, 
+        username,
+        status, 
+        login_type, 
+        DATE_FORMAT(created_at, '%Y.%m.%d') as joinDate,
+        CASE 
+          WHEN last_login_at IS NULL THEN NULL
+          ELSE DATE_FORMAT(last_login_at, '%Y.%m.%d %H:%i')
+        END as lastLogin
        FROM users
        ${whereClause}
        ORDER BY created_at DESC

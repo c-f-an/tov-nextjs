@@ -1,25 +1,51 @@
 import mysql from 'mysql2/promise';
 
-// MySQL connection pool configuration
-const poolConfig = {
-  host: process.env.DATABASE_HOST || 'localhost',
-  port: parseInt(process.env.DATABASE_PORT || '3306'),
-  user: process.env.DATABASE_USER || 'root',
-  password: process.env.DATABASE_PASSWORD || '',
-  database: process.env.DATABASE_NAME || 'tov_db',
-  waitForConnections: true,
-  connectionLimit: 10,
-  maxIdle: 10,
-  idleTimeout: 60000,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-  // Disable prepared statements to avoid parameter type issues
-  namedPlaceholders: false,
-  // Additional options for better compatibility
-  timezone: '+00:00',
-  charset: 'utf8mb4'
-};
+// Parse DATABASE_URL if provided
+let poolConfig: mysql.PoolOptions;
+
+if (process.env.DATABASE_URL) {
+  const dbUrl = new URL(process.env.DATABASE_URL);
+  poolConfig = {
+    host: dbUrl.hostname,
+    port: parseInt(dbUrl.port || '3306'),
+    user: dbUrl.username,
+    password: dbUrl.password || '',
+    database: dbUrl.pathname.slice(1), // Remove leading slash
+    waitForConnections: true,
+    connectionLimit: 10,
+    maxIdle: 10,
+    idleTimeout: 60000,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0,
+    // Disable prepared statements to avoid parameter type issues
+    namedPlaceholders: false,
+    // Additional options for better compatibility
+    timezone: '+00:00',
+    charset: 'utf8mb4'
+  };
+} else {
+  // Fallback to individual environment variables
+  poolConfig = {
+    host: process.env.DATABASE_HOST || 'localhost',
+    port: parseInt(process.env.DATABASE_PORT || '3306'),
+    user: process.env.DATABASE_USER || 'root',
+    password: process.env.DATABASE_PASSWORD || '',
+    database: process.env.DATABASE_NAME || 'tov_db',
+    waitForConnections: true,
+    connectionLimit: 10,
+    maxIdle: 10,
+    idleTimeout: 60000,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0,
+    // Disable prepared statements to avoid parameter type issues
+    namedPlaceholders: false,
+    // Additional options for better compatibility
+    timezone: '+00:00',
+    charset: 'utf8mb4'
+  };
+}
 
 // Create connection pool
 let pool: mysql.Pool;

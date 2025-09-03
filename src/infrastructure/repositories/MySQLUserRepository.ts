@@ -11,7 +11,6 @@ interface UserRow extends RowDataPacket {
   name: string;
   phone?: string | null;
   status: string;
-  role: string;
   email_verified_at?: Date | null;
   remember_token?: string | null;
   login_type: string;
@@ -47,13 +46,13 @@ export class MySQLUserRepository implements IUserRepository {
       await query(
         `UPDATE users 
          SET username = ?, email = ?, password = ?, name = ?, phone = ?, 
-             status = ?, role = ?, email_verified_at = ?, remember_token = ?, 
+             status = ?, email_verified_at = ?, remember_token = ?, 
              login_type = ?, avatar_url = ?, last_login_at = ?, last_login_ip = ?, 
              updated_at = NOW()
          WHERE id = ?`,
         [
           user.username, user.email, user.password, user.name, user.phone,
-          user.status, 'USER', user.emailVerifiedAt, user.rememberToken,
+          user.status, user.emailVerifiedAt, user.rememberToken,
           user.loginType, user.avatarUrl, user.lastLoginAt, user.lastLoginIp,
           user.id
         ]
@@ -62,13 +61,13 @@ export class MySQLUserRepository implements IUserRepository {
     } else {
       // Insert new user
       const result = await query<any>(
-        `INSERT INTO users (username, email, password, name, phone, status, role, 
+        `INSERT INTO users (username, email, password, name, phone, status, 
                            email_verified_at, remember_token, login_type, avatar_url, 
                            last_login_at, last_login_ip, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           user.username, user.email, user.password, user.name, user.phone,
-          user.status, 'USER', user.emailVerifiedAt, user.rememberToken,
+          user.status, user.emailVerifiedAt, user.rememberToken,
           user.loginType, user.avatarUrl, user.lastLoginAt, user.lastLoginIp
         ]
       );

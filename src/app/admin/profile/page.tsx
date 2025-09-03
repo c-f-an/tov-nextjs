@@ -1,18 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { User, Mail, Phone, Building, Lock, Save } from 'lucide-react'
 import { AdminLayout } from '@/presentation/components/admin/AdminLayout'
+import { useAuth } from '@/presentation/contexts/AuthContext'
 
 export default function AdminProfilePage() {
+  const { user } = useAuth()
   const [profile, setProfile] = useState({
-    name: '김관리',
-    email: 'admin@tov.or.kr',
-    phone: '010-9999-9999',
-    department: '사무국',
-    position: '시스템 관리자',
-    joinDate: '2022.01.01'
+    name: '',
+    email: '',
+    phone: '',
+    department: '',
+    position: '',
+    joinDate: ''
   })
+  const [loading, setLoading] = useState(true)
 
   const [passwordForm, setPasswordForm] = useState({
     current: '',
@@ -20,17 +23,104 @@ export default function AdminProfilePage() {
     confirm: ''
   })
 
-  const handleProfileSave = () => {
-    alert('프로필이 업데이트되었습니다.')
+  useEffect(() => {
+    if (user) {
+      fetchProfile()
+    }
+  }, [user])
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch('/api/user/profile', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setProfile({
+          name: user?.name || '',
+          email: user?.email || '',
+          phone: data.profile?.phone || '',
+          department: data.profile?.churchName || '사무국',
+          position: data.profile?.position || '시스템 관리자',
+          joinDate: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('ko-KR').replace(/\. /g, '.').replace('.', '') : ''
+        })
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handlePasswordChange = () => {
+  const handleProfileSave = async () => {
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          phone: profile.phone,
+          churchName: profile.department,
+          position: profile.position
+        })
+      })
+      
+      if (response.ok) {
+        alert('프로필이 업데이트되었습니다.')
+      } else {
+        alert('프로필 업데이트에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('Failed to save profile:', error)
+      alert('프로필 저장 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handlePasswordChange = async () => {
     if (passwordForm.new !== passwordForm.confirm) {
       alert('새 비밀번호가 일치하지 않습니다.')
       return
     }
-    alert('비밀번호가 변경되었습니다.')
-    setPasswordForm({ current: '', new: '', confirm: '' })
+
+    try {
+      const response = await fetch('/api/user/change-password', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          currentPassword: passwordForm.current,
+          newPassword: passwordForm.new
+        })
+      })
+      
+      if (response.ok) {
+        alert('비밀번호가 변경되었습니다.')
+        setPasswordForm({ current: '', new: '', confirm: '' })
+      } else {
+        const error = await response.json()
+        alert(error.message || '비밀번호 변경에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('Failed to change password:', error)
+      alert('비밀번호 변경 중 오류가 발생했습니다.')
+    }
+  }
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </AdminLayout>
+    )
   }
 
   return (
@@ -59,8 +149,8 @@ export default function AdminProfilePage() {
               <input
                 type="text"
                 value={profile.name}
-                onChange={(e) => setProfile({...profile, name: e.target.value})}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded bg-gray-100"
+                readOnly
               />
             </div>
             <div>
@@ -71,8 +161,8 @@ export default function AdminProfilePage() {
               <input
                 type="email"
                 value={profile.email}
-                onChange={(e) => setProfile({...profile, email: e.target.value})}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded bg-gray-100"
+                readOnly
               />
             </div>
             <div>
@@ -90,7 +180,7 @@ export default function AdminProfilePage() {
             <div>
               <label className="block text-sm font-medium mb-1">
                 <Building className="inline h-4 w-4 mr-1" />
-                부서
+                소속
               </label>
               <input
                 type="text"
@@ -109,11 +199,11 @@ export default function AdminProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">입사일</label>
+              <label className="block text-sm font-medium mb-1">가입일</label>
               <input
                 type="text"
                 value={profile.joinDate}
-                className="w-full px-3 py-2 border rounded bg-gray-50"
+                className="w-full px-3 py-2 border rounded bg-gray-100"
                 readOnly
               />
             </div>
@@ -170,29 +260,6 @@ export default function AdminProfilePage() {
             >
               비밀번호 변경
             </button>
-          </div>
-        </div>
-
-        {/* 활동 기록 */}
-        <div className="bg-white rounded-lg shadow p-6 mt-6">
-          <h2 className="text-lg font-semibold mb-4">최근 활동 기록</h2>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm">게시글 작성</span>
-              <span className="text-sm text-gray-600">2024.03.21 10:30</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm">회원 정보 수정</span>
-              <span className="text-sm text-gray-600">2024.03.20 15:45</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm">상담 답변 작성</span>
-              <span className="text-sm text-gray-600">2024.03.19 14:20</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm">사이트 설정 변경</span>
-              <span className="text-sm text-gray-600">2024.03.18 11:00</span>
-            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Edit2, Trash2, Save, X } from 'lucide-react'
 import { AdminLayout } from '@/presentation/components/admin/AdminLayout'
 
@@ -8,56 +8,118 @@ interface Category {
   id: number
   name: string
   slug: string
-  description: string
+  description: string | null
+  sortOrder: number
+  isActive: boolean
   postCount: number
 }
 
-const mockCategories: Category[] = [
-  { id: 1, name: '공지사항', slug: 'notice', description: '토브협회의 공지사항입니다.', postCount: 15 },
-  { id: 2, name: '토브소식', slug: 'news', description: '토브협회의 최신 소식을 전합니다.', postCount: 23 },
-  { id: 3, name: '언론보도', slug: 'media', description: '토브협회 관련 언론 보도자료입니다.', postCount: 8 },
-  { id: 4, name: '발간자료', slug: 'publication', description: '토브협회에서 발간한 자료들입니다.', postCount: 12 },
-  { id: 5, name: '자료실', slug: 'resource', description: '토브협회 관련 자료들입니다.', postCount: 45 },
-  { id: 6, name: '활동소식', slug: 'activity', description: '토브협회 활동 소식입니다.', postCount: 19 }
-]
-
 export default function AdminCategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>(mockCategories)
+  const [categories, setCategories] = useState<Category[]>([])
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editForm, setEditForm] = useState({ name: '', description: '' })
   const [isAdding, setIsAdding] = useState(false)
   const [newCategory, setNewCategory] = useState({ name: '', slug: '', description: '' })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories?includeInactive=true')
+      if (response.ok) {
+        const data = await response.json()
+        // Add post count for each category
+        const categoriesWithCount = await Promise.all(data.map(async (cat: any) => {
+          const postsResponse = await fetch(`/api/posts?categoryId=${cat.id}&limit=1`)
+          const postsData = await postsResponse.json()
+          return {
+            ...cat,
+            postCount: postsData.pagination?.total || 0
+          }
+        }))
+        setCategories(categoriesWithCount)
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleEdit = (category: Category) => {
     setEditingId(category.id)
-    setEditForm({ name: category.name, description: category.description })
+    setEditForm({ name: category.name, description: category.description || '' })
   }
 
-  const handleSave = (id: number) => {
-    setCategories(categories.map(cat => 
-      cat.id === id 
-        ? { ...cat, name: editForm.name, description: editForm.description }
-        : cat
-    ))
-    setEditingId(null)
-  }
-
-  const handleDelete = (id: number) => {
-    if (window.confirm('정말 삭제하시겠습니까?')) {
-      setCategories(categories.filter(cat => cat.id !== id))
+  const handleSave = async (id: number) => {
+    try {
+      const response = await fetch(`/api/categories/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm)
+      })
+      
+      if (response.ok) {
+        await fetchCategories()
+        setEditingId(null)
+      }
+    } catch (error) {
+      console.error('Failed to update category:', error)
     }
   }
 
-  const handleAdd = () => {
+  const handleDelete = async (id: number) => {
+    if (window.confirm('정말 삭제하시겠습니까? 이 카테고리의 모든 게시물도 함께 삭제됩니다.')) {
+      try {
+        const response = await fetch(`/api/categories/${id}`, {
+          method: 'DELETE'
+        })
+        
+        if (response.ok) {
+          await fetchCategories()
+        }
+      } catch (error) {
+        console.error('Failed to delete category:', error)
+      }
+    }
+  }
+
+  const handleAdd = async () => {
     if (newCategory.name && newCategory.slug) {
-      setCategories([...categories, {
-        id: Math.max(...categories.map(c => c.id)) + 1,
-        ...newCategory,
-        postCount: 0
-      }])
-      setNewCategory({ name: '', slug: '', description: '' })
-      setIsAdding(false)
+      try {
+        const response = await fetch('/api/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...newCategory,
+            parentId: null,
+            sortOrder: categories.length + 1,
+            isActive: true
+          })
+        })
+        
+        if (response.ok) {
+          await fetchCategories()
+          setNewCategory({ name: '', slug: '', description: '' })
+          setIsAdding(false)
+        }
+      } catch (error) {
+        console.error('Failed to add category:', error)
+      }
     }
+  }
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </AdminLayout>
+    )
   }
 
   return (
@@ -78,56 +140,54 @@ export default function AdminCategoriesPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4">카테고리명</th>
-                <th className="text-left py-3 px-4">슬러그</th>
-                <th className="text-left py-3 px-4">설명</th>
-                <th className="text-center py-3 px-4">게시글 수</th>
-                <th className="text-center py-3 px-4">관리</th>
+                <th className="text-left p-4">카테고리명</th>
+                <th className="text-left p-4">슬러그</th>
+                <th className="text-left p-4">설명</th>
+                <th className="text-center p-4">게시물 수</th>
+                <th className="text-center p-4">상태</th>
+                <th className="text-center p-4">관리</th>
               </tr>
             </thead>
             <tbody>
               {isAdding && (
-                <tr className="border-b bg-gray-50">
-                  <td className="py-3 px-4">
+                <tr className="border-b">
+                  <td className="p-4">
                     <input
                       type="text"
                       value={newCategory.name}
                       onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
-                      className="w-full px-2 py-1 border rounded"
                       placeholder="카테고리명"
+                      className="w-full px-2 py-1 border rounded"
                     />
                   </td>
-                  <td className="py-3 px-4">
+                  <td className="p-4">
                     <input
                       type="text"
                       value={newCategory.slug}
                       onChange={(e) => setNewCategory({...newCategory, slug: e.target.value})}
-                      className="w-full px-2 py-1 border rounded"
                       placeholder="slug"
+                      className="w-full px-2 py-1 border rounded"
                     />
                   </td>
-                  <td className="py-3 px-4">
+                  <td className="p-4">
                     <input
                       type="text"
                       value={newCategory.description}
                       onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
-                      className="w-full px-2 py-1 border rounded"
                       placeholder="설명"
+                      className="w-full px-2 py-1 border rounded"
                     />
                   </td>
-                  <td className="text-center py-3 px-4">0</td>
-                  <td className="text-center py-3 px-4">
+                  <td className="text-center p-4">0</td>
+                  <td className="text-center p-4">
+                    <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">활성</span>
+                  </td>
+                  <td className="p-4">
                     <div className="flex justify-center gap-2">
-                      <button
-                        onClick={handleAdd}
-                        className="p-1 text-green-600 hover:bg-green-50 rounded"
-                      >
+                      <button onClick={handleAdd} className="text-green-600 hover:bg-green-50 p-1 rounded">
                         <Save className="h-4 w-4" />
                       </button>
-                      <button
-                        onClick={() => setIsAdding(false)}
-                        className="p-1 text-red-600 hover:bg-red-50 rounded"
-                      >
+                      <button onClick={() => setIsAdding(false)} className="text-red-600 hover:bg-red-50 p-1 rounded">
                         <X className="h-4 w-4" />
                       </button>
                     </div>
@@ -136,7 +196,7 @@ export default function AdminCategoriesPage() {
               )}
               {categories.map((category) => (
                 <tr key={category.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">
+                  <td className="p-4">
                     {editingId === category.id ? (
                       <input
                         type="text"
@@ -145,11 +205,11 @@ export default function AdminCategoriesPage() {
                         className="w-full px-2 py-1 border rounded"
                       />
                     ) : (
-                      <span className="font-medium">{category.name}</span>
+                      category.name
                     )}
                   </td>
-                  <td className="py-3 px-4 text-gray-600">{category.slug}</td>
-                  <td className="py-3 px-4">
+                  <td className="p-4 text-sm text-gray-600">{category.slug}</td>
+                  <td className="p-4">
                     {editingId === category.id ? (
                       <input
                         type="text"
@@ -158,39 +218,40 @@ export default function AdminCategoriesPage() {
                         className="w-full px-2 py-1 border rounded"
                       />
                     ) : (
-                      <span className="text-gray-600">{category.description}</span>
+                      <span className="text-sm text-gray-600">{category.description || '-'}</span>
                     )}
                   </td>
-                  <td className="text-center py-3 px-4">{category.postCount}</td>
-                  <td className="text-center py-3 px-4">
+                  <td className="text-center p-4">
+                    <span className="px-2 py-1 text-sm bg-blue-100 text-blue-700 rounded">
+                      {category.postCount}
+                    </span>
+                  </td>
+                  <td className="text-center p-4">
+                    <span className={`px-2 py-1 text-xs rounded ${
+                      category.isActive 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {category.isActive ? '활성' : '비활성'}
+                    </span>
+                  </td>
+                  <td className="p-4">
                     <div className="flex justify-center gap-2">
                       {editingId === category.id ? (
                         <>
-                          <button
-                            onClick={() => handleSave(category.id)}
-                            className="p-1 text-green-600 hover:bg-green-50 rounded"
-                          >
+                          <button onClick={() => handleSave(category.id)} className="text-green-600 hover:bg-green-50 p-1 rounded">
                             <Save className="h-4 w-4" />
                           </button>
-                          <button
-                            onClick={() => setEditingId(null)}
-                            className="p-1 text-gray-600 hover:bg-gray-100 rounded"
-                          >
+                          <button onClick={() => setEditingId(null)} className="text-gray-600 hover:bg-gray-50 p-1 rounded">
                             <X className="h-4 w-4" />
                           </button>
                         </>
                       ) : (
                         <>
-                          <button
-                            onClick={() => handleEdit(category)}
-                            className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-                          >
+                          <button onClick={() => handleEdit(category)} className="text-blue-600 hover:bg-blue-50 p-1 rounded">
                             <Edit2 className="h-4 w-4" />
                           </button>
-                          <button
-                            onClick={() => handleDelete(category.id)}
-                            className="p-1 text-red-600 hover:bg-red-50 rounded"
-                          >
+                          <button onClick={() => handleDelete(category.id)} className="text-red-600 hover:bg-red-50 p-1 rounded">
                             <Trash2 className="h-4 w-4" />
                           </button>
                         </>

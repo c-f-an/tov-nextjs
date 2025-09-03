@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, UserPlus, Mail, Shield, UserX } from 'lucide-react'
 import { AdminLayout } from '@/presentation/components/admin/AdminLayout'
 
@@ -9,63 +9,71 @@ interface User {
   name: string
   email: string
   phone: string
-  church: string
-  role: 'USER' | 'ADMIN'
+  username: string
+  status: string
   joinDate: string
-  lastLogin: string
-  status: '활성' | '비활성' | '정지'
+  lastLogin: string | null
 }
 
-const mockUsers: User[] = [
-  {
-    id: 1,
-    name: '홍길동',
-    email: 'hong@email.com',
-    phone: '010-1234-5678',
-    church: '샘플교회',
-    role: 'USER',
-    joinDate: '2023.01.15',
-    lastLogin: '2024.03.20 14:30',
-    status: '활성'
-  },
-  {
-    id: 2,
-    name: '김관리',
-    email: 'admin@tov.or.kr',
-    phone: '010-9999-9999',
-    church: 'TOV',
-    role: 'ADMIN',
-    joinDate: '2022.01.01',
-    lastLogin: '2024.03.21 09:00',
-    status: '활성'
-  },
-  {
-    id: 3,
-    name: '이사용',
-    email: 'user@email.com',
-    phone: '010-5555-5555',
-    church: '은혜교회',
-    role: 'USER',
-    joinDate: '2023.06.20',
-    lastLogin: '2024.02.15 16:45',
-    status: '활성'
-  }
-]
-
 export default function AdminUsersPage() {
-  const [users] = useState<User[]>(mockUsers)
+  const [users, setUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterRole, setFilterRole] = useState<'전체' | 'USER' | 'ADMIN'>('전체')
-  const [filterStatus, setFilterStatus] = useState<'전체' | '활성' | '비활성' | '정지'>('전체')
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive' | 'suspended'>('all')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('/api/admin/users')
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data.users)
+      }
+    } catch (error) {
+      console.error('Failed to fetch users:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.includes(searchTerm) || 
-                         user.email.includes(searchTerm) ||
-                         user.church.includes(searchTerm)
-    const matchesRole = filterRole === '전체' || user.role === filterRole
-    const matchesStatus = filterStatus === '전체' || user.status === filterStatus
-    return matchesSearch && matchesRole && matchesStatus
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.username?.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStatus = filterStatus === 'all' || user.status === filterStatus
+    return matchesSearch && matchesStatus
   })
+
+  const getStatusDisplay = (status: string) => {
+    switch(status) {
+      case 'active': return '활성'
+      case 'inactive': return '비활성'
+      case 'suspended': return '정지'
+      default: return status
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch(status) {
+      case 'active': return 'bg-green-100 text-green-700'
+      case 'inactive': return 'bg-gray-100 text-gray-700'
+      case 'suspended': return 'bg-red-100 text-red-700'
+      default: return 'bg-gray-100 text-gray-700'
+    }
+  }
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </AdminLayout>
+    )
+  }
 
   return (
     <AdminLayout>
@@ -87,18 +95,20 @@ export default function AdminUsersPage() {
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-sm text-gray-600">활성 회원</p>
             <p className="text-2xl font-bold">
-              {users.filter(u => u.status === '활성').length}명
+              {users.filter(u => u.status === 'active').length}명
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <p className="text-sm text-gray-600">관리자</p>
+            <p className="text-sm text-gray-600">비활성 회원</p>
             <p className="text-2xl font-bold">
-              {users.filter(u => u.role === 'ADMIN').length}명
+              {users.filter(u => u.status === 'inactive').length}명
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <p className="text-sm text-gray-600">오늘 접속</p>
-            <p className="text-2xl font-bold">12명</p>
+            <p className="text-sm text-gray-600">정지 회원</p>
+            <p className="text-2xl font-bold">
+              {users.filter(u => u.status === 'suspended').length}명
+            </p>
           </div>
         </div>
 
@@ -106,30 +116,21 @@ export default function AdminUsersPage() {
         <div className="bg-white p-4 rounded-lg shadow mb-6">
           <div className="flex gap-4 items-center">
             <select
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value as any)}
-              className="px-3 py-2 border rounded"
-            >
-              <option value="전체">전체 권한</option>
-              <option value="USER">일반회원</option>
-              <option value="ADMIN">관리자</option>
-            </select>
-            <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as any)}
               className="px-3 py-2 border rounded"
             >
-              <option value="전체">전체 상태</option>
-              <option value="활성">활성</option>
-              <option value="비활성">비활성</option>
-              <option value="정지">정지</option>
+              <option value="all">전체 상태</option>
+              <option value="active">활성</option>
+              <option value="inactive">비활성</option>
+              <option value="suspended">정지</option>
             </select>
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="이름, 이메일, 교회명으로 검색"
+                  placeholder="이름, 이메일, 사용자명으로 검색"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border rounded"
@@ -146,8 +147,6 @@ export default function AdminUsersPage() {
               <tr>
                 <th className="text-left py-3 px-4">회원정보</th>
                 <th className="text-left py-3 px-4">연락처</th>
-                <th className="text-left py-3 px-4">교회</th>
-                <th className="text-center py-3 px-4">권한</th>
                 <th className="text-center py-3 px-4">가입일</th>
                 <th className="text-center py-3 px-4">최근 접속</th>
                 <th className="text-center py-3 px-4">상태</th>
@@ -161,35 +160,21 @@ export default function AdminUsersPage() {
                     <div>
                       <p className="font-medium">{user.name}</p>
                       <p className="text-sm text-gray-600">{user.email}</p>
+                      {user.username && (
+                        <p className="text-xs text-gray-500">@{user.username}</p>
+                      )}
                     </div>
                   </td>
-                  <td className="py-3 px-4">{user.phone}</td>
-                  <td className="py-3 px-4">{user.church}</td>
-                  <td className="text-center py-3 px-4">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded ${
-                      user.role === 'ADMIN' 
-                        ? 'bg-purple-100 text-purple-700'
-                        : 'bg-gray-100 text-gray-700'
-                    }`}>
-                      {user.role === 'ADMIN' && <Shield className="h-3 w-3" />}
-                      {user.role === 'ADMIN' ? '관리자' : '일반'}
-                    </span>
-                  </td>
+                  <td className="py-3 px-4">{user.phone || '-'}</td>
                   <td className="text-center py-3 px-4 text-sm">
                     {user.joinDate}
                   </td>
                   <td className="text-center py-3 px-4 text-sm">
-                    {user.lastLogin}
+                    {user.lastLogin || '접속 기록 없음'}
                   </td>
                   <td className="text-center py-3 px-4">
-                    <span className={`px-2 py-1 text-xs rounded ${
-                      user.status === '활성' 
-                        ? 'bg-green-100 text-green-700'
-                        : user.status === '비활성'
-                        ? 'bg-gray-100 text-gray-700'
-                        : 'bg-red-100 text-red-700'
-                    }`}>
-                      {user.status}
+                    <span className={`px-2 py-1 text-xs rounded ${getStatusColor(user.status)}`}>
+                      {getStatusDisplay(user.status)}
                     </span>
                   </td>
                   <td className="text-center py-3 px-4">
