@@ -8,7 +8,6 @@ export default function SitemapPage() {
       links: [
         { name: "About Us", href: "/about" },
         { name: "우리는", href: "/about/greeting" },
-        { name: "우리는", href: "/about/purpose" },
         { name: "사업보고", href: "/about/business" },
         { name: "함께하는 이들", href: "/about/organization" },
         { name: "찾아오시는 길", href: "/about/location" },

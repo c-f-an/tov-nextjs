@@ -14,9 +14,8 @@ export function Header() {
       href: "/about",
       submenu: [
         { title: "우리는", href: "/about/greeting" },
-        { title: "설립목적", href: "/about/purpose" },
-        { title: "주요사업", href: "/about/business" },
-        { title: "조직도", href: "/about/organization" },
+        { title: "함께하는이들", href: "/about/organization" },
+        { title: "사업보고", href: "/about/business" },
         { title: "오시는길", href: "/about/location" },
         { title: "FAQ", href: "/about/faq" },
       ],

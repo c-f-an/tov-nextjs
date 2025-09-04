@@ -23,12 +23,6 @@ const aboutItems = [
     icon: FileText,
   },
   {
-    title: "설립목적",
-    description: "투명하고 건강한 교회 재정을 위한 우리의 목적",
-    href: "/about/purpose",
-    icon: Target,
-  },
-  {
     title: "주요사업",
     description: "교회와 목회자를 위한 다양한 세무 서비스",
     href: "/about/business",

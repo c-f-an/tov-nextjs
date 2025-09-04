@@ -3,6 +3,19 @@
 import { MapPin, Phone, Mail, Clock, Train, Bus, Car } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Breadcrumb } from '@/presentation/components/common/Breadcrumb'
+import dynamic from 'next/dynamic'
+
+const KakaoMap = dynamic(() => import('@/components/KakaoMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full flex items-center justify-center text-gray-500">
+      <div className="text-center">
+        <MapPin className="h-16 w-16 mx-auto mb-4 animate-pulse" />
+        <p className="text-lg">지도를 불러오는 중...</p>
+      </div>
+    </div>
+  ),
+})
 
 export default function LocationPage() {
   return (
@@ -14,12 +27,12 @@ export default function LocationPage() {
         {/* 지도 영역 */}
         <div className="mb-8">
           <div className="bg-gray-200 rounded-lg overflow-hidden" style={{ height: '400px' }}>
-            <div className="h-full flex items-center justify-center text-gray-500">
-              <div className="text-center">
-                <MapPin className="h-16 w-16 mx-auto mb-4" />
-                <p className="text-lg">지도 API 연동 예정</p>
-              </div>
-            </div>
+            <KakaoMap 
+              latitude={37.4979} 
+              longitude={127.0276} 
+              markerTitle="TOV(주)" 
+              level={3} 
+            />
           </div>
         </div>
 
