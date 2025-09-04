@@ -79,7 +79,7 @@
 ### About Us 섹션 ✅
 
 - `/about` - About Us 메인 페이지
-- `/about/greeting` - 인사말 페이지
+- `/about/greeting` - 우리는 페이지
 - `/about/purpose` - 설립목적 페이지
 - `/about/business` - 주요사업 페이지
 - `/about/organization` - 조직도 페이지

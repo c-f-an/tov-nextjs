@@ -77,7 +77,7 @@ Pages/Components → API Routes → Use Cases → Repositories → Prisma → Da
 | 페이지        | 경로                  | 데이터 소스 |
 | ------------- | --------------------- | ----------- |
 | About Us 메인 | `/about`              | 정적 콘텐츠 |
-| 인사말        | `/about/greeting`     | 정적 콘텐츠 |
+| 우리는        | `/about/greeting`     | 정적 콘텐츠 |
 | 설립목적      | `/about/purpose`      | 정적 콘텐츠 |
 | 주요사업      | `/about/business`     | 정적 콘텐츠 |
 | 조직도        | `/about/organization` | 정적 콘텐츠 |

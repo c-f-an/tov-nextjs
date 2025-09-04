@@ -7,7 +7,7 @@ export default function SitemapPage() {
       title: "About Us",
       links: [
         { name: "About Us", href: "/about" },
-        { name: "인사말", href: "/about/greeting" },
+        { name: "우리는", href: "/about/greeting" },
         { name: "우리는", href: "/about/purpose" },
         { name: "사업보고", href: "/about/business" },
         { name: "함께하는 이들", href: "/about/organization" },
@@ -74,8 +74,8 @@ export default function SitemapPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Breadcrumb items={[{ label: '사이트맵' }]} />
-      
+      <Breadcrumb items={[{ label: "사이트맵" }]} />
+
       <div className="mx-auto">
         <h1 className="text-3xl font-bold mb-8">사이트맵</h1>
 

@@ -13,7 +13,7 @@ export function Header() {
       title: "About Us",
       href: "/about",
       submenu: [
-        { title: "인사말", href: "/about/greeting" },
+        { title: "우리는", href: "/about/greeting" },
         { title: "설립목적", href: "/about/purpose" },
         { title: "주요사업", href: "/about/business" },
         { title: "조직도", href: "/about/organization" },
