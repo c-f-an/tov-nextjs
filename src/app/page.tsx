@@ -6,11 +6,11 @@ import { FinancialReport } from '@/presentation/components/home/FinancialReport'
 import { getContainer } from '@/infrastructure/config/getContainer';
 
 export default async function Home() {
-  let banners = [];
-  let categories = [];
-  let notices = [];
-  let news = [];
-  let quickLinks = [];
+  let banners: any[] = [];
+  let categories: any[] = [];
+  let notices: any[] = [];
+  let news: any[] = [];
+  let quickLinks: any[] = [];
   let consultationStats = null;
   let financialReport = null;
 
@@ -20,12 +20,18 @@ export default async function Home() {
     const container = getContainer();
     const getMainBannersUseCase = container.getGetMainBannersUseCase();
     const bannersResult = await getMainBannersUseCase.execute({ activeOnly: true });
-    banners = bannersResult.ok ? bannersResult.value : [];
+    banners = bannersResult.ok ? bannersResult.value.map(banner => ({
+      ...banner,
+      createdAt: banner.createdAt?.toISOString() || null,
+      updatedAt: banner.updatedAt?.toISOString() || null,
+      startDate: banner.startDate?.toISOString() || null,
+      endDate: banner.endDate?.toISOString() || null
+    })) : [];
 
     // Fetch categories
     const getCategoriesUseCase = container.getGetCategoriesUseCase();
     const categoriesResult = await getCategoriesUseCase.execute();
-    categories = categoriesResult.isSuccess ? categoriesResult.value : [];
+    categories = Array.isArray(categoriesResult) ? categoriesResult : [];
 
     // Find notice and news category IDs
     const noticeCategory = categories.find(cat => cat.slug === 'notice');
@@ -37,25 +43,37 @@ export default async function Home() {
     // Fetch latest notices
     const noticesResult = noticeCategory ? await getPostsUseCase.execute({
       categoryId: noticeCategory.id,
-      status: 'published',
       limit: 4,
       page: 1
     }) : null;
-    notices = noticesResult?.isSuccess ? noticesResult.value.posts : [];
+    notices = noticesResult?.posts ? noticesResult.posts.map((post: any) => ({
+      ...post,
+      createdAt: post.createdAt?.toISOString() || null,
+      updatedAt: post.updatedAt?.toISOString() || null,
+      publishedAt: post.publishedAt?.toISOString() || null
+    })) : [];
 
     // Fetch latest news
     const newsResult = newsCategory ? await getPostsUseCase.execute({
       categoryId: newsCategory.id,
-      status: 'published',
       limit: 4,
       page: 1
     }) : null;
-    news = newsResult?.isSuccess ? newsResult.value.posts : [];
+    news = newsResult?.posts ? newsResult.posts.map((post: any) => ({
+      ...post,
+      createdAt: post.createdAt?.toISOString() || null,
+      updatedAt: post.updatedAt?.toISOString() || null,
+      publishedAt: post.publishedAt?.toISOString() || null
+    })) : [];
 
     // Fetch quick links
     const getQuickLinksUseCase = container.getGetQuickLinksUseCase();
     const quickLinksResult = await getQuickLinksUseCase.execute({ activeOnly: true });
-    quickLinks = quickLinksResult.ok ? quickLinksResult.value : [];
+    quickLinks = quickLinksResult.ok ? quickLinksResult.value.map(link => ({
+      ...link,
+      createdAt: link.createdAt?.toISOString() || null,
+      updatedAt: link.updatedAt?.toISOString() || null
+    })) : [];
 
     // Fetch consultation stats
     const getConsultationStatsUseCase = container.getGetConsultationStatsUseCase();

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/presentation/contexts/AuthContext";
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 
 const menuItems = [
   { icon: User, label: "내 정보", href: "#profile" },
@@ -188,6 +189,7 @@ export default function MyPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Breadcrumb />
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-4">마이페이지</h1>
         <p className="text-lg text-gray-600">

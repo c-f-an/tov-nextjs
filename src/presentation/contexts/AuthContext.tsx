@@ -15,7 +15,7 @@ interface AuthContextType {
   user: User | null;
   accessToken: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ user: User; accessToken: string; }>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
@@ -47,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('AuthContext: Token refresh successful', data.user);
         setUser(data.user);
         setAccessToken(data.accessToken);
         return;
@@ -77,12 +78,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(data.user);
     setAccessToken(data.accessToken);
     
-    // Redirect based on user role
-    if (data.user.role === 'ADMIN') {
-      router.push('/admin');
-    } else {
-      router.push('/');
-    }
+    // Return data for the caller to handle redirect
+    return data;
   };
 
   const register = async (registerData: RegisterData) => {
@@ -121,8 +118,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Check authentication on mount
   useEffect(() => {
-    refreshToken().finally(() => setLoading(false));
+    console.log('AuthContext: Checking authentication on mount');
+    refreshToken().finally(() => {
+      setLoading(false);
+    });
   }, [refreshToken]);
+
+  // Debug log when user state changes
+  useEffect(() => {
+    console.log('AuthContext: User state changed', { user, accessToken });
+  }, [user, accessToken]);
 
   // Set up token refresh interval
   useEffect(() => {

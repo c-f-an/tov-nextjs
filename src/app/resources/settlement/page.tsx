@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { FileText, Download, Calendar, CheckCircle, ArrowLeft, Clock } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
 
 const resources = [
   {
@@ -43,6 +44,12 @@ const timeline = [
 export default function SettlementPage() {
   return (
     <div className="container mx-auto px-4 py-8">
+      <Breadcrumb 
+        items={[
+          { label: "자료실", href: "/resources" },
+          { label: "결산공시" }
+        ]}
+      />
       {/* 뒤로가기 */}
       <Link 
         href="/resources" 

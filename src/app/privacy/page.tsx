@@ -1,6 +1,9 @@
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+
 export default function PrivacyPage() {
   return (
     <div className="container mx-auto px-4 py-8">
+      <Breadcrumb />
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">개인정보처리방침</h1>
         

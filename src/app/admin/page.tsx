@@ -14,30 +14,42 @@ interface DashboardStats {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { user, accessToken } = useAuth();
+  const { user, accessToken, loading } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalPosts: 0,
     pendingConsultations: 0,
     monthlyDonations: 0
   });
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
+    console.log('Admin page auth check:', { user, loading, isChecking });
+    
+    // Wait for auth loading to complete
+    if (loading) {
+      return;
+    }
+
     // Check if user is admin
     if (!user) {
-      router.push('/login');
+      console.log('No user found, redirecting to login');
+      router.push('/login?redirect=/admin');
       return;
     }
 
     // Check if user has admin role
     if (user.role !== 'ADMIN') {
+      console.log('User is not admin, redirecting to home');
       router.push('/');
       return;
     }
 
+    console.log('Admin user verified, loading dashboard');
+    setIsChecking(false);
     // Fetch dashboard stats
     fetchDashboardStats();
-  }, [user, router]);
+  }, [user, router, loading]);
 
   const fetchDashboardStats = async () => {
     try {
@@ -69,6 +81,23 @@ export default function AdminDashboard() {
       currency: 'KRW'
     }).format(amount);
   };
+
+  // Show loading while checking auth
+  if (loading || isChecking) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">로딩중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Only show admin layout if user is verified admin
+  if (!user || user.role !== 'ADMIN') {
+    return null;
+  }
 
   return (
     <AdminLayout>

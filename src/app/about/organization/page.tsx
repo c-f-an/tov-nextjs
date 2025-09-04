@@ -1,10 +1,12 @@
 import { Users, User, Building, Award } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Breadcrumb } from '@/presentation/components/common/Breadcrumb'
 
 export default function OrganizationPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
+        <Breadcrumb items={[{ label: 'About Us', href: '/about' }, { label: '조직도' }]} />
         <h1 className="text-4xl font-bold mb-8 text-center">조직도</h1>
         
         <div className="mb-8 text-center">

@@ -9,6 +9,7 @@ import {
   PresentationIcon
 } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Breadcrumb } from '@/presentation/components/common/Breadcrumb'
 
 const businesses = [
   {
@@ -89,6 +90,7 @@ export default function BusinessPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
+        <Breadcrumb items={[{ label: 'About Us', href: '/about' }, { label: '주요사업' }]} />
         <h1 className="text-4xl font-bold mb-8 text-center">주요사업</h1>
         
         <div className="mb-8 text-center">

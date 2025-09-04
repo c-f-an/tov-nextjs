@@ -1,9 +1,11 @@
 import { Target, Heart, Shield, Users, BookOpen, Lightbulb } from 'lucide-react'
+import { Breadcrumb } from '@/presentation/components/common/Breadcrumb'
 
 export default function PurposePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
+        <Breadcrumb items={[{ label: 'About Us', href: '/about' }, { label: '설립목적' }]} />
         <h1 className="text-4xl font-bold mb-8 text-center">설립목적</h1>
         
         <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-8 mb-8">

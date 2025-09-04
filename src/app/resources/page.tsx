@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FileText, Calculator, Receipt, Scale, Download } from 'lucide-react'
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
 
 const resourceCategories = [
   {
@@ -57,6 +58,7 @@ const recentResources = [
 export default function ResourcesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
+      <Breadcrumb />
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold mb-4">자료실</h1>
         <p className="text-lg text-gray-600">

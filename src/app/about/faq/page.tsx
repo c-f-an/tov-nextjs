@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MainLayout } from '@/presentation/components/layout/MainLayout';
-import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import { Breadcrumb } from '@/presentation/components/common/Breadcrumb';
 
 interface FAQ {
   id: number;
@@ -68,9 +67,8 @@ export default function FAQPage() {
   const displayedFAQs = selectedCategory ? faqs[selectedCategory] || [] : [];
 
   return (
-    <MainLayout>
-      <div className="max-w-4xl mx-auto py-12 px-4">
-        <Breadcrumb />
+    <div className="max-w-4xl mx-auto py-12 px-4">
+      <Breadcrumb items={[{ label: 'About Us', href: '/about' }, { label: '자주 묻는 질문' }]} />
         <h1 className="text-3xl font-bold text-center mb-8">자주 묻는 질문</h1>
         
         {/* Search Bar */}
@@ -185,6 +183,5 @@ export default function FAQPage() {
           </a>
         </div>
       </div>
-    </MainLayout>
   );
 }

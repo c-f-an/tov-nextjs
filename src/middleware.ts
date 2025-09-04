@@ -62,9 +62,9 @@ export async function middleware(request: NextRequest) {
       
       // Check admin access for admin paths
       if (isAdminPath) {
-        // Admin paths require additional role check
-        // This will be handled by the API routes themselves using verifyAdminRequest
-        // We just ensure the user is authenticated here
+        // For now, we'll let the admin page component handle role checking
+        // This avoids circular dependency issues
+        // The admin page will redirect non-admin users
       }
       
       // Add user info to request headers

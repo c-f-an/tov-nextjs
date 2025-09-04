@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { FileText, Download, BookOpen, Calculator, ArrowLeft, AlertCircle } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
 
 const resources = [
   {
@@ -62,6 +63,12 @@ const bestPractices = [
 export default function NonprofitFinancePage() {
   return (
     <div className="container mx-auto px-4 py-8">
+      <Breadcrumb 
+        items={[
+          { label: "자료실", href: "/resources" },
+          { label: "비영리재정" }
+        ]}
+      />
       {/* 뒤로가기 */}
       <Link 
         href="/resources" 

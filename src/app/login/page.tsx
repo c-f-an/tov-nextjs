@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 
 export default function LoginPage() {
@@ -9,7 +10,49 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/';
+  
+  console.log('Login page - redirect param:', redirect, 'Full URL:', window.location.href);
+
+  // If already logged in, redirect
+  useEffect(() => {
+    if (!authLoading && user) {
+      // If user is admin and trying to access admin page, redirect there
+      if (user.role === 'ADMIN' && redirect.startsWith('/admin')) {
+        router.push(redirect);
+      } else if (user.role === 'ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push(redirect);
+      }
+    }
+  }, [user, redirect, router, authLoading]);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">로딩중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If already logged in, show message instead of blank
+  if (user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-gray-600">이미 로그인되어 있습니다. 잠시만 기다려주세요...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,10 +60,24 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await login(email, password);
+      const result = await login(email, password);
+      
+      // Handle redirect after successful login
+      // Debug logging
+      console.log('Login successful!', { role: result.user.role, redirect });
+      
+      // Determine where to redirect
+      let targetUrl = '/';
+      if (redirect && redirect !== '/') {
+        targetUrl = redirect;
+      } else if (result.user.role === 'ADMIN') {
+        targetUrl = '/admin';
+      }
+      
+      // Force page reload with new URL
+      window.location.replace(targetUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
-    } finally {
       setLoading(false);
     }
   };

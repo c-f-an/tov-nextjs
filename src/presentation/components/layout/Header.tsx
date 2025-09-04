@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useState } from 'react';
-import { useAuth } from '@/presentation/contexts/AuthContext';
+import Link from "next/link";
+import { useState } from "react";
+import { useAuth } from "@/presentation/contexts/AuthContext";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -10,56 +10,56 @@ export function Header() {
 
   const menuItems = [
     {
-      title: '협회소개',
-      href: '/about',
+      title: "About Us",
+      href: "/about",
       submenu: [
-        { title: '인사말', href: '/about/greeting' },
-        { title: '설립목적', href: '/about/purpose' },
-        { title: '주요사업', href: '/about/business' },
-        { title: '조직도', href: '/about/organization' },
-        { title: '오시는길', href: '/about/location' }
-      ]
+        { title: "인사말", href: "/about/greeting" },
+        { title: "설립목적", href: "/about/purpose" },
+        { title: "주요사업", href: "/about/business" },
+        { title: "조직도", href: "/about/organization" },
+        { title: "오시는길", href: "/about/location" },
+        { title: "FAQ", href: "/about/faq" },
+      ],
     },
     {
-      title: '알림마당',
-      href: '/board',
+      title: "알림마당",
+      href: "/board",
       submenu: [
-        { title: '공지사항', href: '/board/notice' },
-        { title: '토브소식', href: '/board/news' },
-        { title: '언론보도', href: '/board/media' },
-        { title: '발간자료', href: '/board/publication' },
-        { title: '자료실', href: '/board/resource' },
-        { title: '활동소식', href: '/board/activity' }
-      ]
+        { title: "공지사항", href: "/board/notice" },
+        { title: "토브소식", href: "/board/news" },
+        { title: "언론보도", href: "/board/media" },
+        { title: "발간자료", href: "/board/publication" },
+        { title: "자료실", href: "/board/resource" },
+        { title: "활동소식", href: "/board/activity" },
+      ],
     },
     {
-      title: '자료실',
-      href: '/resources',
+      title: "자료실",
+      href: "/resources",
       submenu: [
-        { title: '종교인소득', href: '/resources/religious-income' },
-        { title: '비영리재정', href: '/resources/nonprofit-finance' },
-        { title: '결산공시', href: '/resources/settlement' },
-        { title: '관계법령', href: '/resources/laws' }
-      ]
+        { title: "종교인소득", href: "/resources/religious-income" },
+        { title: "비영리재정", href: "/resources/nonprofit-finance" },
+        { title: "결산공시", href: "/resources/settlement" },
+        { title: "관계법령", href: "/resources/laws" },
+      ],
     },
     {
-      title: '상담센터',
-      href: '/consultation',
+      title: "상담센터",
+      href: "/consultation",
       submenu: [
-        { title: '상담신청', href: '/consultation/apply' },
-        { title: '상담안내', href: '/consultation/guide' },
-        { title: 'FAQ', href: '/consultation/faq' }
-      ]
+        { title: "상담신청", href: "/consultation/apply" },
+        { title: "상담안내", href: "/consultation/guide" },
+      ],
     },
     {
-      title: '후원하기',
-      href: '/donation',
+      title: "후원하기",
+      href: "/donation",
       submenu: [
-        { title: '후원안내', href: '/donation/guide' },
-        { title: '후원신청', href: '/donation/apply' },
-        { title: '재정보고', href: '/donation/report' }
-      ]
-    }
+        { title: "후원안내", href: "/donation/guide" },
+        { title: "후원신청", href: "/donation/apply" },
+        { title: "재정보고", href: "/donation/report" },
+      ],
+    },
   ];
 
   return (
@@ -75,7 +75,10 @@ export function Header() {
               {user ? (
                 <>
                   <span className="text-gray-700">{user.name}님</span>
-                  <Link href="/mypage" className="text-gray-600 hover:text-gray-800">
+                  <Link
+                    href="/mypage"
+                    className="text-gray-600 hover:text-gray-800"
+                  >
                     마이페이지
                   </Link>
                   <button
@@ -87,10 +90,16 @@ export function Header() {
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="text-gray-600 hover:text-gray-800">
+                  <Link
+                    href="/login"
+                    className="text-gray-600 hover:text-gray-800"
+                  >
                     로그인
                   </Link>
-                  <Link href="/register" className="text-gray-600 hover:text-gray-800">
+                  <Link
+                    href="/register"
+                    className="text-gray-600 hover:text-gray-800"
+                  >
                     회원가입
                   </Link>
                 </>
@@ -106,7 +115,9 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <h1 className="text-2xl font-bold text-blue-600">토브(TOV)</h1>
-            <span className="ml-2 text-sm text-gray-600">사단법인 토브협회</span>
+            <span className="ml-2 text-sm text-gray-600">
+              사단법인 토브협회
+            </span>
           </Link>
 
           {/* Desktop Navigation */}

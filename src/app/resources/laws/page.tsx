@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { FileText, Download, Scale, BookOpen, ArrowLeft, ExternalLink, AlertCircle } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
 
 const lawCategories = [
   {
@@ -62,6 +63,12 @@ const recentUpdates = [
 export default function LawsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
+      <Breadcrumb 
+        items={[
+          { label: "자료실", href: "/resources" },
+          { label: "관계법령" }
+        ]}
+      />
       {/* 뒤로가기 */}
       <Link 
         href="/resources" 
