@@ -18,7 +18,7 @@ import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 const aboutItems = [
   {
     title: "우리는",
-    description: "한국교회세무정보봉사단의 우리는입니다.",
+    description: "Tov를 소개합니다.",
     href: "/about/greeting",
     icon: FileText,
   },
