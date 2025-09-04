@@ -4,7 +4,7 @@ import { Breadcrumb } from '@/presentation/components/common/Breadcrumb'
 export default function PurposePage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto">
         <Breadcrumb items={[{ label: 'About Us', href: '/about' }, { label: '설립목적' }]} />
         <h1 className="text-4xl font-bold mb-8 text-center">설립목적</h1>
         
@@ -12,7 +12,7 @@ export default function PurposePage() {
           <div className="text-center">
             <Target className="h-16 w-16 text-primary mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-4">우리의 비전</h2>
-            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-700 mx-auto">
               한국교회의 재정 투명성을 높이고, 건전한 교회 재정 문화를 정착시켜 
               교회가 사회적 신뢰를 회복하고 본연의 사명에 충실할 수 있도록 돕는다.
             </p>
@@ -88,7 +88,7 @@ export default function PurposePage() {
           <div className="text-center">
             <Lightbulb className="h-12 w-12 text-primary mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-4">함께 만들어가는 미래</h2>
-            <p className="text-gray-700 max-w-2xl mx-auto">
+            <p className="text-gray-700 mx-auto">
               TOV는 한국교회와 함께 투명하고 건전한 재정 문화를 만들어가고자 합니다. 
               여러분의 참여와 협력을 통해 더 나은 미래를 만들어갈 수 있습니다.
             </p>

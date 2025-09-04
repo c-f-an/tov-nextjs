@@ -102,7 +102,7 @@ export default function EducationPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="mx-auto">
         <Breadcrumb />
         {/* Header */}
         <div className="mb-8">

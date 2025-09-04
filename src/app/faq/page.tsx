@@ -69,7 +69,7 @@ export default function FAQPage() {
 
   return (
     <MainLayout>
-      <div className="max-w-4xl mx-auto py-12 px-4">
+      <div className="mx-auto py-12 px-4">
         <Breadcrumb />
         <h1 className="text-3xl font-bold text-center mb-8">자주 묻는 질문</h1>
         

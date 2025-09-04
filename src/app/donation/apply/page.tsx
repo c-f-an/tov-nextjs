@@ -154,7 +154,7 @@ export default function DonationApplyPage() {
       </div>
 
       {/* Donation Form */}
-      <div className="max-w-3xl mx-auto">
+      <div className="mx-auto">
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-8">
           {/* Sponsor Type */}
           <div className="mb-8">

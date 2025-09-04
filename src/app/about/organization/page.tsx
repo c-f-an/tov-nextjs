@@ -5,7 +5,7 @@ import { Breadcrumb } from '@/presentation/components/common/Breadcrumb'
 export default function OrganizationPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="mx-auto">
         <Breadcrumb items={[{ label: 'About Us', href: '/about' }, { label: '조직도' }]} />
         <h1 className="text-4xl font-bold mb-8 text-center">조직도</h1>
         
@@ -17,7 +17,7 @@ export default function OrganizationPage() {
 
         {/* 이사장 */}
         <div className="mb-8">
-          <Card className="max-w-md mx-auto">
+          <Card className="mx-auto">
             <CardHeader className="bg-primary text-white">
               <CardTitle className="text-center">이사장</CardTitle>
             </CardHeader>
@@ -36,7 +36,7 @@ export default function OrganizationPage() {
         {/* 이사회 */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4 text-center">이사회</h2>
-          <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-4 mx-auto">
             {[1, 2, 3, 4, 5, 6].map((num) => (
               <Card key={num}>
                 <CardContent className="pt-6">
@@ -130,7 +130,7 @@ export default function OrganizationPage() {
         {/* 자문위원회 */}
         <div className="bg-gray-50 rounded-lg p-8">
           <h2 className="text-2xl font-bold mb-6 text-center">자문위원회</h2>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 mx-auto">
             <div className="bg-white rounded-lg p-6 text-center">
               <h3 className="font-bold mb-2">세무 자문위원</h3>
               <p className="text-gray-600">세무사, 회계사 등 세무 전문가</p>

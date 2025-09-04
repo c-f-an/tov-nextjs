@@ -89,12 +89,12 @@ const businesses = [
 export default function BusinessPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="mx-auto">
         <Breadcrumb items={[{ label: 'About Us', href: '/about' }, { label: '주요사업' }]} />
         <h1 className="text-4xl font-bold mb-8 text-center">주요사업</h1>
         
         <div className="mb-8 text-center">
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg text-gray-600 mx-auto">
             한국교회세무정보봉사단은 교회와 목회자들을 위한 종합적인 세무 지원 서비스를 제공합니다.
           </p>
         </div>
@@ -131,7 +131,7 @@ export default function BusinessPage() {
           <div className="text-center">
             <Briefcase className="h-12 w-12 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-4">특별 지원 프로그램</h2>
-            <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-6 mx-auto">
               <div className="bg-white/10 rounded-lg p-6">
                 <h3 className="font-bold text-lg mb-2">소규모 교회 지원</h3>
                 <p>
@@ -150,7 +150,7 @@ export default function BusinessPage() {
 
         <div className="mt-12 text-center">
           <h2 className="text-2xl font-bold mb-4">사업 추진 원칙</h2>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 mx-auto">
             <div className="bg-gray-50 rounded-lg p-6">
               <Calculator className="h-10 w-10 text-primary mx-auto mb-3" />
               <h3 className="font-bold mb-2">정확성</h3>

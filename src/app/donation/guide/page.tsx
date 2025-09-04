@@ -131,7 +131,7 @@ export default function DonationGuidePage() {
       {/* Donation Types */}
       <section className="mb-16">
         <h2 className="text-2xl font-bold text-center mb-12">후원 방법</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto">
           {donationTypes.map((item) => (
             <div key={item.type} className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-xl font-semibold mb-3">{item.type}</h3>
@@ -154,7 +154,7 @@ export default function DonationGuidePage() {
       {/* How We Use Donations */}
       <section className="mb-16 bg-gray-50 rounded-lg p-8">
         <h2 className="text-2xl font-bold text-center mb-12">후원금 사용처</h2>
-        <div className="max-w-3xl mx-auto">
+        <div className="mx-auto">
           {howToUse.map((item) => (
             <div key={item.title} className="mb-6">
               <div className="flex justify-between items-center mb-2">
@@ -179,7 +179,7 @@ export default function DonationGuidePage() {
       <section className="mb-16">
         <div className="bg-blue-50 rounded-lg p-8 text-center">
           <h2 className="text-2xl font-bold mb-6">후원 계좌 안내</h2>
-          <div className="max-w-md mx-auto">
+          <div className="mx-auto">
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <p className="text-sm text-gray-600 mb-2">은행명</p>
               <p className="font-semibold mb-4">국민은행</p>

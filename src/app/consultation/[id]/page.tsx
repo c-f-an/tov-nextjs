@@ -136,7 +136,7 @@ export default function ConsultationDetailPage({ params }: { params: { id: strin
       </nav>
 
       {/* Consultation Detail */}
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto">
         <div className="bg-white rounded-lg shadow-sm">
           {/* Header */}
           <div className="border-b px-6 py-4">

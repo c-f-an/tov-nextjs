@@ -7,7 +7,7 @@ import { Breadcrumb } from '@/presentation/components/common/Breadcrumb'
 export default function LocationPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="mx-auto">
         <Breadcrumb items={[{ label: 'About Us', href: '/about' }, { label: '오시는길' }]} />
         <h1 className="text-4xl font-bold mb-8 text-center">오시는길</h1>
         

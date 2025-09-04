@@ -4,7 +4,7 @@ export default function TermsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb />
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto">
         <h1 className="text-3xl font-bold mb-8">이용약관</h1>
         
         <div className="prose max-w-none">

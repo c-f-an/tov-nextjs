@@ -51,16 +51,23 @@ const aboutItems = [
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <Breadcrumb items={[{ label: 'About Us' }]} />
-      
-      <div className="mb-8 text-center">
+      <Breadcrumb items={[{ label: "About Us" }]} />
+
+      <div className="mb-12 text-center">
         <h1 className="text-4xl font-bold mb-4">About Us</h1>
-        <p className="text-lg text-gray-600">
-          “당신의 ’Mission’과 ‘Fund’를 연결하는 Tov 입니다.”
-        </p>
+        <div className="mb-12 text-center bg-gray-50 p-6 rounded-lg">
+          <p className="text-xl text-gray-600 my-2">
+            “당신의 ’Mission’과 ‘Fund’를 연결하는&nbsp;
+            <span className="text-primary font-bold text-3xl">Tov</span>&nbsp;
+            입니다.”
+          </p>
+          <p className="text-lg text-gray-600 my-2">
+            Tov exists to connect funds with mission.
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mx-auto">
         {aboutItems.map((item) => {
           const Icon = item.icon;
           return (

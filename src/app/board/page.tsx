@@ -119,7 +119,7 @@ export default function BoardIndexPage() {
       </div>
 
       {/* Quick Search */}
-      <div className="mt-12 max-w-2xl mx-auto">
+      <div className="mt-12 mx-auto">
         <div className="bg-gray-50 rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-4 text-center">통합 검색</h3>
           <div className="flex space-x-2">

@@ -95,7 +95,7 @@ export default function ConsultationApplyPage() {
       </div>
 
       {/* Consultation Form */}
-      <div className="max-w-3xl mx-auto">
+      <div className="mx-auto">
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-8">
           {/* Personal Information */}
           <div className="mb-8">

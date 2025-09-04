@@ -112,7 +112,7 @@ export default function FAQPage() {
 
       {/* 검색 및 카테고리 필터 */}
       <div className="mb-8">
-        <div className="max-w-2xl mx-auto mb-6">
+        <div className="mx-auto mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
@@ -153,7 +153,7 @@ export default function FAQPage() {
       </div>
 
       {/* FAQ 목록 */}
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="mx-auto space-y-6">
         {filteredFAQs.map((category) => (
           <div key={category.category}>
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
