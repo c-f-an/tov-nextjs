@@ -3,7 +3,7 @@ import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 export default function TermsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <Breadcrumb />
+      <Breadcrumb items={[{ label: '이용약관' }]} />
       <div className="mx-auto">
         <h1 className="text-3xl font-bold mb-8">이용약관</h1>
         

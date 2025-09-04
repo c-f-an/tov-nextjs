@@ -103,7 +103,7 @@ export default function EducationPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mx-auto">
-        <Breadcrumb />
+        <Breadcrumb items={[{ label: '교육' }]} />
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">교육 프로그램</h1>

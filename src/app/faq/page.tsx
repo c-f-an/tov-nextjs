@@ -70,7 +70,7 @@ export default function FAQPage() {
   return (
     <MainLayout>
       <div className="mx-auto py-12 px-4">
-        <Breadcrumb />
+        <Breadcrumb items={[{ label: 'FAQ' }]} />
         <h1 className="text-3xl font-bold text-center mb-8">자주 묻는 질문</h1>
         
         {/* Search Bar */}
