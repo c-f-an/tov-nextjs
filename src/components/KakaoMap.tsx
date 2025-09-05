@@ -24,9 +24,16 @@ export default function KakaoMap({
   const mapContainer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // 환경변수 확인
+    const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
+    if (!apiKey) {
+      console.error("카카오맵 API 키가 설정되지 않았습니다.");
+      return;
+    }
+
     const script = document.createElement("script");
     script.async = true;
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&autoload=false`;
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
 
     document.head.appendChild(script);
 
