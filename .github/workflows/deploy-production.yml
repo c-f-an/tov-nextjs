@@ -168,7 +168,7 @@ jobs:
 
           # 디스크 공간 확보 - 3일 이상 된 백업 삭제
           find /apps/tov-homepage -name "backup-*" -type d -mtime +3 -exec rm -rf {} + 2>/dev/null || true
-          
+
           # 백업
           if [ -d "current" ]; then
             sudo mv current backup-$(date +%Y%m%d%H%M%S)
@@ -196,6 +196,7 @@ jobs:
           DATABASE_NAME=${{ secrets.DATABASE_NAME }}
           JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}
           JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+          NEXT_PUBLIC_KAKAO_MAP_API_KEY=${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }}
           NEXT_PUBLIC_APP_URL=https://tov.ptax.kr
           NEXT_PUBLIC_API_URL=https://tov.ptax.kr/api
           ENVFILE
@@ -203,7 +204,7 @@ jobs:
           # Install build dependencies for native modules
           sudo apt-get update
           sudo apt-get install -y build-essential python3 libvips-dev
-          
+
           # npm 설치
           npm ci --omit=dev
 
