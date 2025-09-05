@@ -30,6 +30,7 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_KAKAO_MAP_API_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SKIP_DB_QUERIES: "true"
 
