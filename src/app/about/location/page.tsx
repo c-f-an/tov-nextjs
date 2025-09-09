@@ -33,7 +33,7 @@ export default function LocationPage() {
             style={{ height: "400px" }}
           >
             <KakaoMap
-              address="서울 종로구 삼일대로 428 낙원상가 5층 500호"
+              address={process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "서울 종로구 삼일대로 428 낙원상가 5층 500호"}
               markerTitle="TOV(주)"
               level={3}
             />
