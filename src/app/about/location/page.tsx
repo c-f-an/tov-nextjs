@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { MapPin, Phone, Mail, Clock, Train, Bus, Car } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Breadcrumb } from '@/presentation/components/common/Breadcrumb'
-import dynamic from 'next/dynamic'
+import { MapPin, Phone, Mail, Clock, Train, Bus, Car } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import dynamic from "next/dynamic";
 
-const KakaoMap = dynamic(() => import('@/components/KakaoMap'), {
+const KakaoMap = dynamic(() => import("@/components/KakaoMap"), {
   ssr: false,
   loading: () => (
     <div className="h-full flex items-center justify-center text-gray-500">
@@ -15,23 +15,27 @@ const KakaoMap = dynamic(() => import('@/components/KakaoMap'), {
       </div>
     </div>
   ),
-})
+});
 
 export default function LocationPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mx-auto">
-        <Breadcrumb items={[{ label: 'About Us', href: '/about' }, { label: '오시는길' }]} />
+        <Breadcrumb
+          items={[{ label: "About Us", href: "/about" }, { label: "오시는길" }]}
+        />
         <h1 className="text-4xl font-bold mb-8 text-center">오시는길</h1>
-        
+
         {/* 지도 영역 */}
         <div className="mb-8">
-          <div className="bg-gray-200 rounded-lg overflow-hidden" style={{ height: '400px' }}>
-            <KakaoMap 
-              latitude={37.4979} 
-              longitude={127.0276} 
-              markerTitle="TOV(주)" 
-              level={3} 
+          <div
+            className="bg-gray-200 rounded-lg overflow-hidden"
+            style={{ height: "400px" }}
+          >
+            <KakaoMap
+              address="서울 종로구 삼일대로 428 낙원상가 5층 500호"
+              markerTitle="TOV(주)"
+              level={3}
             />
           </div>
         </div>
@@ -48,13 +52,15 @@ export default function LocationPage() {
                 <div>
                   <p className="font-semibold">주소</p>
                   <p className="text-gray-600">
-                    서울특별시 서초구 서초대로 396<br />
-                    강남빌딩 15층 1501호<br />
+                    서울특별시 서초구 서초대로 396
+                    <br />
+                    강남빌딩 15층 1501호
+                    <br />
                     (우) 06668
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <Phone className="h-5 w-5 text-primary mt-1" />
                 <div>
@@ -63,7 +69,7 @@ export default function LocationPage() {
                   <p className="text-gray-600">팩스: 02-1234-5679</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <Mail className="h-5 w-5 text-primary mt-1" />
                 <div>
@@ -71,14 +77,16 @@ export default function LocationPage() {
                   <p className="text-gray-600">info@tov.or.kr</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <Clock className="h-5 w-5 text-primary mt-1" />
                 <div>
                   <p className="font-semibold">운영시간</p>
                   <p className="text-gray-600">
-                    평일: 오전 9시 - 오후 6시<br />
-                    점심시간: 오후 12시 - 1시<br />
+                    평일: 오전 9시 - 오후 6시
+                    <br />
+                    점심시간: 오후 12시 - 1시
+                    <br />
                     토요일, 일요일, 공휴일 휴무
                   </p>
                 </div>
@@ -97,31 +105,36 @@ export default function LocationPage() {
                 <div>
                   <p className="font-semibold">지하철</p>
                   <p className="text-gray-600">
-                    2호선 강남역 5번 출구 도보 5분<br />
+                    2호선 강남역 5번 출구 도보 5분
+                    <br />
                     신분당선 강남역 5번 출구 도보 5분
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <Bus className="h-5 w-5 text-primary mt-1" />
                 <div>
                   <p className="font-semibold">버스</p>
                   <p className="text-gray-600">
-                    간선버스: 140, 144, 145, 471<br />
-                    지선버스: 4211, 4421, 4318<br />
+                    간선버스: 140, 144, 145, 471
+                    <br />
+                    지선버스: 4211, 4421, 4318
+                    <br />
                     광역버스: 9404, 9408, 9409
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <Car className="h-5 w-5 text-primary mt-1" />
                 <div>
                   <p className="font-semibold">자가용</p>
                   <p className="text-gray-600">
-                    건물 지하 주차장 이용 가능<br />
-                    방문객 2시간 무료 주차<br />
+                    건물 지하 주차장 이용 가능
+                    <br />
+                    방문객 2시간 무료 주차
+                    <br />
                     (주차권은 사무실에서 발급)
                   </p>
                 </div>
@@ -142,5 +155,5 @@ export default function LocationPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

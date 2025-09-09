@@ -36,7 +36,7 @@ const aboutItems = [
   },
   {
     title: "오시는길",
-    description: "한국교회세무정보봉사단 찾아오시는 길",
+    description: "Tov 찾아오시는 길",
     href: "/about/location",
     icon: MapPin,
   },
