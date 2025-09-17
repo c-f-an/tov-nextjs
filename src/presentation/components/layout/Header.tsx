@@ -21,15 +21,14 @@ export function Header() {
       ],
     },
     {
-      title: "알림마당",
-      href: "/board",
+      title: "토브 소식",
+      href: "/news",
       submenu: [
-        { title: "공지사항", href: "/board/notice" },
-        { title: "토브소식", href: "/board/news" },
-        { title: "언론보도", href: "/board/media" },
-        { title: "발간자료", href: "/board/publication" },
-        { title: "자료실", href: "/board/resource" },
-        { title: "활동소식", href: "/board/activity" },
+        { title: "공지사항", href: "/news/notice" },
+        { title: "활동소식", href: "/news/activity" },
+        { title: "언론보도", href: "/news/media" },
+        { title: "정기간행물", href: "/news/publication" },
+        { title: "관계법령", href: "/news/laws" },
       ],
     },
     {
@@ -39,7 +38,6 @@ export function Header() {
         { title: "종교인소득", href: "/resources/religious-income" },
         { title: "비영리재정", href: "/resources/nonprofit-finance" },
         { title: "결산공시", href: "/resources/settlement" },
-        { title: "관계법령", href: "/resources/laws" },
       ],
     },
     {
