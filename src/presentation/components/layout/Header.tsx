@@ -6,7 +6,16 @@ import { useAuth } from "@/presentation/contexts/AuthContext";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const { user, logout } = useAuth();
+
+  const toggleSubmenu = (href: string) => {
+    setExpandedMenus((prev) =>
+      prev.includes(href)
+        ? prev.filter((item) => item !== href)
+        : [...prev, href]
+    );
+  };
 
   const menuItems = [
     {
@@ -183,14 +192,38 @@ export function Header() {
           <div className="container mx-auto px-4 py-4">
             {menuItems.map((item) => (
               <div key={item.href} className="mb-4">
-                <Link
-                  href={item.href}
-                  className="block font-medium text-gray-700 hover:text-blue-600 mb-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.title}
-                </Link>
-                {item.submenu && (
+                <div className="flex items-center justify-between">
+                  <Link
+                    href={item.href}
+                    className="block font-medium text-gray-700 hover:text-blue-600 mb-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.title}
+                  </Link>
+                  {item.submenu && (
+                    <button
+                      onClick={() => toggleSubmenu(item.href)}
+                      className="p-2 hover:bg-gray-100 rounded"
+                    >
+                      <svg
+                        className={`w-4 h-4 transition-transform ${
+                          expandedMenus.includes(item.href) ? 'rotate-180' : ''
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                {item.submenu && expandedMenus.includes(item.href) && (
                   <div className="ml-4 space-y-2">
                     {item.submenu.map((subItem) => (
                       <Link
