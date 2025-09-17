@@ -30,6 +30,17 @@ export function Header() {
       ],
     },
     {
+      title: "토브운동",
+      href: "/movement",
+      submenu: [
+        { title: "건강한 재정관리", href: "/movement/financial-management" },
+        { title: "건강한 재정 교육", href: "/movement/financial-education" },
+        { title: "결산서 공개 운동", href: "/movement/financial-disclosure" },
+        { title: "종교인 소득신고", href: "https://ptax.kr" },
+        { title: "연대협력", href: "/movement/cooperation" },
+      ],
+    },
+    {
       title: "토브 소식",
       href: "/news",
       submenu: [
@@ -57,6 +68,7 @@ export function Header() {
         { title: "상담안내", href: "/consultation/guide" },
       ],
     },
+
     {
       title: "후원하기",
       href: "/donation",
@@ -207,7 +219,7 @@ export function Header() {
                     >
                       <svg
                         className={`w-4 h-4 transition-transform ${
-                          expandedMenus.includes(item.href) ? 'rotate-180' : ''
+                          expandedMenus.includes(item.href) ? "rotate-180" : ""
                         }`}
                         fill="none"
                         stroke="currentColor"
