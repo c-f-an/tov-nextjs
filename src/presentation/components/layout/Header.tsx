@@ -60,7 +60,7 @@ export function Header() {
   ];
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white shadow-sm sticky top-0 z-50">
       {/* Top Bar */}
       <div className="bg-gray-50 border-b">
         <div className="container mx-auto px-4">

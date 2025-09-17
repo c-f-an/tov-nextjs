@@ -298,20 +298,22 @@ export function QuickLinks({ links }: QuickLinksProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          {displayLinks.map((link) => (
-            <Link key={link.id} href={link.href} className="group text-center">
-              <div
-                className={`${link.color} text-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}
-              >
-                {link.icon}
-              </div>
-              <h3 className="font-semibold mb-2 group-hover:text-blue-600 transition-colors">
-                {link.title}
-              </h3>
-              <p className="text-sm text-gray-600">{link.description}</p>
-            </Link>
-          ))}
+        <div className="flex justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {displayLinks.map((link) => (
+              <Link key={link.id} href={link.href} className="group text-center">
+                <div
+                  className={`${link.color} text-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}
+                >
+                  {link.icon}
+                </div>
+                <h3 className="font-semibold mb-2 group-hover:text-blue-600 transition-colors">
+                  {link.title}
+                </h3>
+                <p className="text-sm text-gray-600">{link.description}</p>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>
