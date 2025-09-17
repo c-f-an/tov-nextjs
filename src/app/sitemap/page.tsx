@@ -121,7 +121,7 @@ export default function SitemapPage() {
                 <strong>운영기관:</strong> 사단법인 토브협회
               </p>
               <p className="mb-2">
-                <strong>대표자:</strong> 홍길동
+                <strong>이사장:</strong> 최호윤
               </p>
               <p className="mb-2">
                 <strong>사업자등록번호:</strong> 123-45-67890
@@ -129,13 +129,19 @@ export default function SitemapPage() {
             </div>
             <div>
               <p className="mb-2">
-                <strong>주소:</strong> 서울특별시 강남구 ○○로 123
+                <strong>주소:</strong> 서울 종로구 삼일대로 428, 500-42호
               </p>
               <p className="mb-2">
-                <strong>전화:</strong> 02-1234-5678
+                <strong>TEL:</strong> 02-6951-1391
               </p>
               <p className="mb-2">
-                <strong>이메일:</strong> info@tov.or.kr
+                <strong>FAX:</strong> 0505-231-2481
+              </p>
+              <p className="mb-2">
+                <strong>E-MAIL:</strong> tov.npo@gmail.com
+              </p>
+              <p className="mb-2">
+                <strong>후원계좌:</strong> KB국민 004401-04-191563 (사) 토브협회
               </p>
             </div>
           </div>

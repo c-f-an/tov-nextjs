@@ -98,10 +98,10 @@ export function Footer() {
           <div>
             <h4 className="text-md font-semibold mb-4">연락처</h4>
             <address className="text-sm text-gray-600 not-italic space-y-2">
-              <p>서울특별시 강남구 ○○로 123</p>
-              <p>전화: 02-1234-5678</p>
-              <p>팩스: 02-1234-5679</p>
-              <p>이메일: info@tov.or.kr</p>
+              <p>서울 종로구 삼일대로 428, 500-42호</p>
+              <p>TEL: 02-6951-1391</p>
+              <p>FAX: 0505-231-2481</p>
+              <p>E-mail: tov.npo@gmail.com</p>
             </address>
           </div>
         </div>
