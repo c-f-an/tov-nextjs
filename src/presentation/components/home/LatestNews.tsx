@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Post } from '@/core/domain/entities/Post';
+import { FileText, Calendar, Newspaper } from 'lucide-react';
 
 interface LatestNewsProps {
   notices: Post[];
@@ -9,127 +10,83 @@ interface LatestNewsProps {
 }
 
 // Default data for when DB has no posts
-const defaultNotices = [
+const defaultNewsItems = [
   {
     id: 1,
     title: '2024년 종교인 소득세 신고 안내',
     date: '2024-01-15',
-    category: 'notice'
+    category: 'notice',
+    categoryName: '공지사항',
+    excerpt: '2024년 종교인 소득세 신고 기간과 절차에 대해 안내드립니다.',
+    icon: FileText
   },
   {
     id: 2,
-    title: '비영리법인 결산서류 공시 의무화 안내',
-    date: '2024-01-10',
-    category: 'notice'
-  },
-  {
-    id: 3,
-    title: '1분기 실무자 교육 프로그램 신청 안내',
-    date: '2024-01-05',
-    category: 'notice'
-  },
-  {
-    id: 4,
-    title: '토브협회 신년 인사',
-    date: '2024-01-02',
-    category: 'notice'
-  }
-];
-
-const defaultNews = [
-  {
-    id: 1,
     title: '비영리단체 투명성 강화 세미나 성황리 개최',
     date: '2024-01-12',
-    category: 'news'
-  },
-  {
-    id: 2,
-    title: '종교인 소득세 관련 법령 개정 동향',
-    date: '2024-01-08',
-    category: 'news'
+    category: 'activity',
+    categoryName: '활동소식',
+    excerpt: '비영리단체의 재정 투명성 강화를 위한 실무자 세미나가 성공적으로 개최되었습니다.',
+    icon: Calendar
   },
   {
     id: 3,
-    title: '2023년 재정 투명성 우수 단체 선정',
-    date: '2024-01-03',
-    category: 'news'
-  },
-  {
-    id: 4,
-    title: '비영리 회계 실무 가이드북 발간',
-    date: '2023-12-28',
-    category: 'news'
+    title: '토브협회, KBS 뉴스에 소개',
+    date: '2024-01-10',
+    category: 'media',
+    categoryName: '언론보도',
+    excerpt: '토브협회의 비영리단체 지원 활동이 KBS 뉴스에 소개되었습니다.',
+    icon: Newspaper
   }
 ];
 
 export function LatestNews({ notices, news }: LatestNewsProps) {
-  // Use DB data if available, otherwise use default data
-  const displayNotices = notices.length > 0 ? notices.slice(0, 4).map(post => ({
-    id: post.id!,
-    title: post.title,
-    date: post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('ko-KR') : '',
-    category: 'notice'
-  })) : defaultNotices;
+  // For now, use default data
+  const displayItems = defaultNewsItems;
 
-  const displayNews = news.length > 0 ? news.slice(0, 4).map(post => ({
-    id: post.id!,
-    title: post.title,
-    date: post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('ko-KR') : '',
-    category: 'news'
-  })) : defaultNews;
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {/* 공지사항 */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold">공지사항</h3>
-          <Link href="/board/notice" className="text-sm text-blue-600 hover:underline">
-            더보기 →
-          </Link>
-        </div>
-        <ul className="space-y-3">
-          {displayNotices.map((item) => (
-            <li key={item.id} className="border-b pb-3 last:border-0">
-              <Link href={`/board/notice/${item.id}`} className="block hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
-                <div className="flex justify-between items-start">
-                  <h4 className="text-gray-800 hover:text-blue-600 flex-1 line-clamp-1">
-                    {item.title}
-                  </h4>
-                  <span className="text-sm text-gray-500 ml-4 whitespace-nowrap">
-                    {item.date}
-                  </span>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
+    <div className="bg-white rounded-lg shadow-sm p-8">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">토브소식</h2>
+        <Link href="/news" className="text-sm text-blue-600 hover:underline">
+          전체보기 →
+        </Link>
       </div>
-
-      {/* 토브소식 */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold">토브소식</h3>
-          <Link href="/board/news" className="text-sm text-blue-600 hover:underline">
-            더보기 →
-          </Link>
-        </div>
-        <ul className="space-y-3">
-          {displayNews.map((item) => (
-            <li key={item.id} className="border-b pb-3 last:border-0">
-              <Link href={`/board/news/${item.id}`} className="block hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
-                <div className="flex justify-between items-start">
-                  <h4 className="text-gray-800 hover:text-blue-600 flex-1 line-clamp-1">
-                    {item.title}
-                  </h4>
-                  <span className="text-sm text-gray-500 ml-4 whitespace-nowrap">
-                    {item.date}
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {displayItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.id}
+              href={`/news/${item.category}/${item.id}`}
+              className="group"
+            >
+              <div className="bg-gray-50 rounded-lg p-6 h-full hover:shadow-md transition-shadow">
+                <div className="flex items-center mb-4">
+                  <div className="p-2 bg-blue-100 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <span className="ml-3 text-sm font-medium text-blue-600">
+                    {item.categoryName}
                   </span>
                 </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                  {item.title}
+                </h3>
+                
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  {item.excerpt}
+                </p>
+                
+                <div className="text-sm text-gray-500">
+                  {item.date}
+                </div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
