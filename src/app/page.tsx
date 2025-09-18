@@ -1,6 +1,7 @@
 import { MainBanner } from '@/presentation/components/home/MainBanner';
 import { QuickLinks } from '@/presentation/components/home/QuickLinks';
 import { LatestNews } from '@/presentation/components/home/LatestNews';
+import { TovActivities } from '@/presentation/components/home/TovActivities';
 import { ConsultationBanner } from '@/presentation/components/home/ConsultationBanner';
 import { FinancialReport } from '@/presentation/components/home/FinancialReport';
 import { getContainer } from '@/infrastructure/config/getContainer';
@@ -98,6 +99,13 @@ export default async function Home() {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <LatestNews notices={notices} news={news} />
+        </div>
+      </section>
+
+      {/* Tov Activities */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <TovActivities />
         </div>
       </section>
       
