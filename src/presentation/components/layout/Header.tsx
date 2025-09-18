@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 
@@ -132,10 +133,14 @@ export function Header() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-blue-600">토브(TOV)</h1>
-            <span className="ml-2 text-sm text-gray-600">
-              사단법인 토브협회
-            </span>
+            <Image
+              src="/tov_logo.png"
+              alt="토브(TOV) 사단법인 토브협회"
+              width={400}
+              height={30}
+              className="h-20 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}
