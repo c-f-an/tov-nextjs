@@ -37,7 +37,7 @@ export function Header() {
         { title: "건강한 재정관리", href: "/movement/financial-management" },
         { title: "건강한 재정 교육", href: "/movement/financial-education" },
         { title: "결산서 공개 운동", href: "/movement/financial-disclosure" },
-        { title: "종교인 소득신고", href: "https://ptax.kr" },
+        { title: "종교인 소득신고", href: "/religious-income-report" },
         { title: "연대협력", href: "/movement/cooperation" },
       ],
     },
