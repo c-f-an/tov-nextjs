@@ -55,45 +55,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Resources */}
-          <div>
-            <h4 className="text-md font-semibold mb-4">자료실</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/resources/religious-income"
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  종교인 소득
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/resources/nonprofit-finance"
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  비영리 재정
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/resources/settlement"
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  결산 공시
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/resources/laws"
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  관계 법령
-                </Link>
-              </li>
-            </ul>
-          </div>
-
           {/* Contact Info */}
           <div>
             <h4 className="text-md font-semibold mb-4">연락처</h4>
@@ -110,7 +71,7 @@ export function Footer() {
         <div className="border-t border-gray-300 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-gray-500">
-              © 2024 사단법인 토브협회. All rights reserved.
+              © 2025 사단법인 토브협회. All rights reserved.
             </p>
             <div className="flex space-x-4 mt-4 md:mt-0">
               <Link
