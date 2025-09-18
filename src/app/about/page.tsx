@@ -23,14 +23,14 @@ const aboutItems = [
     icon: FileText,
   },
   {
-    title: "주요사업",
-    description: "교회와 목회자를 위한 다양한 세무 서비스",
+    title: "사업보고",
+    description: "투명함’의 약속 | Tov의 사명을 실현하는 이야기입니다.",
     href: "/about/business",
     icon: Briefcase,
   },
   {
-    title: "조직도",
-    description: "전문가들로 구성된 조직 구조",
+    title: "함께하는이들",
+    description: "Tov와 함께하는 이들",
     href: "/about/organization",
     icon: Users,
   },

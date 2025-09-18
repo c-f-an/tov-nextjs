@@ -1,17 +1,22 @@
-import { Users, User, Building, Award } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Breadcrumb } from '@/presentation/components/common/Breadcrumb'
+import { Users, User, Building, Award } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 
 export default function OrganizationPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mx-auto">
-        <Breadcrumb items={[{ label: 'About Us', href: '/about' }, { label: '조직도' }]} />
-        <h1 className="text-4xl font-bold mb-8 text-center">조직도</h1>
-        
+        <Breadcrumb
+          items={[{ label: "About Us", href: "/about" }, { label: "조직도" }]}
+        />
+        <h1 className="text-4xl font-bold mb-8 text-center">
+          Tov와 함께하는 이들
+        </h1>
+
         <div className="mb-8 text-center">
           <p className="text-lg text-gray-600">
-            전문성과 사명감을 갖춘 인재들이 한국교회를 섬기고 있습니다.
+            ’Mission’과 ‘Fund’를 연결하여 더 나은 세상을 열어가는 이야기의
+            주인공, 바로 당신입니다.
           </p>
         </div>
 
@@ -56,8 +61,8 @@ export default function OrganizationPage() {
         {/* 운영 조직 */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-6 text-center">운영 조직</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
+          <div className="flex justify-center">
+            <Card className="w-full max-w-md">
               <CardHeader className="bg-blue-50">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Building className="h-5 w-5" />
@@ -70,57 +75,6 @@ export default function OrganizationPage() {
                   <li>• 행정 담당</li>
                   <li>• 회계 담당</li>
                   <li>• 홍보 담당</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="bg-green-50">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  교육사업부
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <ul className="space-y-2 text-sm">
-                  <li>• 교육부장</li>
-                  <li>• 교육 기획팀</li>
-                  <li>• 강사 운영팀</li>
-                  <li>• 교재 개발팀</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="bg-purple-50">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  상담사업부
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <ul className="space-y-2 text-sm">
-                  <li>• 상담부장</li>
-                  <li>• 세무 상담팀</li>
-                  <li>• 회계 상담팀</li>
-                  <li>• 법무 상담팀</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="bg-orange-50">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Building className="h-5 w-5" />
-                  연구개발부
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <ul className="space-y-2 text-sm">
-                  <li>• 연구부장</li>
-                  <li>• 정책 연구팀</li>
-                  <li>• 자료 개발팀</li>
-                  <li>• IT 개발팀</li>
                 </ul>
               </CardContent>
             </Card>
@@ -153,5 +107,5 @@ export default function OrganizationPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
