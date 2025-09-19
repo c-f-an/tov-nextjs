@@ -35,9 +35,9 @@ export function Header() {
       href: "/movement",
       submenu: [
         { title: "건강한 재정관리", href: "/movement/financial-management" },
-        { title: "건강한 재정 교육", href: "/movement/financial-education" },
+        { title: "건강한 재정교육", href: "/movement/financial-education" },
         { title: "결산서 공개 운동", href: "/movement/financial-disclosure" },
-        { title: "종교인 소득신고", href: "/religious-income-report" },
+        { title: "종교인 소득신고", href: "/movement/religious-income-report" },
         { title: "연대협력", href: "/movement/cooperation" },
       ],
     },
