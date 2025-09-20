@@ -1,6 +1,10 @@
-import { MySQLNewsRepository } from '@/infrastructure/repositories/MySQLNewsRepository';
-import { GetNewsListUseCase } from '@/core/application/use-cases/news/GetNewsListUseCase';
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import SearchBar from "@/presentation/components/news/SearchBar";
+import { fetchNewsList } from "@/lib/api/news";
+import { News } from "@/core/domain/entities/News";
 
 function formatDate(date: Date | string): string {
   const d = new Date(date);
@@ -11,65 +15,106 @@ function formatDate(date: Date | string): string {
   });
 }
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export default function MediaPage() {
+  const [newsItems, setNewsItems] = useState<News[]>([]);
+  const [filteredItems, setFilteredItems] = useState<News[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
-export default async function MediaPage() {
-  let newsItems = [];
-  try {
-    const newsRepository = new MySQLNewsRepository();
-    const getNewsListUseCase = new GetNewsListUseCase(newsRepository);
-    const result = await getNewsListUseCase.execute({
-      category: 'media',
-      limit: 12,
-      isPublished: true
-    });
-    newsItems = result.items;
-  } catch (error) {
-    console.error('Failed to fetch news:', error);
-  }
+  useEffect(() => {
+    async function loadNews() {
+      setLoading(true);
+      try {
+        const result = await fetchNewsList({
+          category: 'media',
+          limit: 20
+        });
+        setNewsItems(result.items);
+        setFilteredItems(result.items);
+      } catch (error) {
+        console.error('Failed to fetch news:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadNews();
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery) {
+      const filtered = newsItems.filter(item =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.summary?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredItems(filtered);
+    } else {
+      setFilteredItems(newsItems);
+    }
+  }, [searchQuery, newsItems]);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <section className="bg-purple-600 text-white py-16">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold mb-4">언론보도</h1>
-          <p className="text-xl">토브협회의 활동이 언론에 소개된 내용입니다</p>
+          <p className="text-xl mb-8">토브협회의 활동이 언론에 소개된 내용입니다</p>
+          
+          <SearchBar
+            onSearch={setSearchQuery}
+            placeholder="언론보도를 검색하세요..."
+          />
         </div>
       </section>
       
       <section className="py-12">
         <div className="container mx-auto px-4">
-          {newsItems.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {newsItems.map((item) => (
-                <Link key={item.id} href={`/news/media/${item.id}`} className="block">
-                  <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full">
-                    <div className="p-6">
-                      <div className="flex items-center mb-3">
-                        <span className="inline-block px-3 py-1 text-xs font-medium text-purple-600 bg-purple-100 rounded-full">
-                          언론보도
-                        </span>
-                        <time className="text-sm text-gray-500 ml-auto">
-                          {formatDate(item.publishedAt || item.createdAt)}
-                        </time>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 hover:text-purple-600 transition-colors">
-                        {item.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4 line-clamp-3">{item.summary}</p>
-                      <div className="flex items-center justify-between text-sm text-gray-500">
-                        <span>{item.author}</span>
-                        <span>조회수 {item.views.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </article>
-                </Link>
-              ))}
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]">
+                <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+              </div>
             </div>
+          ) : filteredItems.length > 0 ? (
+            <>
+              {searchQuery && (
+                <div className="mb-6">
+                  <p className="text-gray-600">
+                    "{searchQuery}"에 대한 검색 결과 {filteredItems.length}건
+                  </p>
+                </div>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredItems.map((item) => (
+                  <Link key={item.id} href={`/news/media/${item.id}`} className="block">
+                    <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full">
+                      <div className="p-6">
+                        <div className="flex items-center mb-3">
+                          <span className="inline-block px-3 py-1 text-xs font-medium text-purple-600 bg-purple-100 rounded-full">
+                            언론보도
+                          </span>
+                          <time className="text-sm text-gray-500 ml-auto">
+                            {formatDate(item.publishedAt || item.createdAt)}
+                          </time>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 hover:text-purple-600 transition-colors">
+                          {item.title}
+                        </h3>
+                        <p className="text-gray-600 mb-4 line-clamp-3">{item.summary}</p>
+                        <div className="flex items-center justify-between text-sm text-gray-500">
+                          <span>{item.author}</span>
+                          <span>조회수 {item.views.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </article>
+                  </Link>
+                ))}
+              </div>
+            </>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-500">등록된 언론보도가 없습니다.</p>
+              <p className="text-gray-500">
+                {searchQuery ? `"${searchQuery}"에 대한 검색 결과가 없습니다.` : '등록된 언론보도가 없습니다.'}
+              </p>
             </div>
           )}
         </div>
