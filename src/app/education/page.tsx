@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 interface Program {
   id: number;
@@ -104,11 +105,10 @@ export default function EducationPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="mx-auto">
         <Breadcrumb items={[{ label: '교육' }]} />
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">교육 프로그램</h1>
-          <p className="text-gray-600">비영리 회계와 종교인 소득세 관련 전문 교육을 제공합니다.</p>
-        </div>
+        <PageHeader 
+          title="교육 프로그램"
+          description="비영리 회계와 종교인 소득세 관련 전문 교육을 제공합니다."
+        />
 
         {/* Category Filter */}
         <div className="mb-8">

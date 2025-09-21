@@ -4,6 +4,7 @@ import { MapPin, Phone, Mail, Clock, Train, Bus, Car } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 import dynamic from "next/dynamic";
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 const KakaoMap = dynamic(() => import("@/components/KakaoMap"), {
   ssr: false,
@@ -24,7 +25,10 @@ export default function LocationPage() {
         <Breadcrumb
           items={[{ label: "About Us", href: "/about" }, { label: "오시는길" }]}
         />
-        <h1 className="text-4xl font-bold mb-8 text-center">오시는길</h1>
+        <PageHeader 
+          title="오시는길"
+          description="토브협회를 방문하시려는 분들을 위한 안내입니다."
+        />
 
         {/* 지도 영역 */}
         <div className="mb-8">

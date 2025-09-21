@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/presentation/contexts/AuthContext';
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 const consultationTypes = [
   { value: 'religious-income', label: '종교인 소득세' },
@@ -86,13 +87,10 @@ export default function ConsultationApplyPage() {
         </ol>
       </nav>
 
-      {/* Page Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold mb-4">상담 신청</h1>
-        <p className="text-gray-600">
-          전문가가 직접 상담해드립니다. 궁금하신 사항을 자유롭게 문의해주세요.
-        </p>
-      </div>
+      <PageHeader 
+        title="상담 신청"
+        description="전문가가 직접 상담해드립니다. 궁금하신 사항을 자유롭게 문의해주세요."
+      />
 
       {/* Consultation Form */}
       <div className="mx-auto">

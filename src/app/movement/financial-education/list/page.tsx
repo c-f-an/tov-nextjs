@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 interface EducationItem {
   id: string;
@@ -236,10 +237,11 @@ export default function EducationListPage() {
     <main className="min-h-screen bg-gray-50">
       <div className="bg-white py-12 border-b">
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold text-center">재정교육 프로그램</h1>
-          <p className="text-lg text-gray-600 text-center mt-4">
-            투명한 재정관리를 위한 체계적인 교육 프로그램을 제공합니다
-          </p>
+          <PageHeader 
+            title="재정교육 프로그램"
+            description="투명한 재정관리를 위한 체계적인 교육 프로그램을 제공합니다"
+            className="text-center"
+          />
         </div>
       </div>
 

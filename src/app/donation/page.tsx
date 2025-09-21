@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Heart, Users, Target, TrendingUp, CreditCard, Building, FileText, Gift } from 'lucide-react'
+import PageHeader from '@/presentation/components/common/PageHeader'
 
 const donationTypes = [
   {
@@ -72,12 +73,10 @@ const donationMethods = [
 export default function DonationPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold mb-4">후원하기</h1>
-        <p className="text-lg text-gray-600">
-          여러분의 후원이 투명하고 건강한 한국교회를 만들어갑니다.
-        </p>
-      </div>
+      <PageHeader 
+        title="후원하기"
+        description="여러분의 후원이 투명하고 건강한 한국교회를 만들어갑니다."
+      />
 
       {/* 후원의 영향력 */}
       <div className="mb-12 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-8">

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { FileText, Download, Scale, BookOpen, ArrowLeft, ExternalLink, AlertCircle } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
+import PageHeader from "@/presentation/components/common/PageHeader"
 
 const lawCategories = [
   {
@@ -78,12 +79,10 @@ export default function LawsPage() {
         자료실로 돌아가기
       </Link>
 
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">관계법령 자료실</h1>
-        <p className="text-lg text-gray-600">
-          교회 세무와 관련된 주요 법령 정보와 최신 개정사항을 제공합니다.
-        </p>
-      </div>
+      <PageHeader
+        title="관계법령 자료실"
+        description="교회 세무와 관련된 주요 법령 정보와 최신 개정사항을 제공합니다."
+      />
 
       {/* 최신 개정사항 알림 */}
       <Card className="mb-8 border-blue-200 bg-blue-50">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { MainLayout } from '@/presentation/components/layout/MainLayout';
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 interface FAQ {
   id: number;
@@ -71,7 +72,10 @@ export default function FAQPage() {
     <MainLayout>
       <div className="mx-auto py-12 px-4">
         <Breadcrumb items={[{ label: 'FAQ' }]} />
-        <h1 className="text-3xl font-bold text-center mb-8">자주 묻는 질문</h1>
+        <PageHeader 
+          title="자주 묻는 질문"
+          description="토브협회에 대해 자주 묻는 질문들을 확인하세요"
+        />
         
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="mb-8">

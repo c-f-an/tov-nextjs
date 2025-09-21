@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { FileText, Download, Calendar, CheckCircle, ArrowLeft, Clock } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
+import PageHeader from "@/presentation/components/common/PageHeader"
 
 const resources = [
   {
@@ -59,12 +60,10 @@ export default function SettlementPage() {
         자료실로 돌아가기
       </Link>
 
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">결산공시 자료실</h1>
-        <p className="text-lg text-gray-600">
-          교회 결산 절차와 공시 의무 이행을 위한 실무 자료를 제공합니다.
-        </p>
-      </div>
+      <PageHeader
+        title="결산공시 자료실"
+        description="교회 결산 절차와 공시 의무 이행을 위한 실무 자료를 제공합니다."
+      />
 
       {/* 결산 일정 타임라인 */}
       <Card className="mb-8">

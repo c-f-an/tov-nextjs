@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 const boardCategories = [
   {
@@ -85,11 +86,10 @@ export default function BoardIndexPage() {
         </ol>
       </nav>
 
-      {/* Page Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold mb-4">게시판</h1>
-        <p className="text-gray-600">토브협회의 다양한 소식과 자료를 확인하세요</p>
-      </div>
+      <PageHeader 
+        title="게시판"
+        description="토브협회의 다양한 소식과 자료를 확인하세요"
+      />
 
       {/* Board Categories Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { FileText, Download, TrendingUp, DollarSign, Users, ArrowLeft, Calendar } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import PageHeader from '@/presentation/components/common/PageHeader'
 
 const financialReports = [
   {
@@ -63,12 +64,10 @@ export default function FinancialReportPage() {
         후원하기로 돌아가기
       </Link>
 
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">재정보고</h1>
-        <p className="text-lg text-gray-600">
-          투명한 재정 운영을 위해 분기별 재정 현황을 공개합니다.
-        </p>
-      </div>
+      <PageHeader 
+        title="재정보고"
+        description="투명한 재정 운영을 위해 분기별 재정 현황을 공개합니다."
+      />
 
       {/* 최근 재정 현황 요약 */}
       <div className="grid md:grid-cols-3 gap-6 mb-8">

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 const donationBenefits = [
   {
@@ -98,12 +99,11 @@ export default function DonationGuidePage() {
         </ol>
       </nav>
 
-      {/* Hero Section */}
+      <PageHeader 
+        title="함께 만드는 투명한 비영리"
+        description="여러분의 후원이 건강한 비영리 생태계를 만듭니다"
+      />
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold mb-4">함께 만드는 투명한 비영리</h1>
-        <p className="text-xl text-gray-600 mb-8">
-          여러분의 후원이 건강한 비영리 생태계를 만듭니다
-        </p>
         <Link
           href="/donation/apply"
           className="inline-block px-8 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"

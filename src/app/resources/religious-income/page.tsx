@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { FileText, Download, BookOpen, HelpCircle, ArrowLeft } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
+import PageHeader from "@/presentation/components/common/PageHeader"
 
 const resources = [
   {
@@ -66,12 +67,10 @@ export default function ReligiousIncomePage() {
         자료실로 돌아가기
       </Link>
 
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">종교인소득 자료실</h1>
-        <p className="text-lg text-gray-600">
-          종교인 소득세 신고와 관련된 각종 가이드, 서식, 교육 자료를 제공합니다.
-        </p>
-      </div>
+      <PageHeader 
+        title="종교인소듍 자료실"
+        description="종교인 소듍세 신고와 관련된 각종 가이드, 서식, 교육 자료를 제공합니다."
+      />
 
       {/* 자료 목록 */}
       <div className="space-y-8 mb-12">

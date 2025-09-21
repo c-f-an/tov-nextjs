@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 export default function SitemapPage() {
   const sitemapData = [
@@ -76,7 +77,10 @@ export default function SitemapPage() {
       <Breadcrumb items={[{ label: "사이트맵" }]} />
 
       <div className="mx-auto">
-        <h1 className="text-3xl font-bold mb-8">사이트맵</h1>
+        <PageHeader 
+          title="사이트맵"
+          description="토브협회 웹사이트의 전체 구조를 확인하세요."
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {sitemapData.map((section, index) => (

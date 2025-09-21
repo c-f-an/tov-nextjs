@@ -1,11 +1,15 @@
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 export default function TermsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={[{ label: '이용약관' }]} />
       <div className="mx-auto">
-        <h1 className="text-3xl font-bold mb-8">이용약관</h1>
+        <PageHeader 
+          title="이용약관"
+          description="토브협회 웹사이트 서비스 이용에 관한 약관입니다."
+        />
         
         <div className="prose max-w-none">
           <section className="mb-8">

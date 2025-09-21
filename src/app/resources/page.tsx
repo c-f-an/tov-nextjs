@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FileText, Calculator, Receipt, Scale, Download } from 'lucide-react'
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
+import PageHeader from '@/presentation/components/common/PageHeader'
 
 const resourceCategories = [
   {
@@ -59,12 +60,10 @@ export default function ResourcesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={[{ label: '자료실' }]} />
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold mb-4">자료실</h1>
-        <p className="text-lg text-gray-600">
-          교회 세무와 재정 관리에 필요한 각종 자료를 제공합니다.
-        </p>
-      </div>
+      <PageHeader 
+        title="자료실"
+        description="교회 세무와 재정 관리에 필요한 각종 자료를 제공합니다."
+      />
 
       {/* 자료 카테고리 */}
       <div className="grid gap-6 md:grid-cols-2 mb-12">

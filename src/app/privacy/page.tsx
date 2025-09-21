@@ -1,11 +1,15 @@
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 export default function PrivacyPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={[{ label: '개인정보처리방침' }]} />
       <div className="mx-auto">
-        <h1 className="text-3xl font-bold mb-8">개인정보처리방침</h1>
+        <PageHeader 
+          title="개인정보처리방침"
+          description="토브협회는 개인정보보호법에 따라 정보주체의 개인정보를 보호합니다."
+        />
         
         <div className="prose max-w-none">
           <section className="mb-8">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 interface Education {
   id: number;
@@ -124,14 +125,12 @@ export default function FinancialEducationPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-16">
-        <h1 className="text-4xl font-bold text-center mb-8">건강한 재정교육</h1>
+        <PageHeader
+          title="건강한 재정교육"
+          description="투명한 숫자가 세상을 바꾸고, 정직한 재정이 희망을 이어갑니다"
+        />
         
         <div className="max-w-6xl mx-auto">
-          <div className="bg-white p-8 rounded-lg shadow-md mb-12 text-center">
-            <p className="text-lg text-gray-700">
-              투명한 숫자가 세상을 바꾸고, 정직한 재정이 희망을 이어갑니다
-            </p>
-          </div>
 
           <div className="mb-8">
             <h2 className="text-2xl font-bold mb-4">카테고리별 교육</h2>

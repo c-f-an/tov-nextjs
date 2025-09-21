@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Search, ChevronDown, ChevronUp, HelpCircle, ArrowLeft } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import PageHeader from '@/presentation/components/common/PageHeader'
 
 const faqCategories = [
   {
@@ -103,12 +104,10 @@ export default function FAQPage() {
         상담센터로 돌아가기
       </Link>
 
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold mb-4">자주 묻는 질문</h1>
-        <p className="text-lg text-gray-600">
-          교회 세무와 관련하여 많이 문의하시는 내용들을 정리했습니다.
-        </p>
-      </div>
+      <PageHeader
+        title="자주 묻는 질문"
+        description="교회 세무와 관련하여 많이 문의하시는 내용들을 정리했습니다."
+      />
 
       {/* 검색 및 카테고리 필터 */}
       <div className="mb-8">

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 export default function ReligiousIncomeReportPage() {
   const sections = [
@@ -75,12 +76,10 @@ export default function ReligiousIncomeReportPage() {
 
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            종교인 소득신고
-          </h1>
-          <p className="text-2xl md:text-3xl text-primary font-semibold mb-12">
-            정직은 믿음의 또 다른 이름입니다
-          </p>
+          <PageHeader
+            title="종교인 소득신고"
+            description="정직은 믿음의 또 다른 이름입니다"
+          />
 
           {/* Main Message Card */}
           <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-0 shadow-xl mb-12">

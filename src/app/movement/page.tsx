@@ -1,12 +1,13 @@
+import PageHeader from '@/presentation/components/common/PageHeader';
+
 export default function MovementPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-16">
-        <h1 className="text-4xl font-bold text-center mb-8">토브운동</h1>
-        <p className="text-xl text-center text-gray-700 mb-16 max-w-3xl mx-auto">
-          투명하고 건강한 재정 문화를 만들어가는 토브협회의 다양한 운동에
-          함께해주세요.
-        </p>
+        <PageHeader 
+          title="토브운동"
+          description="투명하고 건강한 재정 문화를 만들어가는 토브협회의 다양한 운동에 함께해주세요."
+        />
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           <div className="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow">

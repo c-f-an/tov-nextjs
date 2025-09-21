@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Phone, Mail, MessageCircle, Calendar, Clock, Users, HelpCircle, FileText } from 'lucide-react'
+import PageHeader from '@/presentation/components/common/PageHeader'
 
 const consultationTypes = [
   {
@@ -61,12 +62,10 @@ const popularTopics = [
 export default function ConsultationPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold mb-4">상담센터</h1>
-        <p className="text-lg text-gray-600">
-          교회 세무와 관련된 모든 궁금증을 전문가가 해결해 드립니다.
-        </p>
-      </div>
+      <PageHeader 
+        title="상담센터"
+        description="교회 세무와 관련된 모든 궁금증을 전문가가 해결해 드립니다."
+      />
 
       {/* 상담 유형 */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">

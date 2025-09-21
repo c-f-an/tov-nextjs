@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { FileText, Download, BookOpen, Calculator, ArrowLeft, AlertCircle } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
+import PageHeader from "@/presentation/components/common/PageHeader"
 
 const resources = [
   {
@@ -78,12 +79,10 @@ export default function NonprofitFinancePage() {
         자료실로 돌아가기
       </Link>
 
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">비영리재정 자료실</h1>
-        <p className="text-lg text-gray-600">
-          비영리법인의 투명하고 체계적인 재정 관리를 위한 실무 자료를 제공합니다.
-        </p>
-      </div>
+      <PageHeader
+        title="비영리재정 자료실"
+        description="비영리법인의 투명하고 체계적인 재정 관리를 위한 실무 자료를 제공합니다."
+      />
 
       {/* 중요 공지 */}
       <div className="mb-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">

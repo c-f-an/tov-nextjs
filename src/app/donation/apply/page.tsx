@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/presentation/contexts/AuthContext';
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 interface DonationFormData {
   // Sponsor info
@@ -145,13 +146,10 @@ export default function DonationApplyPage() {
         </ol>
       </nav>
 
-      {/* Page Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold mb-4">후원 신청</h1>
-        <p className="text-gray-600">
-          여러분의 후원이 투명한 비영리 문화를 만들어갑니다
-        </p>
-      </div>
+      <PageHeader 
+        title="후원 신청"
+        description="여러분의 후원이 투명한 비영리 문화를 만들어갑니다"
+      />
 
       {/* Donation Form */}
       <div className="mx-auto">

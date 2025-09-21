@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 export default function HealthyFinancialManagementPage() {
   const rules = [
@@ -120,28 +121,24 @@ export default function HealthyFinancialManagementPage() {
           <Breadcrumb items={[{ label: "건강한 재정관리" }]} />
         </div>
 
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8">
-            건강한 재정관리
-          </h1>
-          <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 max-w-4xl mx-auto">
-            <div className="flex flex-col items-center gap-6">
-              <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
-                <Activity className="w-10 h-10 text-primary" />
-              </div>
-              <p className="text-xl md:text-2xl text-gray-800 leading-relaxed">
-                &apos;건강한재정관리&apos;는{" "}
-                <span className="font-bold text-primary">
-                  &apos;통제&apos;가 아닌 &apos;흐름&apos;
-                </span>
-                으로 생각합니다.
-              </p>
-              <p className="text-lg text-gray-700">
-                Mission과 Fund가 만나 교회와 단체를 건강하게 세워가는 흐름을
-                돕습니다.
-              </p>
+        <PageHeader 
+          title="건강한 재정관리"
+          description="Mission과 Fund가 만나 교회와 단체를 건강하게 세워가는 흐름을 돕습니다"
+        />
+        
+        {/* 핵심 메시지 */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 max-w-4xl mx-auto mb-16">
+          <div className="flex flex-col items-center gap-6">
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
+              <Activity className="w-10 h-10 text-primary" />
             </div>
+            <p className="text-xl md:text-2xl text-gray-800 leading-relaxed text-center">
+              &apos;건강한재정관리&apos;는{" "}
+              <span className="font-bold text-primary">
+                &apos;통제&apos;가 아닌 &apos;흐름&apos;
+              </span>
+              으로 생각합니다.
+            </p>
           </div>
         </div>
 

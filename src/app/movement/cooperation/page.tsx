@@ -1,16 +1,15 @@
+import PageHeader from '@/presentation/components/common/PageHeader';
+
 export default function CooperationPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-16">
-        <h1 className="text-4xl font-bold text-center mb-8">연대협력</h1>
+        <PageHeader
+          title="연대협력"
+          description="토브협회는 투명하고 건강한 재정문화를 확산시키기 위해 다양한 기관 및 단체와 연대하고 협력하고 있습니다."
+        />
         
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white p-8 rounded-lg shadow-md mb-8">
-            <p className="text-lg text-gray-700 mb-6">
-              토브협회는 투명하고 건강한 재정문화를 확산시키기 위해 
-              다양한 기관 및 단체와 연대하고 협력하고 있습니다.
-            </p>
-          </div>
 
           <div className="grid gap-8 mb-12">
             <div className="bg-blue-50 p-8 rounded-lg">

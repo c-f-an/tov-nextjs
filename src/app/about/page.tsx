@@ -14,6 +14,7 @@ import {
   FileText,
 } from "lucide-react";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 const aboutItems = [
   {
@@ -47,8 +48,12 @@ export default function AboutPage() {
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={[{ label: "About Us" }]} />
 
+      <PageHeader 
+        title="About Us"
+        description="당신의 'Mission'과 'Fund'를 연결하는 Tov 입니다."
+      />
+      
       <div className="mb-12 text-center">
-        <h1 className="text-4xl font-bold mb-4">About Us</h1>
         <div className="mb-12 text-center bg-gray-50 p-6 rounded-lg">
           <p className="text-xl text-gray-600 my-2">
             “당신의 ’Mission’과 ‘Fund’를 연결하는&nbsp;

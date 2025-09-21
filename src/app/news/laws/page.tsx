@@ -5,6 +5,7 @@ import Link from "next/link";
 import SearchBar from "@/presentation/components/news/SearchBar";
 import { fetchNewsList } from "@/lib/api/news";
 import { News } from "@/core/domain/entities/News";
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 function formatDate(date: Date | string): string {
   const d = new Date(date);
@@ -54,19 +55,21 @@ export default function LawsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <section className="bg-indigo-600 text-white py-16">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-4">관계법령</h1>
-          <p className="text-xl mb-8">비영리단체 운영에 필요한 법령 정보를 제공합니다</p>
-          
+      <div className="container mx-auto px-4 py-8">
+        <PageHeader
+          title="관계법령"
+          description="비영리단체 운영에 필요한 법령 정보를 제공합니다"
+        />
+        
+        <div className="max-w-2xl mx-auto mb-8">
           <SearchBar
             onSearch={setSearchQuery}
             placeholder="관계법령을 검색하세요..."
           />
         </div>
-      </section>
+      </div>
       
-      <section className="py-12">
+      <section>
         <div className="container mx-auto px-4">
           {loading ? (
             <div className="text-center py-8">

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/presentation/contexts/AuthContext';
 import { formatDate } from '@/lib/utils/date';
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 interface Consultation {
   id: number;
@@ -95,12 +96,12 @@ export default function ConsultationListPage() {
         </ol>
       </nav>
 
-      {/* Page Header */}
       <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">내 상담 목록</h1>
-          <p className="text-gray-600">신청하신 상담 내역을 확인하실 수 있습니다.</p>
-        </div>
+        <PageHeader
+          title="내 상담 목록"
+          description="신청하신 상담 내역을 확인하실 수 있습니다."
+          className="mb-0"
+        />
         <Link
           href="/consultation/apply"
           className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"

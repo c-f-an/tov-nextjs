@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import PageHeader from '@/presentation/components/common/PageHeader';
 
 const consultationSteps = [
   {
@@ -88,12 +89,11 @@ export default function ConsultationGuidePage() {
         </ol>
       </nav>
 
-      {/* Hero Section */}
+      <PageHeader 
+        title="전문가 상담 서비스"
+        description="15년 이상의 경력을 가진 전문가들이 직접 상담해드립니다"
+      />
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold mb-4">전문가 상담 서비스</h1>
-        <p className="text-xl text-gray-600 mb-8">
-          15년 이상의 경력을 가진 전문가들이 직접 상담해드립니다
-        </p>
         <Link
           href="/consultation/apply"
           className="inline-block px-8 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"

@@ -5,6 +5,7 @@ import Link from "next/link";
 import SearchBar from "@/presentation/components/news/SearchBar";
 import { fetchNewsList } from "@/lib/api/news";
 import { News } from "@/core/domain/entities/News";
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 function formatDate(date: Date | string): string {
   const d = new Date(date);
@@ -54,19 +55,21 @@ export default function MediaPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <section className="bg-purple-600 text-white py-16">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-4">언론보도</h1>
-          <p className="text-xl mb-8">토브협회의 활동이 언론에 소개된 내용입니다</p>
-          
+      <div className="container mx-auto px-4 py-8">
+        <PageHeader
+          title="언론보도"
+          description="토브협회의 활동이 언론에 소개된 내용입니다"
+        />
+        
+        <div className="max-w-2xl mx-auto mb-8">
           <SearchBar
             onSearch={setSearchQuery}
             placeholder="언론보도를 검색하세요..."
           />
         </div>
-      </section>
+      </div>
       
-      <section className="py-12">
+      <section>
         <div className="container mx-auto px-4">
           {loading ? (
             <div className="text-center py-8">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import SearchBar from "@/presentation/components/news/SearchBar";
+import PageHeader from "@/presentation/components/common/PageHeader";
 import { fetchNewsList } from "@/lib/api/news";
 import { News } from "@/core/domain/entities/News";
 
@@ -57,20 +58,22 @@ export default function NoticePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <section className="bg-blue-600 text-white py-16">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-4">공지사항</h1>
-          <p className="text-xl mb-8">토브협회의 주요 공지사항을 확인하세요</p>
-          
-          {/* 검색창 */}
+      <div className="container mx-auto px-4 py-8">
+        <PageHeader 
+          title="공지사항"
+          description="토브협회의 주요 공지사항을 확인하세요"
+        />
+        
+        {/* 검색창 */}
+        <div className="max-w-2xl mx-auto mb-8">
           <SearchBar
             onSearch={setSearchQuery}
             placeholder="공지사항을 검색하세요..."
           />
         </div>
-      </section>
+      </div>
       
-      <section className="py-12">
+      <section>
         <div className="container mx-auto px-4">
           {loading ? (
             <div className="text-center py-8">

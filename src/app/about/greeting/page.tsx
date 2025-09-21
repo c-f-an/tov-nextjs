@@ -1,5 +1,6 @@
 import { Heart, Link, Target, Lightbulb, Shield } from "lucide-react";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 export default function GreetingPage() {
   return (
@@ -9,11 +10,10 @@ export default function GreetingPage() {
           items={[{ label: "About Us", href: "/about" }, { label: "우리는" }]}
         />
 
-        {/* 헤더 섹션 */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-primary mb-2">사단법인 Tov협회</h1>
-          <p className="text-xl text-gray-600">Mission과 Fund가 만나는 곳</p>
-        </div>
+        <PageHeader 
+          title="사단법인 Tov협회"
+          description="Mission과 Fund가 만나는 곳"
+        />
 
         {/* 토브 소개 섹션 */}
         <div className="mb-16">

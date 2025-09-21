@@ -1,6 +1,7 @@
 import { Users, User, Building, Award } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 export default function OrganizationPage() {
   return (
@@ -9,16 +10,10 @@ export default function OrganizationPage() {
         <Breadcrumb
           items={[{ label: "About Us", href: "/about" }, { label: "조직도" }]}
         />
-        <h1 className="text-4xl font-bold mb-8 text-center">
-          Tov와 함께하는 이들
-        </h1>
-
-        <div className="mb-8 text-center">
-          <p className="text-lg text-gray-600">
-            ’Mission’과 ‘Fund’를 연결하여 더 나은 세상을 열어가는 이야기의
-            주인공, 바로 당신입니다.
-          </p>
-        </div>
+        <PageHeader 
+          title="Tov와 함께하는 이들"
+          description="'Mission'과 'Fund'를 연결하여 더 나은 세상을 열어가는 이야기의 주인공, 바로 당신입니다."
+        />
 
         {/* 이사장 */}
         <div className="mb-8">
