@@ -17,7 +17,7 @@ Allow: /sitemap.xml
 Allow: /favicon.ico
 
 # Sitemap
-Sitemap: https://www.tov.or.kr/sitemap.xml
+Sitemap: https://tov.ptax.kr/sitemap.xml
 
 # Crawl-delay (in seconds)
 Crawl-delay: 1
