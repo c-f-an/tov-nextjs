@@ -10,11 +10,16 @@ Disallow: /static/
 
 # Files
 Disallow: /*.json$
-Disallow: /*.xml$
 
 # Allow search engines to access public content
 Allow: /sitemap.xml
 Allow: /favicon.ico
+
+# Naver Yeti bot
+User-agent: Yeti
+Allow: /
+Allow: /sitemap.xml
+Crawl-delay: 1
 
 # Sitemap
 Sitemap: https://tov.ptax.kr/sitemap.xml
