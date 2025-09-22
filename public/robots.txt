@@ -2,53 +2,5 @@
 User-agent: *
 Allow: /
 
-# Directories
-Disallow: /api/
-Disallow: /admin/
-Disallow: /_next/
-Disallow: /static/
-
-# Files
-Disallow: /*.json$
-
-# Allow search engines to access public content
-Allow: /sitemap.xml
-Allow: /favicon.ico
-
-# Naver Yeti bot
-User-agent: Yeti
-Allow: /
-Allow: /sitemap.xml
-Crawl-delay: 1
-
 # Sitemap
 Sitemap: https://tov.ptax.kr/sitemap.xml
-
-# Crawl-delay (in seconds)
-Crawl-delay: 1
-
-# Specific bot rules
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 0
-
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
-
-User-agent: Slurp
-Allow: /
-Crawl-delay: 1
-
-# Block bad bots
-User-agent: SemrushBot
-Disallow: /
-
-User-agent: AhrefsBot
-Disallow: /
-
-User-agent: DotBot
-Disallow: /
-
-User-agent: MJ12bot
-Disallow: /
