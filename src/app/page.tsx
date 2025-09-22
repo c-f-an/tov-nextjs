@@ -127,16 +127,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Consultation Banner */}
-      <ConsultationBanner stats={consultationStats} />
-
-      {/* Financial Report */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <FinancialReport report={financialReport} />
-        </div>
-      </section>
-
       {/* Government Organization Links */}
       <section className="py-16 bg-white border-t border-gray-200">
         <div className="container mx-auto px-4">
