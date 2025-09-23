@@ -11,8 +11,19 @@ const nanumGothic = Nanum_Gothic({
 });
 
 export const metadata: Metadata = {
-  title: "토브(TOV) - 비영리 재정 투명성",
-  description: "사단법인 토브협회 - 종교인 및 비영리단체를 위한 재정 투명성 정보 제공",
+  title: "사단법인 토브협회 - 비영리 재정 투명성",
+  description: "사단법인 토브협회 - 비영리단체를 위한 재정 투명성 정보 제공",
+  openGraph: {
+    title: "사단법인 토브협회 - 비영리 재정 투명성",
+    description: "비영리단체를 위한 재정 투명성 정보 제공",
+    url: "https://tov.or.kr",
+    siteName: "사단법인 토브협회",
+    locale: "ko_KR",
+    type: "website",
+  },
+  alternates: {
+    canonical: "https://tov.ptax.kr",
+  },
 };
 
 export default function RootLayout({
@@ -22,13 +33,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body
-        className={`${nanumGothic.variable} antialiased`}
-      >
+      <body className={`${nanumGothic.variable} antialiased`}>
         <AuthProvider>
-          <MainLayout>
-            {children}
-          </MainLayout>
+          <MainLayout>{children}</MainLayout>
         </AuthProvider>
       </body>
     </html>
