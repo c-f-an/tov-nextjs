@@ -1,5 +1,5 @@
-import mysql from 'mysql2/promise';
-import { performance } from 'perf_hooks';
+import mysql from "mysql2/promise";
+import { performance } from "perf_hooks";
 
 // Optimized configuration for t2.micro (1GB RAM, 1 vCPU)
 const T2_MICRO_OPTIMIZED_CONFIG = {
@@ -10,7 +10,7 @@ const T2_MICRO_OPTIMIZED_CONFIG = {
   queueLimit: 20, // Limit queue to prevent memory issues
 
   // Timeouts optimized for RDS in same VPC
-  connectTimeout: 10000, // 10s connection timeout
+  connectTimeout: 30000, // 30s connection timeout
 
   // Keep-alive for persistent connections
   enableKeepAlive: true,
@@ -21,8 +21,8 @@ const T2_MICRO_OPTIMIZED_CONFIG = {
   multipleStatements: false, // Security: prevent SQL injection
 
   // Connection settings
-  timezone: '+00:00',
-  charset: 'utf8mb4',
+  timezone: "+00:00",
+  charset: "utf8mb4",
   dateStrings: false,
   supportBigNumbers: true,
   bigNumberStrings: false,
@@ -38,22 +38,22 @@ if (process.env.DATABASE_URL) {
   const dbUrl = new URL(process.env.DATABASE_URL);
   poolConfig = {
     host: dbUrl.hostname,
-    port: parseInt(dbUrl.port || '3306'),
+    port: parseInt(dbUrl.port || "3306"),
     user: dbUrl.username,
-    password: dbUrl.password || '',
+    password: dbUrl.password || "",
     database: dbUrl.pathname.slice(1),
     waitForConnections: true,
-    ...T2_MICRO_OPTIMIZED_CONFIG
+    ...T2_MICRO_OPTIMIZED_CONFIG,
   };
 } else {
   poolConfig = {
-    host: process.env.DATABASE_HOST || 'localhost',
-    port: parseInt(process.env.DATABASE_PORT || '3306'),
-    user: process.env.DATABASE_USER || 'root',
-    password: process.env.DATABASE_PASSWORD || '',
-    database: process.env.DATABASE_NAME || 'tov_db',
+    host: process.env.DATABASE_HOST || "localhost",
+    port: parseInt(process.env.DATABASE_PORT || "3306"),
+    user: process.env.DATABASE_USER || "root",
+    password: process.env.DATABASE_PASSWORD || "",
+    database: process.env.DATABASE_NAME || "tov_db",
     waitForConnections: true,
-    ...T2_MICRO_OPTIMIZED_CONFIG
+    ...T2_MICRO_OPTIMIZED_CONFIG,
   };
 }
 
@@ -70,39 +70,42 @@ const poolMetrics = {
 };
 
 // Query performance tracking
-const queryMetrics = new Map<string, {
-  count: number;
-  totalTime: number;
-  avgTime: number;
-  maxTime: number;
-  minTime: number;
-}>();
+const queryMetrics = new Map<
+  string,
+  {
+    count: number;
+    totalTime: number;
+    avgTime: number;
+    maxTime: number;
+    minTime: number;
+  }
+>();
 
 // Create connection pool with event monitoring
 let pool: mysql.Pool;
 
 try {
   pool = mysql.createPool(poolConfig);
-  console.log('[MySQL] Optimized connection pool created for t2.micro');
+  console.log("[MySQL] Optimized connection pool created for t2.micro");
 
   // Monitor pool events (if available)
   const poolAny = pool as any;
   if (poolAny.pool) {
-    poolAny.pool.on('acquire', () => {
+    poolAny.pool.on("acquire", () => {
       poolMetrics.activeConnections++;
       poolMetrics.totalConnections++;
     });
 
-    poolAny.pool.on('release', () => {
+    poolAny.pool.on("release", () => {
       poolMetrics.activeConnections--;
     });
 
-    poolAny.pool.on('enqueue', () => {
+    poolAny.pool.on("enqueue", () => {
       poolMetrics.queuedRequests++;
     });
   }
 } catch (error) {
-  console.error('[MySQL] Failed to create connection pool:', error);
+  console.error("[MySQL] Failed to create connection pool:", error);
   throw error;
 }
 
@@ -113,7 +116,7 @@ declare global {
   var mysqlQueryMetrics: typeof queryMetrics | undefined;
 }
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   pool = globalThis.mysqlPool || pool;
   globalThis.mysqlPool = pool;
 } else {
@@ -129,13 +132,13 @@ if (process.env.NODE_ENV === 'production') {
 
 // Enhanced warmup with performance check
 async function warmupPool() {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     try {
       const startTime = performance.now();
       const connection = await pool.getConnection();
 
       // Test query performance
-      await connection.query('SELECT 1');
+      await connection.query("SELECT 1");
       const pingTime = performance.now() - startTime;
 
       connection.release();
@@ -144,18 +147,22 @@ async function warmupPool() {
 
       // Warning if initial connection is slow
       if (pingTime > 1000) {
-        console.warn('[MySQL] Slow initial connection detected:', pingTime.toFixed(2), 'ms');
+        console.warn(
+          "[MySQL] Slow initial connection detected:",
+          pingTime.toFixed(2),
+          "ms"
+        );
       }
     } catch (error) {
       poolMetrics.connectionErrors++;
       poolMetrics.lastError = error as Error;
-      console.error('[MySQL] Pool warmup failed:', error);
+      console.error("[MySQL] Pool warmup failed:", error);
     }
   }
 }
 
 // Start warmup
-if (typeof window === 'undefined') {
+if (typeof window === "undefined") {
   warmupPool().catch(console.error);
 }
 
@@ -172,18 +179,23 @@ export function getPoolStatus() {
       idleTimeout: poolConfig.idleTimeout,
       queueLimit: poolConfig.queueLimit,
     },
-    pool: poolAny.pool ? {
-      size: poolAny.pool.size,
-      available: poolAny.pool.available,
-      pending: poolAny.pool.pending,
-      borrowed: poolAny.pool.borrowed,
-      spareResourceCapacity: poolAny.pool.spareResourceCapacity,
-    } : null,
+    pool: poolAny.pool
+      ? {
+          size: poolAny.pool.size,
+          available: poolAny.pool.available,
+          pending: poolAny.pool.pending,
+          borrowed: poolAny.pool.borrowed,
+          spareResourceCapacity: poolAny.pool.spareResourceCapacity,
+        }
+      : null,
   };
 }
 
 // Enhanced query function with performance tracking
-export async function query<T = any>(sql: string, params?: any[]): Promise<T[]> {
+export async function query<T = any>(
+  sql: string,
+  params?: any[]
+): Promise<T[]> {
   const startTime = performance.now();
   const queryKey = sql.substring(0, 50); // First 50 chars for metrics key
 
@@ -191,14 +203,16 @@ export async function query<T = any>(sql: string, params?: any[]): Promise<T[]> 
     poolMetrics.queryCount++;
 
     // Clean parameters
-    const cleanParams = params ? params.map(param => {
-      if (param === undefined) return null;
-      if (typeof param === 'string' && /^\d+$/.test(param)) {
-        const num = parseInt(param, 10);
-        if (!isNaN(num)) return num;
-      }
-      return param;
-    }) : [];
+    const cleanParams = params
+      ? params.map((param) => {
+          if (param === undefined) return null;
+          if (typeof param === "string" && /^\d+$/.test(param)) {
+            const num = parseInt(param, 10);
+            if (!isNaN(num)) return num;
+          }
+          return param;
+        })
+      : [];
 
     // Execute query - use query() instead of execute() to avoid prepared statement issues
     const [rows] = await pool.query(sql, cleanParams);
@@ -210,13 +224,16 @@ export async function query<T = any>(sql: string, params?: any[]): Promise<T[]> 
     // Log slow queries
     if (duration > 1000) {
       poolMetrics.slowQueries++;
-      console.warn(`[MySQL] Slow query detected (${duration.toFixed(2)}ms):`, queryKey);
+      console.warn(
+        `[MySQL] Slow query detected (${duration.toFixed(2)}ms):`,
+        queryKey
+      );
     }
 
     return rows as T[];
   } catch (error) {
     poolMetrics.lastError = error as Error;
-    console.error('[MySQL] Query error:', error);
+    console.error("[MySQL] Query error:", error);
     throw error;
   }
 }
@@ -256,7 +273,7 @@ export function getSlowQueries(limit = 10) {
 
 // Memory usage checker
 export function getMemoryUsage() {
-  if (typeof window === 'undefined' && process.memoryUsage) {
+  if (typeof window === "undefined" && process.memoryUsage) {
     const usage = process.memoryUsage();
     return {
       rss: Math.round(usage.rss / 1024 / 1024), // MB
@@ -280,7 +297,10 @@ export async function getConnection() {
 }
 
 // Single row query
-export async function queryOne<T = any>(sql: string, params?: any[]): Promise<T | null> {
+export async function queryOne<T = any>(
+  sql: string,
+  params?: any[]
+): Promise<T | null> {
   const rows = await query<T>(sql, params);
   return rows.length > 0 ? rows[0] : null;
 }
@@ -299,7 +319,9 @@ export async function withTransaction<T>(
 
     const duration = performance.now() - startTime;
     if (duration > 1000) {
-      console.warn(`[MySQL] Slow transaction detected: ${duration.toFixed(2)}ms`);
+      console.warn(
+        `[MySQL] Slow transaction detected: ${duration.toFixed(2)}ms`
+      );
     }
 
     return result;
@@ -313,7 +335,7 @@ export async function withTransaction<T>(
 
 // Health check
 export async function healthCheck(): Promise<{
-  status: 'healthy' | 'unhealthy';
+  status: "healthy" | "unhealthy";
   latency: number;
   poolStatus: any;
   memoryUsage: any;
@@ -321,12 +343,12 @@ export async function healthCheck(): Promise<{
   lastError: string | null;
 }> {
   const startTime = performance.now();
-  let status: 'healthy' | 'unhealthy' = 'healthy';
+  let status: "healthy" | "unhealthy" = "healthy";
 
   try {
-    await query('SELECT 1');
+    await query("SELECT 1");
   } catch (error) {
-    status = 'unhealthy';
+    status = "unhealthy";
   }
 
   const latency = performance.now() - startTime;
@@ -342,19 +364,19 @@ export async function healthCheck(): Promise<{
 }
 
 // Graceful shutdown
-if (typeof window === 'undefined') {
+if (typeof window === "undefined") {
   const shutdown = async () => {
     try {
-      console.log('[MySQL] Closing connection pool...');
+      console.log("[MySQL] Closing connection pool...");
       await pool.end();
-      console.log('[MySQL] Connection pool closed');
+      console.log("[MySQL] Connection pool closed");
     } catch (error) {
-      console.error('[MySQL] Error closing pool:', error);
+      console.error("[MySQL] Error closing pool:", error);
     }
   };
 
-  process.once('SIGTERM', shutdown);
-  process.once('SIGINT', shutdown);
+  process.once("SIGTERM", shutdown);
+  process.once("SIGINT", shutdown);
 }
 
 // Export everything needed for backward compatibility
