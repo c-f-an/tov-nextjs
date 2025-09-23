@@ -81,15 +81,13 @@ const queryMetrics = new Map<
   }
 >();
 
-// Create connection pool with event monitoring
-let pool: mysql.Pool;
-
-try {
-  pool = mysql.createPool(poolConfig);
+// Function to create connection pool
+function createPool(): mysql.Pool {
+  const newPool = mysql.createPool(poolConfig);
   console.log("[MySQL] Optimized connection pool created for t2.micro");
 
   // Monitor pool events (if available)
-  const poolAny = pool as any;
+  const poolAny = newPool as any;
   if (poolAny.pool) {
     poolAny.pool.on("acquire", () => {
       poolMetrics.activeConnections++;
@@ -104,6 +102,27 @@ try {
       poolMetrics.queuedRequests++;
     });
   }
+
+  // Add error handling for connection loss
+  (newPool as any).on("error", (err: any) => {
+    console.error("[MySQL] Pool error:", err);
+    if (err.code === "PROTOCOL_CONNECTION_LOST") {
+      console.log("[MySQL] Connection lost, recreating pool...");
+      pool = createPool();
+      if (process.env.NODE_ENV === "production") {
+        globalThis.mysqlPool = pool;
+      }
+    }
+  });
+
+  return newPool;
+}
+
+// Create connection pool with event monitoring
+let pool: mysql.Pool;
+
+try {
+  pool = createPool();
 } catch (error) {
   console.error("[MySQL] Failed to create connection pool:", error);
   throw error;
@@ -166,6 +185,31 @@ if (typeof window === "undefined") {
   warmupPool().catch(console.error);
 }
 
+// Keep-alive mechanism - ping every 5 minutes to prevent connection timeout
+if (typeof window === "undefined" && process.env.NODE_ENV === "production") {
+  const keepAliveInterval = setInterval(async () => {
+    try {
+      await pool.query("SELECT 1");
+      console.log("[MySQL] Keep-alive ping successful");
+    } catch (error: any) {
+      console.error("[MySQL] Keep-alive failed:", error.message);
+
+      // Attempt to recreate pool on keep-alive failure
+      try {
+        pool = createPool();
+        globalThis.mysqlPool = pool;
+        console.log("[MySQL] Pool recreated after keep-alive failure");
+      } catch (recreateError) {
+        console.error("[MySQL] Failed to recreate pool:", recreateError);
+      }
+    }
+  }, 300000); // 5 minutes
+
+  // Clean up interval on process termination
+  process.once("SIGTERM", () => clearInterval(keepAliveInterval));
+  process.once("SIGINT", () => clearInterval(keepAliveInterval));
+}
+
 // Export pool and metrics
 export { pool, poolMetrics, queryMetrics };
 
@@ -191,7 +235,7 @@ export function getPoolStatus() {
   };
 }
 
-// Enhanced query function with performance tracking
+// Enhanced query function with performance tracking and auto-reconnect
 export async function query<T = any>(
   sql: string,
   params?: any[]
@@ -231,7 +275,34 @@ export async function query<T = any>(
     }
 
     return rows as T[];
-  } catch (error) {
+  } catch (error: any) {
+    // Handle connection errors with reconnection logic
+    if (
+      error.code === "ECONNREFUSED" ||
+      error.code === "PROTOCOL_CONNECTION_LOST" ||
+      error.code === "ETIMEDOUT" ||
+      error.code === "ENOTFOUND"
+    ) {
+      console.log("[MySQL] Connection lost, attempting to reconnect...");
+
+      // Recreate pool
+      try {
+        pool = createPool();
+        if (process.env.NODE_ENV === "production") {
+          globalThis.mysqlPool = pool;
+        }
+
+        // Retry the query once
+        const [rows] = await pool.query(sql, params || []);
+        console.log("[MySQL] Reconnection successful, query executed");
+        return rows as T[];
+      } catch (retryError) {
+        poolMetrics.lastError = retryError as Error;
+        console.error("[MySQL] Query retry failed:", retryError);
+        throw retryError;
+      }
+    }
+
     poolMetrics.lastError = error as Error;
     console.error("[MySQL] Query error:", error);
     throw error;
