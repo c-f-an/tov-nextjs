@@ -95,8 +95,7 @@ export function Footer() {
               {/* 회사 정보 */}
               <div className="mb-6 space-y-1">
                 <p className="text-xs text-gray-500">
-                  사단법인 토브협회 | 대표자: 최호윤 | 사업자등록번호:
-                  123-45-67890
+                  사단법인 토브협회 | 대표자: 최호윤
                 </p>
                 <p className="text-xs text-gray-500">
                   주소: 서울특별시 종로구 삼일대로 428, 500-42호

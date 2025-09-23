@@ -257,7 +257,31 @@ CREATE TABLE `financial_reports` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
--- 6. 기타 관리 테이블
+-- 6. 보고서 관련 테이블
+-- =============================================
+
+-- 사업보고 및 재정보고 테이블
+CREATE TABLE `reports` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL COMMENT '보고서 제목',
+  `year` varchar(4) NOT NULL COMMENT '보고서 연도',
+  `date` date NOT NULL COMMENT '보고서 작성일',
+  `type` enum('business','finance') NOT NULL COMMENT '보고서 타입 (사업/재정)',
+  `summary` text COMMENT '보고서 요약',
+  `content` longtext COMMENT '보고서 내용',
+  `file_url` varchar(500) DEFAULT NULL COMMENT '첨부 파일 URL',
+  `views` int NOT NULL DEFAULT '0' COMMENT '조회수',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1' COMMENT '활성화 여부',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `reports_year_index` (`year`),
+  KEY `reports_type_index` (`type`),
+  KEY `reports_is_active_index` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
+-- 7. 기타 관리 테이블
 -- =============================================
 
 -- FAQ 테이블

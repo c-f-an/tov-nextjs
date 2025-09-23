@@ -7,10 +7,10 @@ import Link from "next/link";
 export interface Report {
   id: number;
   title: string;
-  date: string;
+  date: string | Date;
   year: string;
   type: 'business' | 'finance';
-  summary: string;
+  summary?: string | null;
   views: number;
 }
 
@@ -45,13 +45,15 @@ export default function ReportCard({ report }: ReportCardProps) {
           </h3>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-            {report.summary}
-          </p>
+          {report.summary && (
+            <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+              {report.summary}
+            </p>
+          )}
           <div className="flex items-center justify-between text-sm text-gray-500">
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              <span>{report.date}</span>
+              <span>{typeof report.date === 'string' ? report.date : new Date(report.date).toLocaleDateString('ko-KR')}</span>
             </div>
             <div className="flex items-center gap-1">
               <Eye className="h-4 w-4" />

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
-import PageHeader from '@/presentation/components/common/PageHeader';
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 export default function SitemapPage() {
   const sitemapData = [
@@ -77,7 +77,7 @@ export default function SitemapPage() {
       <Breadcrumb items={[{ label: "사이트맵" }]} />
 
       <div className="mx-auto">
-        <PageHeader 
+        <PageHeader
           title="사이트맵"
           description="토브협회 웹사이트의 전체 구조를 확인하세요."
         />
@@ -126,9 +126,6 @@ export default function SitemapPage() {
               </p>
               <p className="mb-2">
                 <strong>이사장:</strong> 최호윤
-              </p>
-              <p className="mb-2">
-                <strong>사업자등록번호:</strong> 123-45-67890
               </p>
             </div>
             <div>

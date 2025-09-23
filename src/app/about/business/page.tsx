@@ -2,80 +2,56 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ChevronRight, FileText, DollarSign } from "lucide-react";
+import { ChevronRight, FileText, DollarSign, AlertCircle } from "lucide-react";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
-import ReportCard, { Report } from "@/presentation/components/report/ReportCard";
-import PageHeader from '@/presentation/components/common/PageHeader';
-
-// 임시 데이터 - 나중에 API로 대체
-const mockBusinessReports: Report[] = [
-  {
-    id: 1,
-    title: "2024년 토브협회 사업보고서",
-    date: "2024-03-15",
-    year: "2024",
-    type: "business",
-    summary: "2024년도 토브협회의 주요 사업 성과와 활동 내역을 담은 종합 보고서입니다. 세무 상담, 교육 프로그램, 자료 제공 서비스 등의 성과를 확인하실 수 있습니다.",
-    views: 1234
-  },
-  {
-    id: 2,
-    title: "2023년 토브협회 사업보고서",
-    date: "2023-03-20",
-    year: "2023",
-    type: "business",
-    summary: "2023년도 토브협회의 사업 활동과 성과를 정리한 보고서입니다. 전년 대비 성장한 서비스 분야와 신규 프로그램에 대한 상세한 내용을 포함하고 있습니다.",
-    views: 2341
-  },
-  {
-    id: 3,
-    title: "2022년 토브협회 사업보고서",
-    date: "2022-03-25",
-    year: "2022",
-    type: "business",
-    summary: "2022년도 토브협회의 사업 실적과 주요 활동을 담은 보고서입니다. 코로나19 상황에서의 비대면 서비스 확대와 온라인 교육 프로그램 성과를 확인하실 수 있습니다.",
-    views: 1876
-  }
-];
-
-const mockFinanceReports: Report[] = [
-  {
-    id: 4,
-    title: "2024년 토브협회 재정보고서",
-    date: "2024-03-15",
-    year: "2024",
-    type: "finance",
-    summary: "2024년도 토브협회의 재정 현황과 예산 집행 내역을 투명하게 공개한 보고서입니다. 수입과 지출 내역, 재무상태표 등을 확인하실 수 있습니다.",
-    views: 987
-  },
-  {
-    id: 5,
-    title: "2023년 토브협회 재정보고서",
-    date: "2023-03-20",
-    year: "2023",
-    type: "finance",
-    summary: "2023년도 토브협회의 재정 운영 결과를 정리한 보고서입니다. 전년 대비 재정 변화와 주요 사업별 예산 집행 현황을 상세히 담고 있습니다.",
-    views: 1543
-  },
-  {
-    id: 6,
-    title: "2022년 토브협회 재정보고서",
-    date: "2022-03-25",
-    year: "2022",
-    type: "finance",
-    summary: "2022년도 토브협회의 재정 상태와 예산 운영 실적을 담은 보고서입니다. 효율적인 재정 운영을 위한 노력과 그 결과를 확인하실 수 있습니다.",
-    views: 1234
-  }
-];
+import ReportCard, {
+  Report,
+} from "@/presentation/components/report/ReportCard";
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 export default function BusinessPage() {
   const [businessReports, setBusinessReports] = useState<Report[]>([]);
   const [financeReports, setFinanceReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: API에서 데이터 가져오기
-    setBusinessReports(mockBusinessReports);
-    setFinanceReports(mockFinanceReports);
+    const fetchReports = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch business reports
+        const businessRes = await fetch("/api/reports?type=business");
+        const businessData = await businessRes.json();
+
+        if (businessData.success) {
+          setBusinessReports(businessData.data.slice(0, 3)); // Show latest 3
+        } else {
+          console.error(
+            "Failed to fetch business reports:",
+            businessData.error
+          );
+        }
+
+        // Fetch finance reports
+        const financeRes = await fetch("/api/reports?type=finance");
+        const financeData = await financeRes.json();
+
+        if (financeData.success) {
+          setFinanceReports(financeData.data.slice(0, 3)); // Show latest 3
+        } else {
+          console.error("Failed to fetch finance reports:", financeData.error);
+        }
+      } catch (err) {
+        console.error("Error fetching reports:", err);
+        setError("보고서를 불러오는 중 오류가 발생했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
   }, []);
 
   return (
@@ -84,7 +60,7 @@ export default function BusinessPage() {
         <Breadcrumb
           items={[{ label: "About Us", href: "/about" }, { label: "사업보고" }]}
         />
-        <PageHeader 
+        <PageHeader
           title="사업보고"
           description="투명함의 약속 | Tov의 사명을 실현하는 이야기입니다."
         />
@@ -98,7 +74,9 @@ export default function BusinessPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold">사업보고</h2>
-                <p className="text-gray-600">토브협회의 사업 활동과 성과를 확인하세요</p>
+                <p className="text-gray-600">
+                  토브협회의 사업 활동과 성과를 확인하세요
+                </p>
               </div>
             </div>
             <Link
@@ -109,11 +87,37 @@ export default function BusinessPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {businessReports.map((report) => (
-              <ReportCard key={report.id} report={report} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">보고서를 불러오는 중...</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="h-6 w-6 text-red-600 flex-shrink-0" />
+                <p className="text-red-800">{error}</p>
+              </div>
+            </div>
+          ) : businessReports.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {businessReports.map((report) => (
+                <ReportCard key={report.id} report={report} />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-gray-50 rounded-lg p-12 text-center">
+              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 mb-2">
+                등록된 사업보고서가 없습니다.
+              </p>
+              <p className="text-sm text-gray-500">
+                새로운 보고서가 등록되면 이곳에 표시됩니다.
+              </p>
+            </div>
+          )}
         </section>
 
         {/* 재정보고 섹션 */}
@@ -125,7 +129,9 @@ export default function BusinessPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold">재정보고</h2>
-                <p className="text-gray-600">투명한 재정 운영 현황을 공개합니다</p>
+                <p className="text-gray-600">
+                  투명한 재정 운영 현황을 공개합니다
+                </p>
               </div>
             </div>
             <Link
@@ -136,15 +142,41 @@ export default function BusinessPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {financeReports.map((report) => (
-              <ReportCard key={report.id} report={report} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">보고서를 불러오는 중...</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="h-6 w-6 text-red-600 flex-shrink-0" />
+                <p className="text-red-800">{error}</p>
+              </div>
+            </div>
+          ) : financeReports.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {financeReports.map((report) => (
+                <ReportCard key={report.id} report={report} />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-gray-50 rounded-lg p-12 text-center">
+              <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 mb-2">
+                등록된 재정보고서가 없습니다.
+              </p>
+              <p className="text-sm text-gray-500">
+                새로운 보고서가 등록되면 이곳에 표시됩니다.
+              </p>
+            </div>
+          )}
         </section>
 
         {/* 하단 정보 섹션 */}
-        <div className="mt-16 bg-gray-100 rounded-lg p-8">
+        {/* <div className="mt-16 bg-gray-100 rounded-lg p-8">
           <div className="text-center">
             <h3 className="text-2xl font-bold mb-4">투명한 운영의 약속</h3>
             <p className="text-gray-600 mb-6 max-w-3xl mx-auto">
@@ -173,7 +205,7 @@ export default function BusinessPage() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
