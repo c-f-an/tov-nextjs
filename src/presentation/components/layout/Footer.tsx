@@ -15,7 +15,6 @@ export function Footer() {
   ];
 
   const familySites = [
-    { name: "한국세무사회", url: "#" },
     { name: "국세청", url: "https://www.nts.go.kr/" },
     { name: "기획재정부", url: "https://www.moef.go.kr/" },
   ];
@@ -36,7 +35,7 @@ export function Footer() {
             {/* 오른쪽: 버튼과 SNS */}
             <div className="flex items-center gap-6">
               {/* SNS 아이콘들 */}
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 {snsLinks.map((sns) => (
                   <a
                     key={sns.name}
@@ -49,7 +48,7 @@ export function Footer() {
                     <span className="text-sm font-bold">{sns.icon}</span>
                   </a>
                 ))}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
