@@ -3,6 +3,7 @@ import { query } from '@/infrastructure/database/mysql'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tov.ptax.kr'
+  const skipDB = process.env.SKIP_DB_QUERIES === 'true'
 
   // 정적 페이지들
   const staticPages = [
@@ -13,27 +14,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '/about/organization', priority: 0.8 },
     { path: '/about/location', priority: 0.8 },
     { path: '/about/faq', priority: 0.8 },
-    { path: '/board', priority: 0.8 },
-    { path: '/resources', priority: 0.8 },
-    { path: '/resources/religious-income', priority: 0.8 },
-    { path: '/resources/nonprofit-finance', priority: 0.8 },
-    { path: '/resources/settlement', priority: 0.8 },
-    { path: '/resources/laws', priority: 0.8 },
-    { path: '/consultation', priority: 0.8 },
-    { path: '/consultation/apply', priority: 0.8 },
-    { path: '/consultation/guide', priority: 0.8 },
-    { path: '/consultation/list', priority: 0.8 },
-    { path: '/consultation/faq', priority: 0.8 },
-    { path: '/donation', priority: 0.8 },
-    { path: '/donation/guide', priority: 0.8 },
-    { path: '/donation/apply', priority: 0.8 },
-    { path: '/donation/report', priority: 0.8 },
-    { path: '/education', priority: 0.8 },
     { path: '/movement', priority: 0.8 },
-    { path: '/movement/religious-income-report', priority: 0.8 },
     { path: '/movement/financial-management', priority: 0.8 },
     { path: '/movement/financial-education', priority: 0.8 },
     { path: '/movement/financial-disclosure', priority: 0.8 },
+    { path: '/movement/religious-income-report', priority: 0.8 },
     { path: '/movement/cooperation', priority: 0.8 },
     { path: '/news', priority: 0.8 },
     { path: '/news/notice', priority: 0.8 },
@@ -41,12 +26,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '/news/media', priority: 0.8 },
     { path: '/news/publication', priority: 0.8 },
     { path: '/news/laws', priority: 0.8 },
-    { path: '/faq', priority: 0.8 },
+    { path: '/resources', priority: 0.8 },
+    { path: '/resources/religious-income', priority: 0.8 },
+    { path: '/resources/nonprofit-finance', priority: 0.8 },
+    { path: '/resources/settlement', priority: 0.8 },
+    { path: '/consultation', priority: 0.8 },
+    { path: '/consultation/apply', priority: 0.8 },
+    { path: '/consultation/guide', priority: 0.8 },
+    { path: '/donation', priority: 0.8 },
+    { path: '/donation/guide', priority: 0.8 },
+    { path: '/donation/apply', priority: 0.8 },
+    { path: '/donation/report', priority: 0.8 },
+    { path: '/mypage', priority: 0.5 },
+    { path: '/login', priority: 0.5 },
+    { path: '/register', priority: 0.5 },
     { path: '/sitemap', priority: 0.5 },
     { path: '/privacy', priority: 0.5 },
     { path: '/terms', priority: 0.5 },
-    { path: '/login', priority: 0.5 },
-    { path: '/register', priority: 0.5 },
   ]
 
   // 정적 페이지 사이트맵 엔트리 생성
@@ -56,6 +52,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'monthly',
     priority,
   }))
+
+  // 빌드 시 DB 쿼리 스킵
+  if (skipDB) {
+    return staticUrls
+  }
 
   // 동적 콘텐츠 가져오기
   try {
@@ -108,21 +109,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     }))
 
-    // 교육 프로그램 가져오기
-    const educationPrograms = await query<{id: number, slug: string, updated_at: Date}[]>(`
-      SELECT id, slug, updated_at
-      FROM education_programs
-      WHERE status = 'active'
-      ORDER BY updated_at DESC
-      LIMIT 100
-    `)
-
-    const educationUrls: MetadataRoute.Sitemap = educationPrograms.map((program) => ({
-      url: `${baseUrl}/education/${program.slug || program.id}`,
-      lastModified: new Date(program.updated_at),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    }))
 
     // 비즈니스 보고서 가져오기
     const businessReports = await query<{id: number, report_type: string, updated_at: Date}[]>(`
@@ -145,7 +131,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...postUrls,
       ...newsUrls,
       ...consultationUrls,
-      ...educationUrls,
       ...reportUrls,
     ]
   } catch (error) {
