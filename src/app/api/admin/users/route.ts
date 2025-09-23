@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminRequest, logAdminAction } from '@/lib/auth-admin';
-import { pool } from '@/infrastructure/database/mysql';
+import { query } from '@/infrastructure/database/mysql';
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,24 +44,24 @@ export async function GET(request: NextRequest) {
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
     // Get total count
-    const [countResult] = await pool.execute(
+    const countResult = await query(
       `SELECT COUNT(*) as total FROM users ${whereClause}`,
       queryParams
     );
     const totalCount = Number(countResult[0]?.total || 0);
 
     // Get users
-    const [users] = await pool.execute(
-      `SELECT 
-        id, 
-        email, 
-        name, 
-        phone, 
+    const users = await query(
+      `SELECT
+        id,
+        email,
+        name,
+        phone,
         username,
-        status, 
-        login_type, 
+        status,
+        login_type,
         DATE_FORMAT(created_at, '%Y.%m.%d') as joinDate,
-        CASE 
+        CASE
           WHEN last_login_at IS NULL THEN NULL
           ELSE DATE_FORMAT(last_login_at, '%Y.%m.%d %H:%i')
         END as lastLogin
@@ -156,7 +156,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Execute update
-    const [result] = await pool.execute(updateQuery, updateParams);
+    const result = await query(updateQuery, updateParams);
 
     // Log admin action
     await logAdminAction(

@@ -89,11 +89,11 @@ export class Container {
 
   private constructor() {
     // Initialize repositories
-    this.userRepository = new MySQLUserRepository();
+    this.userRepository = MySQLUserRepository.getInstance();
     this.userProfileRepository = new MySQLUserProfileRepository();
     this.refreshTokenRepository = new MySQLRefreshTokenRepository();
     this.categoryRepository = new MySQLCategoryRepository();
-    this.postRepository = new MySQLPostRepository();
+    this.postRepository = MySQLPostRepository.getInstance();
     this.consultationRepository = new MySQLConsultationRepository();
     this.sponsorRepository = new MySQLSponsorRepository();
     this.donationRepository = new MySQLDonationRepository();

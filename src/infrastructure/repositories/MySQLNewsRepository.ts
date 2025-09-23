@@ -19,6 +19,16 @@ interface NewsRow extends RowDataPacket {
 }
 
 export class MySQLNewsRepository implements INewsRepository {
+  private static instance: MySQLNewsRepository;
+
+  private constructor() {}
+
+  public static getInstance(): MySQLNewsRepository {
+    if (!MySQLNewsRepository.instance) {
+      MySQLNewsRepository.instance = new MySQLNewsRepository();
+    }
+    return MySQLNewsRepository.instance;
+  }
   private mapRowToNews(row: NewsRow): News {
     return {
       id: row.id,

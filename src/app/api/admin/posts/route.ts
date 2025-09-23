@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminRequest, logAdminAction } from '@/lib/auth-admin';
-import { pool } from '@/infrastructure/database/mysql';
+import { query } from '@/infrastructure/database/mysql';
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -25,7 +25,7 @@ export async function DELETE(request: NextRequest) {
 
     // Delete posts
     const placeholders = postIds.map(() => '?').join(',');
-    const [result] = await pool.execute(
+    await query(
       `DELETE FROM posts WHERE id IN (${placeholders})`,
       postIds
     );
@@ -118,7 +118,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Execute update
-    const [result] = await pool.execute(updateQuery, updateParams);
+    await query(updateQuery, updateParams);
 
     // Log admin action
     await logAdminAction(

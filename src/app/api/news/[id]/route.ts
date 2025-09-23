@@ -4,7 +4,7 @@ import { GetNewsDetailUseCase } from '@/core/application/use-cases/news/GetNewsD
 import { UpdateNewsUseCase } from '@/core/application/use-cases/news/UpdateNewsUseCase';
 import { DeleteNewsUseCase } from '@/core/application/use-cases/news/DeleteNewsUseCase';
 
-const newsRepository = new MySQLNewsRepository();
+const newsRepository = MySQLNewsRepository.getInstance();
 
 // GET /api/news/[id] - 뉴스 상세 조회
 export async function GET(

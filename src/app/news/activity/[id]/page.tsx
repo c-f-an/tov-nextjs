@@ -25,7 +25,7 @@ export default async function ActivityDetailPage({ params }: PageProps) {
 
   let newsItem = null;
   try {
-    const newsRepository = new MySQLNewsRepository();
+    const newsRepository = MySQLNewsRepository.getInstance();
     const getNewsDetailUseCase = new GetNewsDetailUseCase(newsRepository);
     newsItem = await getNewsDetailUseCase.execute(newsId);
     

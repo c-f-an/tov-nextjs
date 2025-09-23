@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { verifyAccessToken } from './auth-utils';
-import { pool } from '@/infrastructure/database/mysql';
+import { query } from '@/infrastructure/database/mysql';
 
 export interface AdminUser {
   id: number;
@@ -34,7 +34,7 @@ export async function verifyAdminRequest(request: NextRequest): Promise<AdminUse
     }
     
     // Check if user has admin role
-    const [rows] = await pool.execute(
+    const rows = await query(
       'SELECT id, email, name, role, login_type FROM users WHERE id = ? AND role = ? AND status = ?',
       [payload.userId, 'ADMIN', 'active']
     );
@@ -68,8 +68,8 @@ export async function logAdminAction(
   userAgent?: string
 ) {
   try {
-    await pool.execute(
-      `INSERT INTO admin_logs (admin_id, action, entity_type, entity_id, details, ip_address, user_agent) 
+    await query(
+      `INSERT INTO admin_logs (admin_id, action, entity_type, entity_id, details, ip_address, user_agent)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         adminId,

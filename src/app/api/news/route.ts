@@ -4,7 +4,7 @@ import { CreateNewsUseCase } from '@/core/application/use-cases/news/CreateNewsU
 import { GetNewsListUseCase } from '@/core/application/use-cases/news/GetNewsListUseCase';
 import { NewsCategory } from '@/core/domain/entities/News';
 
-const newsRepository = new MySQLNewsRepository();
+const newsRepository = MySQLNewsRepository.getInstance();
 
 // GET /api/news - 뉴스 목록 조회
 export async function GET(request: NextRequest) {

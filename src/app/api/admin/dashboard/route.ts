@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminRequest, logAdminAction } from '@/lib/auth-admin';
-import { pool } from '@/infrastructure/database/mysql';
+import { query } from '@/infrastructure/database/mysql';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,27 +14,27 @@ export async function GET(request: NextRequest) {
     }
 
     // Get dashboard statistics
-    const [userStats] = await pool.execute(
+    const userStats = await query(
       'SELECT COUNT(*) as total, SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as new_this_month FROM users'
     );
 
-    const [postStats] = await pool.execute(
+    const postStats = await query(
       'SELECT COUNT(*) as total, SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) as new_this_week FROM posts WHERE status = ?',
       ['published']
     );
 
-    const [consultationStats] = await pool.execute(
+    const consultationStats = await query(
       'SELECT COUNT(*) as pending FROM consultations WHERE status = ?',
       ['pending']
     );
 
-    const [donationStats] = await pool.execute(
+    const donationStats = await query(
       'SELECT COALESCE(SUM(amount), 0) as monthly_total FROM donations WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) AND status = ?',
       ['completed']
     );
 
     // Get recent posts
-    const [recentPosts] = await pool.execute(
+    const recentPosts = await query(
       `SELECT p.id, p.title, p.created_at, c.name as category_name, c.slug as category_slug, u.name as author_name
        FROM posts p
        LEFT JOIN categories c ON p.category_id = c.id
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Get recent consultations
-    const [recentConsultations] = await pool.execute(
+    const recentConsultations = await query(
       `SELECT id, name, phone, consultation_type, status, created_at
        FROM consultations
        ORDER BY created_at DESC
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Get today's active users count
-    const [activeUsers] = await pool.execute(
+    const activeUsers = await query(
       'SELECT COUNT(DISTINCT id) as today_active FROM users WHERE DATE(last_login_at) = CURDATE()'
     );
 

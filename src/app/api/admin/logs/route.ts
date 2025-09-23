@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminRequest } from '@/lib/auth-admin';
-import { pool } from '@/infrastructure/database/mysql';
+import { query } from '@/infrastructure/database/mysql';
 
 export async function GET(request: NextRequest) {
   try {
@@ -55,15 +55,15 @@ export async function GET(request: NextRequest) {
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
     // Get total count
-    const [countResult] = await pool.execute(
+    const countResult = await query(
       `SELECT COUNT(*) as total FROM admin_logs al ${whereClause}`,
       queryParams
     );
     const totalCount = Number(countResult[0]?.total || 0);
 
     // Get logs with admin user info
-    const [logs] = await pool.execute(
-      `SELECT 
+    const logs = await query(
+      `SELECT
         al.id,
         al.admin_id,
         al.action,

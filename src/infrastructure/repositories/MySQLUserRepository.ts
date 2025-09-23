@@ -23,6 +23,17 @@ interface UserRow extends RowDataPacket {
 }
 
 export class MySQLUserRepository implements IUserRepository {
+  private static instance: MySQLUserRepository;
+
+  private constructor() {}
+
+  static getInstance(): MySQLUserRepository {
+    if (!MySQLUserRepository.instance) {
+      MySQLUserRepository.instance = new MySQLUserRepository();
+    }
+    return MySQLUserRepository.instance;
+  }
+
   async findById(id: number): Promise<User | null> {
     const row = await queryOne<UserRow>(
       'SELECT * FROM users WHERE id = ?',

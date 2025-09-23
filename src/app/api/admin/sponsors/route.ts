@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminRequest } from '@/lib/auth-admin';
-import { pool } from '@/infrastructure/database/mysql';
+import { query } from '@/infrastructure/database/mysql';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,8 +14,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Get sponsors with user information and donation totals
-    const [sponsors] = await pool.execute(`
-      SELECT 
+    const sponsors = await query(`
+      SELECT
         s.id,
         s.user_id as userId,
         u.name as userName,
@@ -26,18 +26,18 @@ export async function GET(request: NextRequest) {
         s.sponsor_status as sponsorStatus,
         DATE_FORMAT(s.start_date, '%Y.%m.%d') as startDate,
         (
-          SELECT SUM(amount) 
-          FROM donations 
+          SELECT SUM(amount)
+          FROM donations
           WHERE sponsor_id = s.id AND status = 'completed'
         ) as totalAmount,
         (
           SELECT DATE_FORMAT(MAX(payment_date), '%Y.%m.%d')
-          FROM donations 
+          FROM donations
           WHERE sponsor_id = s.id AND status = 'completed'
         ) as lastPaymentDate,
         (
-          SELECT COUNT(*) 
-          FROM donations 
+          SELECT COUNT(*)
+          FROM donations
           WHERE sponsor_id = s.id AND status = 'completed'
         ) as paymentCount
       FROM sponsors s

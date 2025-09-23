@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminRequest, logAdminAction } from '@/lib/auth-admin';
-import { pool } from '@/infrastructure/database/mysql';
+import { query } from '@/infrastructure/database/mysql';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all site settings
-    const [settings] = await pool.execute(
+    const settings = await query(
       'SELECT setting_key, setting_value, setting_type, description FROM site_settings ORDER BY setting_key'
     );
 
@@ -103,10 +103,10 @@ export async function PUT(request: NextRequest) {
       }
 
       // Update or insert setting
-      await pool.execute(
-        `INSERT INTO site_settings (setting_key, setting_value, setting_type, updated_by) 
+      await query(
+        `INSERT INTO site_settings (setting_key, setting_value, setting_type, updated_by)
          VALUES (?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE 
+         ON DUPLICATE KEY UPDATE
          setting_value = VALUES(setting_value),
          setting_type = VALUES(setting_type),
          updated_by = VALUES(updated_by)`,

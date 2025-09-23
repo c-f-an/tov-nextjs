@@ -22,6 +22,17 @@ interface PostRow extends RowDataPacket {
 }
 
 export class MySQLPostRepository implements IPostRepository {
+  private static instance: MySQLPostRepository;
+
+  private constructor() {}
+
+  static getInstance(): MySQLPostRepository {
+    if (!MySQLPostRepository.instance) {
+      MySQLPostRepository.instance = new MySQLPostRepository();
+    }
+    return MySQLPostRepository.instance;
+  }
+
   async findById(id: string): Promise<Post | null> {
     const row = await queryOne<PostRow>(
       'SELECT * FROM posts WHERE id = ?',

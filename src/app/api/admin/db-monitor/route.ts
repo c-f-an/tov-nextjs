@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { healthCheck, getPoolStatus, getSlowQueries, getMemoryUsage } from '@/infrastructure/database/mysql-optimized';
+import { healthCheck, getPoolStatus, getSlowQueries, getMemoryUsage } from '@/infrastructure/database/mysql';
 
 // DB monitoring API - only accessible in development or with secret key
 export async function GET(request: NextRequest) {
