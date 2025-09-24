@@ -260,7 +260,7 @@ export default function HealthyFinancialManagementPage() {
               재정관리 컨설팅 사례
             </Link>
             <Link
-              href="/financial-consulting-inquiry"
+              href="/consultation/apply"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gray-800 text-white font-semibold rounded-lg hover:bg-gray-900 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
             >
               <Phone className="w-5 h-5" />
