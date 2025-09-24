@@ -185,25 +185,44 @@ if (typeof window === "undefined") {
   warmupPool().catch(console.error);
 }
 
-// Keep-alive mechanism - ping every 5 minutes to prevent connection timeout
-if (typeof window === "undefined" && process.env.NODE_ENV === "production") {
+// Keep-alive mechanism - ping every 2 minutes to prevent connection timeout
+let lastPingTime = Date.now();
+let connectionId: any = null;
+
+if (typeof window === "undefined") {
   const keepAliveInterval = setInterval(async () => {
     try {
-      await pool.query("SELECT 1");
-      console.log("[MySQL] Keep-alive ping successful");
+      const result = await pool.query("SELECT CONNECTION_ID() as id, NOW() as time");
+      const newConnectionId = (result[0] as any)[0]?.id;
+
+      if (connectionId && connectionId !== newConnectionId) {
+        console.log(`[MySQL] Connection ID changed from ${connectionId} to ${newConnectionId}`);
+      }
+      connectionId = newConnectionId;
+      lastPingTime = Date.now();
+
+      console.log(`[MySQL] Keep-alive ping successful (ID: ${connectionId})`);
     } catch (error: any) {
       console.error("[MySQL] Keep-alive failed:", error.message);
 
       // Attempt to recreate pool on keep-alive failure
       try {
         pool = createPool();
-        globalThis.mysqlPool = pool;
+        if (process.env.NODE_ENV === "production") {
+          globalThis.mysqlPool = pool;
+        }
         console.log("[MySQL] Pool recreated after keep-alive failure");
+
+        // Test new pool
+        const testResult = await pool.query("SELECT CONNECTION_ID() as id");
+        connectionId = (testResult[0] as any)[0]?.id;
+        lastPingTime = Date.now();
+        console.log(`[MySQL] New pool tested successfully (ID: ${connectionId})`);
       } catch (recreateError) {
         console.error("[MySQL] Failed to recreate pool:", recreateError);
       }
     }
-  }, 300000); // 5 minutes
+  }, 120000); // 2 minutes
 
   // Clean up interval on process termination
   process.once("SIGTERM", () => clearInterval(keepAliveInterval));
@@ -235,6 +254,28 @@ export function getPoolStatus() {
   };
 }
 
+// Get pool with validation - ensures connection is alive
+export async function getPool(): Promise<mysql.Pool> {
+  const now = Date.now();
+
+  // Check connection every 30 seconds
+  if (now - lastPingTime > 30000) {
+    try {
+      await pool.query("SELECT 1");
+      lastPingTime = now;
+    } catch (error: any) {
+      console.error("[MySQL] Connection test failed, recreating pool:", error.message);
+      pool = createPool();
+      if (process.env.NODE_ENV === "production") {
+        globalThis.mysqlPool = pool;
+      }
+      lastPingTime = now;
+    }
+  }
+
+  return pool;
+}
+
 // Enhanced query function with performance tracking and auto-reconnect
 export async function query<T = any>(
   sql: string,
@@ -258,8 +299,9 @@ export async function query<T = any>(
         })
       : [];
 
-    // Execute query - use query() instead of execute() to avoid prepared statement issues
-    const [rows] = await pool.query(sql, cleanParams);
+    // Get validated pool and execute query
+    const validatedPool = await getPool();
+    const [rows] = await validatedPool.query(sql, cleanParams);
 
     // Track performance
     const duration = performance.now() - startTime;
@@ -450,17 +492,29 @@ if (typeof window === "undefined") {
   process.once("SIGINT", shutdown);
 }
 
+// Get last ping information
+export function getConnectionInfo() {
+  return {
+    connectionId,
+    lastPingTime: new Date(lastPingTime).toISOString(),
+    timeSinceLastPing: Date.now() - lastPingTime,
+    isStale: Date.now() - lastPingTime > 60000,
+  };
+}
+
 // Export everything needed for backward compatibility
 export default {
   pool,
   query,
   queryOne,
   getConnection,
+  getPool,
   withTransaction,
   getPoolStatus,
   getSlowQueries,
   getMemoryUsage,
   healthCheck,
+  getConnectionInfo,
   poolMetrics,
   queryMetrics,
 };
