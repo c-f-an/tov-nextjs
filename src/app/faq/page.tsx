@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { MainLayout } from '@/presentation/components/layout/MainLayout';
+import { useState, useEffect } from "react";
+import { MainLayout } from "@/presentation/components/layout/MainLayout";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
-import PageHeader from '@/presentation/components/common/PageHeader';
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 interface FAQ {
   id: number;
@@ -17,9 +17,9 @@ interface FAQ {
 export default function FAQPage() {
   const [faqs, setFaqs] = useState<Record<string, FAQ[]>>({});
   const [categories, setCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -30,22 +30,22 @@ export default function FAQPage() {
     try {
       const params = new URLSearchParams();
       if (search) {
-        params.append('search', search);
+        params.append("search", search);
       }
-      
+
       const response = await fetch(`/api/faqs?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch FAQs');
-      
+      if (!response.ok) throw new Error("Failed to fetch FAQs");
+
       const data = await response.json();
       setFaqs(data.faqs);
       setCategories(data.categories);
-      
+
       // Select first category if none selected
       if (!selectedCategory && data.categories.length > 0) {
         setSelectedCategory(data.categories[0]);
       }
     } catch (error) {
-      console.error('Error fetching FAQs:', error);
+      console.error("Error fetching FAQs:", error);
     } finally {
       setIsLoading(false);
     }
@@ -71,12 +71,12 @@ export default function FAQPage() {
   return (
     <MainLayout>
       <div className="mx-auto py-12 px-4">
-        <Breadcrumb items={[{ label: 'FAQ' }]} />
-        <PageHeader 
+        <Breadcrumb items={[{ label: "FAQ" }]} />
+        <PageHeader
           title="자주 묻는 질문"
           description="토브협회에 대해 자주 묻는 질문들을 확인하세요"
         />
-        
+
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="mb-8">
           <div className="flex gap-2">
@@ -105,8 +105,8 @@ export default function FAQPage() {
                 onClick={() => setSelectedCategory(category)}
                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   selectedCategory === category
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700"
                 }`}
               >
                 {category}
@@ -128,21 +128,20 @@ export default function FAQPage() {
               </div>
             ) : (
               displayedFAQs.map((faq) => (
-                <div
-                  key={faq.id}
-                  className="border border-gray-200 rounded-lg"
-                >
+                <div key={faq.id} className="border border-gray-200 rounded-lg">
                   <button
                     onClick={() => toggleExpand(faq.id)}
                     className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-start space-x-3">
-                      <span className="text-blue-600 font-medium mt-0.5">Q</span>
+                      <span className="text-blue-600 font-medium mt-0.5">
+                        Q
+                      </span>
                       <span className="text-gray-900">{faq.question}</span>
                     </div>
                     <svg
                       className={`w-5 h-5 text-gray-400 transition-transform ${
-                        expandedItems.has(faq.id) ? 'transform rotate-180' : ''
+                        expandedItems.has(faq.id) ? "transform rotate-180" : ""
                       }`}
                       fill="none"
                       stroke="currentColor"
@@ -159,7 +158,9 @@ export default function FAQPage() {
                   {expandedItems.has(faq.id) && (
                     <div className="px-6 pb-4 border-t border-gray-100">
                       <div className="flex items-start space-x-3 pt-4">
-                        <span className="text-green-600 font-medium mt-0.5">A</span>
+                        <span className="text-green-600 font-medium mt-0.5">
+                          A
+                        </span>
                         <div
                           className="text-gray-700 prose prose-sm max-w-none"
                           dangerouslySetInnerHTML={{ __html: faq.answer }}
@@ -175,11 +176,9 @@ export default function FAQPage() {
 
         {/* Contact Info */}
         <div className="mt-12 p-6 bg-gray-50 rounded-lg text-center">
-          <p className="text-gray-700 mb-2">
-            찾으시는 답변이 없으신가요?
-          </p>
+          <p className="text-gray-700 mb-2">찾으시는 답변이 없으신가요?</p>
           <p className="text-gray-600">
-            고객센터: 02-1234-5678 | 이메일: support@tov.or.kr
+            고객센터: 02-6951-1391 | 이메일: tov.npo@gmail.com
           </p>
           <a
             href="/consultation/apply"

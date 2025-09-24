@@ -1,4 +1,4 @@
-import PageHeader from '@/presentation/components/common/PageHeader';
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 export default function CooperationPage() {
   return (
@@ -8,9 +8,8 @@ export default function CooperationPage() {
           title="연대협력"
           description="토브협회는 투명하고 건강한 재정문화를 확산시키기 위해 다양한 기관 및 단체와 연대하고 협력하고 있습니다."
         />
-        
-        <div className="max-w-4xl mx-auto">
 
+        <div className="max-w-4xl mx-auto">
           <div className="grid gap-8 mb-12">
             <div className="bg-blue-50 p-8 rounded-lg">
               <h2 className="text-2xl font-bold mb-4">협력 분야</h2>
@@ -96,19 +95,27 @@ export default function CooperationPage() {
               <h2 className="text-2xl font-bold mb-4">협력 성과</h2>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-lg">재정투명성 공동선언문 발표</h3>
+                  <h3 className="font-semibold text-lg">
+                    재정투명성 공동선언문 발표
+                  </h3>
                   <p className="text-gray-600">
-                    2023년 주요 종교단체와 함께 재정투명성 실천을 위한 공동선언문 발표
+                    2023년 주요 종교단체와 함께 재정투명성 실천을 위한
+                    공동선언문 발표
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">비영리 회계기준 제정 참여</h3>
+                  <h3 className="font-semibold text-lg">
+                    비영리 회계기준 제정 참여
+                  </h3>
                   <p className="text-gray-600">
-                    한국회계기준원과 협력하여 비영리조직 회계기준 제정 과정에 참여
+                    한국회계기준원과 협력하여 비영리조직 회계기준 제정 과정에
+                    참여
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">투명성 인증제도 개발</h3>
+                  <h3 className="font-semibold text-lg">
+                    투명성 인증제도 개발
+                  </h3>
                   <p className="text-gray-600">
                     시민사회단체들과 협력하여 재정투명성 인증제도 개발 및 시행
                   </p>
@@ -116,7 +123,8 @@ export default function CooperationPage() {
                 <div>
                   <h3 className="font-semibold text-lg">국제 컨퍼런스 개최</h3>
                   <p className="text-gray-600">
-                    해외 투명성 관련 기관들과 함께 국제 컨퍼런스를 개최하여 우수사례 공유
+                    해외 투명성 관련 기관들과 함께 국제 컨퍼런스를 개최하여
+                    우수사례 공유
                   </p>
                 </div>
               </div>
@@ -163,14 +171,14 @@ export default function CooperationPage() {
             </p>
             <div className="space-y-2 mb-6">
               <p className="text-gray-700">
-                <strong>전화:</strong> 02-737-8710
+                <strong>전화:</strong> 02-6951-1391
               </p>
               <p className="text-gray-700">
-                <strong>이메일:</strong> partnership@tov.or.kr
+                <strong>이메일:</strong> tov.npo@gmail.com
               </p>
             </div>
-            <a 
-              href="/consultation/apply" 
+            <a
+              href="/consultation/apply"
               className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
               협력 제안하기

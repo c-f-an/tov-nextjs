@@ -4,7 +4,7 @@ import { MapPin, Phone, Mail, Clock, Train, Bus, Car } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 import dynamic from "next/dynamic";
-import PageHeader from '@/presentation/components/common/PageHeader';
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 const KakaoMap = dynamic(() => import("@/components/KakaoMap"), {
   ssr: false,
@@ -25,7 +25,7 @@ export default function LocationPage() {
         <Breadcrumb
           items={[{ label: "About Us", href: "/about" }, { label: "오시는길" }]}
         />
-        <PageHeader 
+        <PageHeader
           title="오시는길"
           description="토브협회를 방문하시려는 분들을 위한 안내입니다."
         />
@@ -71,8 +71,8 @@ export default function LocationPage() {
                 <Phone className="h-5 w-5 text-primary mt-1" />
                 <div>
                   <p className="font-semibold">전화</p>
-                  <p className="text-gray-600">02-1234-5678</p>
-                  <p className="text-gray-600">팩스: 02-1234-5679</p>
+                  <p className="text-gray-600">02-6951-1391</p>
+                  <p className="text-gray-600">팩스: 0505-231-2481</p>
                 </div>
               </div>
 
@@ -80,7 +80,7 @@ export default function LocationPage() {
                 <Mail className="h-5 w-5 text-primary mt-1" />
                 <div>
                   <p className="font-semibold">이메일</p>
-                  <p className="text-gray-600">info@tov.or.kr</p>
+                  <p className="text-gray-600">tov.npo@gmail.com</p>
                 </div>
               </div>
 

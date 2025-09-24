@@ -1,68 +1,75 @@
-import Link from 'next/link'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { Phone, Mail, MessageCircle, Calendar, Clock, Users, HelpCircle, FileText } from 'lucide-react'
-import PageHeader from '@/presentation/components/common/PageHeader'
+import Link from "next/link";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import {
+  Phone,
+  Mail,
+  MessageCircle,
+  Calendar,
+  Clock,
+  Users,
+  HelpCircle,
+  FileText,
+} from "lucide-react";
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 const consultationTypes = [
   {
-    title: '전화 상담',
-    description: '신속한 답변이 필요한 경우',
+    title: "전화 상담",
+    description: "신속한 답변이 필요한 경우",
     icon: Phone,
     details: [
-      '평일 오전 9시 - 오후 6시',
-      '점심시간: 12시 - 1시',
-      '02-1234-5678'
+      "평일 오전 9시 - 오후 6시",
+      "점심시간: 12시 - 1시",
+      "02-6951-1391",
     ],
-    action: '전화하기'
+    action: "전화하기",
   },
   {
-    title: '온라인 상담',
-    description: '상세한 상담이 필요한 경우',
+    title: "온라인 상담",
+    description: "상세한 상담이 필요한 경우",
     icon: MessageCircle,
-    details: [
-      '24시간 접수 가능',
-      '답변 소요: 1-2일',
-      '첨부파일 업로드 가능'
-    ],
-    action: '상담 신청'
+    details: ["24시간 접수 가능", "답변 소요: 1-2일", "첨부파일 업로드 가능"],
+    action: "상담 신청",
   },
   {
-    title: '방문 상담',
-    description: '대면 상담이 필요한 경우',
+    title: "방문 상담",
+    description: "대면 상담이 필요한 경우",
     icon: Users,
     details: [
-      '사전 예약 필수',
-      '평일 오전 10시 - 오후 5시',
-      '서울 강남구 소재'
+      "사전 예약 필수",
+      "평일 오전 10시 - 오후 5시",
+      "서울 강남구 소재",
     ],
-    action: '예약하기'
+    action: "예약하기",
   },
   {
-    title: '이메일 상담',
-    description: '문서 검토가 필요한 경우',
+    title: "이메일 상담",
+    description: "문서 검토가 필요한 경우",
     icon: Mail,
-    details: [
-      'info@tov.or.kr',
-      '답변 소요: 2-3일',
-      '복잡한 사안 적합'
-    ],
-    action: '메일 보내기'
-  }
-]
+    details: ["tov.npo@gmail.com", "답변 소요: 2-3일", "복잡한 사안 적합"],
+    action: "메일 보내기",
+  },
+];
 
 const popularTopics = [
-  '종교인 소득세 신고 방법',
-  '비과세 소득 범위',
-  '원천징수 의무',
-  '법인세 신고',
-  '부가가치세 환급',
-  '결산 공시 의무'
-]
+  "종교인 소득세 신고 방법",
+  "비과세 소득 범위",
+  "원천징수 의무",
+  "법인세 신고",
+  "부가가치세 환급",
+  "결산 공시 의무",
+];
 
 export default function ConsultationPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <PageHeader 
+      <PageHeader
         title="상담센터"
         description="교회 세무와 관련된 모든 궁금증을 전문가가 해결해 드립니다."
       />
@@ -70,9 +77,12 @@ export default function ConsultationPage() {
       {/* 상담 유형 */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {consultationTypes.map((type) => {
-          const Icon = type.icon
+          const Icon = type.icon;
           return (
-            <Card key={type.title} className="hover:shadow-lg transition-shadow">
+            <Card
+              key={type.title}
+              className="hover:shadow-lg transition-shadow"
+            >
               <CardHeader>
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
                   <Icon className="h-6 w-6 text-primary" />
@@ -91,7 +101,7 @@ export default function ConsultationPage() {
                 </button>
               </CardContent>
             </Card>
-          )
+          );
         })}
       </div>
 
@@ -175,12 +185,16 @@ export default function ConsultationPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-5 gap-4">
-            {['월', '화', '수', '목', '금'].map((day, index) => (
+            {["월", "화", "수", "목", "금"].map((day, index) => (
               <div key={index} className="text-center">
                 <div className="font-semibold mb-2">{day}요일</div>
                 <div className="space-y-1">
-                  <div className="text-sm p-2 bg-green-100 rounded">오전 가능</div>
-                  <div className="text-sm p-2 bg-yellow-100 rounded">오후 일부</div>
+                  <div className="text-sm p-2 bg-green-100 rounded">
+                    오전 가능
+                  </div>
+                  <div className="text-sm p-2 bg-yellow-100 rounded">
+                    오후 일부
+                  </div>
                 </div>
               </div>
             ))}
@@ -193,7 +207,9 @@ export default function ConsultationPage() {
 
       {/* 상담사 소개 */}
       <div className="bg-gray-50 rounded-lg p-8">
-        <h2 className="text-2xl font-bold mb-6 text-center">전문 상담사 소개</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">
+          전문 상담사 소개
+        </h2>
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-white rounded-lg p-6 text-center">
             <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4"></div>
@@ -216,5 +232,5 @@ export default function ConsultationPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

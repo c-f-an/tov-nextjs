@@ -1,33 +1,33 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Save, Globe, Mail, Shield, Bell } from 'lucide-react'
-import { AdminLayout } from '@/presentation/components/admin/AdminLayout'
+import { useState } from "react";
+import { Save, Globe, Mail, Shield, Bell } from "lucide-react";
+import { AdminLayout } from "@/presentation/components/admin/AdminLayout";
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({
-    siteName: '한국교회세무정보봉사단',
-    siteDescription: '교회의 투명하고 건강한 재정 운영을 돕는 전문 단체',
-    contactEmail: 'info@tov.or.kr',
-    contactPhone: '02-1234-5678',
-    address: '서울특별시 서초구 서초대로 396',
-    
+    siteName: "사단법인 토브협회",
+    siteDescription: "교회의 투명하고 건강한 재정 운영을 돕는 전문 단체",
+    contactEmail: "tov.npo@gmail.com",
+    contactPhone: "02-6951-1391",
+    address: "서울특별시 종로구 삼일대로 428, 500-42호",
+
     emailNotifications: true,
     smsNotifications: true,
     maintenanceMode: false,
-    
+
     registrationEnabled: true,
     emailVerification: true,
     socialLogin: false,
-    
-    googleAnalytics: '',
-    naverWebmaster: '',
-    metaKeywords: '교회세무, 종교인소득, 비영리재정, TOV'
-  })
+
+    googleAnalytics: "",
+    naverWebmaster: "",
+    metaKeywords: "교회세무, 종교인소득, 비영리재정, TOV",
+  });
 
   const handleSave = () => {
-    alert('설정이 저장되었습니다.')
-  }
+    alert("설정이 저장되었습니다.");
+  };
 
   return (
     <AdminLayout>
@@ -52,38 +52,57 @@ export default function AdminSettingsPage() {
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">사이트명</label>
+                <label className="block text-sm font-medium mb-1">
+                  사이트명
+                </label>
                 <input
                   type="text"
                   value={settings.siteName}
-                  onChange={(e) => setSettings({...settings, siteName: e.target.value})}
+                  onChange={(e) =>
+                    setSettings({ ...settings, siteName: e.target.value })
+                  }
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">사이트 설명</label>
+                <label className="block text-sm font-medium mb-1">
+                  사이트 설명
+                </label>
                 <input
                   type="text"
                   value={settings.siteDescription}
-                  onChange={(e) => setSettings({...settings, siteDescription: e.target.value})}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      siteDescription: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">대표 이메일</label>
+                <label className="block text-sm font-medium mb-1">
+                  대표 이메일
+                </label>
                 <input
                   type="email"
                   value={settings.contactEmail}
-                  onChange={(e) => setSettings({...settings, contactEmail: e.target.value})}
+                  onChange={(e) =>
+                    setSettings({ ...settings, contactEmail: e.target.value })
+                  }
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">대표 전화</label>
+                <label className="block text-sm font-medium mb-1">
+                  대표 전화
+                </label>
                 <input
                   type="tel"
                   value={settings.contactPhone}
-                  onChange={(e) => setSettings({...settings, contactPhone: e.target.value})}
+                  onChange={(e) =>
+                    setSettings({ ...settings, contactPhone: e.target.value })
+                  }
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
@@ -92,7 +111,9 @@ export default function AdminSettingsPage() {
                 <input
                   type="text"
                   value={settings.address}
-                  onChange={(e) => setSettings({...settings, address: e.target.value})}
+                  onChange={(e) =>
+                    setSettings({ ...settings, address: e.target.value })
+                  }
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
@@ -110,7 +131,12 @@ export default function AdminSettingsPage() {
                 <input
                   type="checkbox"
                   checked={settings.emailNotifications}
-                  onChange={(e) => setSettings({...settings, emailNotifications: e.target.checked})}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      emailNotifications: e.target.checked,
+                    })
+                  }
                   className="w-4 h-4"
                 />
                 <span>이메일 알림 활성화</span>
@@ -119,7 +145,12 @@ export default function AdminSettingsPage() {
                 <input
                   type="checkbox"
                   checked={settings.smsNotifications}
-                  onChange={(e) => setSettings({...settings, smsNotifications: e.target.checked})}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      smsNotifications: e.target.checked,
+                    })
+                  }
                   className="w-4 h-4"
                 />
                 <span>SMS 알림 활성화</span>
@@ -128,10 +159,17 @@ export default function AdminSettingsPage() {
                 <input
                   type="checkbox"
                   checked={settings.maintenanceMode}
-                  onChange={(e) => setSettings({...settings, maintenanceMode: e.target.checked})}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      maintenanceMode: e.target.checked,
+                    })
+                  }
                   className="w-4 h-4"
                 />
-                <span className="text-red-600">유지보수 모드 (사이트 접근 제한)</span>
+                <span className="text-red-600">
+                  유지보수 모드 (사이트 접근 제한)
+                </span>
               </label>
             </div>
           </div>
@@ -147,7 +185,12 @@ export default function AdminSettingsPage() {
                 <input
                   type="checkbox"
                   checked={settings.registrationEnabled}
-                  onChange={(e) => setSettings({...settings, registrationEnabled: e.target.checked})}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      registrationEnabled: e.target.checked,
+                    })
+                  }
                   className="w-4 h-4"
                 />
                 <span>회원가입 허용</span>
@@ -156,7 +199,12 @@ export default function AdminSettingsPage() {
                 <input
                   type="checkbox"
                   checked={settings.emailVerification}
-                  onChange={(e) => setSettings({...settings, emailVerification: e.target.checked})}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      emailVerification: e.target.checked,
+                    })
+                  }
                   className="w-4 h-4"
                 />
                 <span>이메일 인증 필수</span>
@@ -165,7 +213,9 @@ export default function AdminSettingsPage() {
                 <input
                   type="checkbox"
                   checked={settings.socialLogin}
-                  onChange={(e) => setSettings({...settings, socialLogin: e.target.checked})}
+                  onChange={(e) =>
+                    setSettings({ ...settings, socialLogin: e.target.checked })
+                  }
                   className="w-4 h-4"
                 />
                 <span>소셜 로그인 허용</span>
@@ -181,30 +231,45 @@ export default function AdminSettingsPage() {
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Google Analytics ID</label>
+                <label className="block text-sm font-medium mb-1">
+                  Google Analytics ID
+                </label>
                 <input
                   type="text"
                   value={settings.googleAnalytics}
-                  onChange={(e) => setSettings({...settings, googleAnalytics: e.target.value})}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      googleAnalytics: e.target.value,
+                    })
+                  }
                   placeholder="G-XXXXXXXXXX"
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">네이버 웹마스터 인증</label>
+                <label className="block text-sm font-medium mb-1">
+                  네이버 웹마스터 인증
+                </label>
                 <input
                   type="text"
                   value={settings.naverWebmaster}
-                  onChange={(e) => setSettings({...settings, naverWebmaster: e.target.value})}
+                  onChange={(e) =>
+                    setSettings({ ...settings, naverWebmaster: e.target.value })
+                  }
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">메타 키워드</label>
+                <label className="block text-sm font-medium mb-1">
+                  메타 키워드
+                </label>
                 <input
                   type="text"
                   value={settings.metaKeywords}
-                  onChange={(e) => setSettings({...settings, metaKeywords: e.target.value})}
+                  onChange={(e) =>
+                    setSettings({ ...settings, metaKeywords: e.target.value })
+                  }
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
@@ -213,5 +278,5 @@ export default function AdminSettingsPage() {
         </div>
       </div>
     </AdminLayout>
-  )
+  );
 }

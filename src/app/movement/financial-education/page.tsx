@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import PageHeader from '@/presentation/components/common/PageHeader';
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 interface Education {
   id: number;
@@ -22,7 +22,7 @@ const mockEducations: Education[] = [
     description: "비영리회계의 기본 개념부터 실무까지 체계적으로 학습합니다.",
     schedule: "매월 첫째 주 토요일",
     duration: "오전 9시-오후 1시",
-    level: "초급"
+    level: "초급",
   },
   {
     id: 2,
@@ -31,7 +31,7 @@ const mockEducations: Education[] = [
     description: "교회 특성에 맞춘 재정관리 방법과 실무를 교육합니다.",
     schedule: "매월 셋째 주 토요일",
     duration: "오전 9시-오후 1시",
-    level: "중급"
+    level: "중급",
   },
   {
     id: 3,
@@ -40,7 +40,7 @@ const mockEducations: Education[] = [
     description: "이해하기 쉽고 투명한 재정보고서 작성 방법을 배웁니다.",
     schedule: "분기별 1회",
     duration: "오전 10시-오후 3시",
-    level: "중급"
+    level: "중급",
   },
   {
     id: 4,
@@ -49,7 +49,7 @@ const mockEducations: Education[] = [
     description: "비영리단체가 알아야 할 세무 기초 지식을 학습합니다.",
     schedule: "매월 둘째 주 토요일",
     duration: "오전 10시-오후 2시",
-    level: "초급"
+    level: "초급",
   },
   {
     id: 5,
@@ -58,7 +58,7 @@ const mockEducations: Education[] = [
     description: "효과적인 기부금 모금과 관리 방법을 배웁니다.",
     schedule: "매월 넷째 주 토요일",
     duration: "오전 10시-오후 1시",
-    level: "중급"
+    level: "중급",
   },
   {
     id: 6,
@@ -67,7 +67,7 @@ const mockEducations: Education[] = [
     description: "조직의 재정 투명성을 높이는 실질적인 방법을 학습합니다.",
     schedule: "격월 1회",
     duration: "오전 9시-오후 4시",
-    level: "고급"
+    level: "고급",
   },
   {
     id: 7,
@@ -76,7 +76,7 @@ const mockEducations: Education[] = [
     description: "비영리단체를 위한 회계 소프트웨어 활용법을 익힙니다.",
     schedule: "매월 첫째 주 목요일",
     duration: "오후 2시-오후 5시",
-    level: "초급"
+    level: "초급",
   },
   {
     id: 8,
@@ -85,18 +85,29 @@ const mockEducations: Education[] = [
     description: "효과적인 내부감사 시스템 구축과 운영 방법을 배웁니다.",
     schedule: "분기별 1회",
     duration: "오전 10시-오후 5시",
-    level: "고급"
-  }
+    level: "고급",
+  },
 ];
 
-const categories = ["전체", "회계기초", "재정관리", "보고서작성", "세무", "기부금관리", "투명성", "전산회계", "감사"];
+const categories = [
+  "전체",
+  "회계기초",
+  "재정관리",
+  "보고서작성",
+  "세무",
+  "기부금관리",
+  "투명성",
+  "전산회계",
+  "감사",
+];
 
 export default function FinancialEducationPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
 
-  const filteredEducations = selectedCategory === "전체" 
-    ? mockEducations 
-    : mockEducations.filter(edu => edu.category === selectedCategory);
+  const filteredEducations =
+    selectedCategory === "전체"
+      ? mockEducations
+      : mockEducations.filter((edu) => edu.category === selectedCategory);
 
   const EducationCard = ({ education }: { education: Education }) => (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
@@ -129,13 +140,12 @@ export default function FinancialEducationPage() {
           title="건강한 재정교육"
           description="투명한 숫자가 세상을 바꾸고, 정직한 재정이 희망을 이어갑니다"
         />
-        
-        <div className="max-w-6xl mx-auto">
 
+        <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <h2 className="text-2xl font-bold mb-4">카테고리별 교육</h2>
             <div className="flex flex-wrap gap-2 mb-8">
-              {categories.map(category => (
+              {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
@@ -151,7 +161,7 @@ export default function FinancialEducationPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {filteredEducations.map(education => (
+              {filteredEducations.map((education) => (
                 <EducationCard key={education.id} education={education} />
               ))}
             </div>
@@ -160,7 +170,7 @@ export default function FinancialEducationPage() {
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-6">전체 교육 프로그램</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockEducations.map(education => (
+              {mockEducations.map((education) => (
                 <EducationCard key={education.id} education={education} />
               ))}
             </div>
@@ -174,7 +184,7 @@ export default function FinancialEducationPage() {
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <div>
                 <p className="text-gray-700">
-                  <strong>전화:</strong> 02-737-8710
+                  <strong>전화:</strong> 02-6951-1391
                 </p>
               </div>
               <div>
