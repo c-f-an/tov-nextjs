@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { query } from '@/infrastructure/database/mysql'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tov.ptax.kr'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tov.or.kr'
   const skipDB = process.env.SKIP_DB_QUERIES === 'true'
 
   // 정적 페이지들

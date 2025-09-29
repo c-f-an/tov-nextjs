@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://tov.ptax.kr/sitemap.xml
+Sitemap: https://tov.or.kr/sitemap.xml
