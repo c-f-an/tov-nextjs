@@ -22,12 +22,57 @@ const adminPaths = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const userAgent = request.headers.get('user-agent') || '';
+  const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
+
+  // Skip middleware for static assets and Next.js internals
+  if (pathname.startsWith('/_next') ||
+      pathname.startsWith('/static') ||
+      pathname.includes('.') && !pathname.endsWith('.html')) {
+    return NextResponse.next();
+  }
 
   // Allow search engine bots to access all pages
-  const isSearchBot = /Googlebot|Yeti|Daum|bingbot|Slurp|DuckDuckBot|Baiduspider|facebookexternalhit|twitterbot|LinkedInBot|WhatsApp|Slackbot/i.test(userAgent);
+  // Naver bot User-Agents: Yeti, NaverBot, Yeti-Mobile
+  const searchBotPatterns = [
+    /Googlebot/i,
+    /Yeti/i,           // Naver desktop bot
+    /NaverBot/i,       // Alternative Naver bot
+    /Yeti-Mobile/i,    // Naver mobile bot
+    /Daum/i,
+    /bingbot/i,
+    /Slurp/i,
+    /DuckDuckBot/i,
+    /Baiduspider/i,
+    /facebookexternalhit/i,
+    /twitterbot/i,
+    /LinkedInBot/i,
+    /WhatsApp/i,
+    /Slackbot/i,
+    /kakaotalk-scrap/i,
+    /KOCMOHABT/i,      // Naver Blog bot
+    /yeti/i,           // Case insensitive Yeti
+    /naver\.me\/bot/i  // Naver.me bot
+  ];
 
-  if (isSearchBot) {
-    return NextResponse.next();
+  const isSearchBot = searchBotPatterns.some(pattern => pattern.test(userAgent));
+
+  // Naver bot IP ranges (partial list for reference)
+  // Full list: https://searchadvisor.naver.com/guide/seo-basic-robots
+  const naverBotIPs = [
+    '125.209.', // Naver IP prefix
+    '211.249.', // Naver IP prefix
+    '222.122.', // Naver IP prefix
+    '61.247.',  // Naver IP prefix
+  ];
+
+  const isNaverBotIP = naverBotIPs.some(prefix => clientIP.startsWith(prefix));
+
+  if (isSearchBot || isNaverBotIP) {
+    // Allow bots without authentication and with optimized headers
+    const response = NextResponse.next();
+    response.headers.set('X-Robots-Tag', 'index, follow');
+    response.headers.set('Cache-Control', 'public, max-age=3600');
+    return response;
   }
 
   // Check if path requires authentication

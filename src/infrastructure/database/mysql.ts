@@ -1,16 +1,16 @@
 import mysql from "mysql2/promise";
 import { performance } from "perf_hooks";
 
-// Optimized configuration for t2.micro (1GB RAM, 1 vCPU)
+// Optimized configuration for t2.micro (1GB RAM, 1 vCPU) with bot support
 const T2_MICRO_OPTIMIZED_CONFIG = {
-  // Connection pool sizing for t2.micro
-  connectionLimit: 5, // Reduced from 10 - t2.micro has limited resources
-  maxIdle: 3, // Keep fewer idle connections
-  idleTimeout: 30000, // 30s instead of 60s - faster cleanup
-  queueLimit: 20, // Limit queue to prevent memory issues
+  // Connection pool sizing for t2.micro - optimized for bots
+  connectionLimit: 8, // Increased for bot traffic
+  maxIdle: 4, // Keep more idle connections for faster bot responses
+  idleTimeout: 60000, // 60s - keep connections alive longer
+  queueLimit: 30, // Increased queue for bot requests
 
-  // Timeouts optimized for RDS in same VPC
-  connectTimeout: 30000, // 30s connection timeout
+  // Timeouts optimized for bot crawlers (Naver requires < 10s response)
+  connectTimeout: 5000, // 5s connection timeout for faster fails
 
   // Keep-alive for persistent connections
   enableKeepAlive: true,
