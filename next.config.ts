@@ -21,6 +21,21 @@ const nextConfig: NextConfig = {
       }
     ]
   },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'tov.ptax.kr',
+          },
+        ],
+        destination: 'https://tov.or.kr/:path*',
+        permanent: true,
+      },
+    ]
+  },
   env: {
     NEXT_PUBLIC_KAKAO_MAP_API_KEY: process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY || '',
     NEXT_PUBLIC_COMPANY_ADDRESS: process.env.NEXT_PUBLIC_COMPANY_ADDRESS || ''
