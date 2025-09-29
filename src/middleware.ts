@@ -21,7 +21,15 @@ const adminPaths = [
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+  const userAgent = request.headers.get('user-agent') || '';
+
+  // Allow search engine bots to access all pages
+  const isSearchBot = /Googlebot|Yeti|Daum|bingbot|Slurp|DuckDuckBot|Baiduspider|facebookexternalhit|twitterbot|LinkedInBot|WhatsApp|Slackbot/i.test(userAgent);
+
+  if (isSearchBot) {
+    return NextResponse.next();
+  }
+
   // Check if path requires authentication
   const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));
   const isAdminPath = adminPaths.some(path => pathname.startsWith(path));
