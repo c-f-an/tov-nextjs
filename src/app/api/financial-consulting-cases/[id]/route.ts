@@ -135,13 +135,13 @@ export async function PUT(
       params.id,
     ];
 
-    const [result] = await connection.execute(query, params);
+    const [updateResult] = await connection.execute(query, params);
 
     connection.release();
 
     return NextResponse.json({
       success: true,
-      data: result,
+      data: updateResult,
     });
   } catch (error) {
     console.error("Failed to update financial consulting case:", error);
@@ -164,7 +164,7 @@ export async function DELETE(
     const connection = await pool.getConnection();
 
     // Soft delete
-    const [result] = await connection.execute(
+    const [deleteResult] = await connection.execute(
       "UPDATE financial_consulting_cases SET is_active = 0 WHERE id = ?",
       [params.id]
     );
@@ -173,7 +173,7 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      data: result,
+      data: deleteResult,
     });
   } catch (error) {
     console.error("Failed to delete financial consulting case:", error);
