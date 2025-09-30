@@ -165,8 +165,8 @@ jobs:
           # S3에서 다운로드
           aws s3 cp s3://${S3_BUCKET_NAME}/latest.tar.gz ./
 
-          # 서비스 중지
-          sudo systemctl stop $SERVICE_NAME || true
+          # PM2로 기존 서비스 중지 (배포 전)
+          pm2 stop $SERVICE_NAME || true
 
           # 디스크 공간 확보 - 3일 이상 된 백업 삭제
           find /apps/tov-homepage -name "backup-*" -type d -mtime +3 -exec rm -rf {} + 2>/dev/null || true
@@ -213,42 +213,24 @@ jobs:
 
           # Prisma removed - using mysql2 package instead
 
-          # systemd 서비스 파일 생성
-          sudo tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null << SERVICECONFIG
-          [Unit]
-          Description=TOV Homepage Next.js Application with Keep-Alive
-          After=network.target
+          # PM2로 기존 프로세스 중지 및 삭제
+          pm2 stop $SERVICE_NAME || true
+          pm2 delete $SERVICE_NAME || true
 
-          [Service]
-          Type=simple
-          User=$USER
-          WorkingDirectory=$APP_DIR/current
-          EnvironmentFile=$APP_DIR/current/.env
-          ExecStart=$NODE_PATH server.js
-          Restart=on-failure
-          RestartSec=10
-          StandardOutput=journal
-          StandardError=journal
-          SyslogIdentifier=$SERVICE_NAME
-          KillMode=mixed
-          KillSignal=SIGTERM
-          TimeoutStopSec=30
-          Environment="NODE_ENV=production"
-          Environment="PORT=3000"
-          Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+          # PM2로 애플리케이션 시작
+          cd $APP_DIR/current
+          pm2 start npm --name "$SERVICE_NAME" -- start
 
-          [Install]
-          WantedBy=multi-user.target
-          SERVICECONFIG
+          # PM2 설정 저장
+          pm2 save
 
-          # 서비스 시작
-          sudo systemctl daemon-reload
-          sudo systemctl enable $SERVICE_NAME
-          sudo systemctl start $SERVICE_NAME
+          # PM2 startup 설정 (부팅 시 자동 시작)
+          pm2 startup systemd -u $USER --hp $HOME | tail -n 1 | sudo bash || true
 
           # 상태 확인
           sleep 5
-          sudo systemctl status $SERVICE_NAME --no-pager
+          pm2 status
+          pm2 logs $SERVICE_NAME --lines 20 --nostream
 
           # 헬스체크
           sleep 2
