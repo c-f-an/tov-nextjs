@@ -10,7 +10,8 @@
       "Bash(yarn start)",
       "Bash(rm:*)",
       "Bash(yarn dev)",
-      "Bash(SKIP_DB_QUERIES=true yarn build)"
+      "Bash(SKIP_DB_QUERIES=true yarn build)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

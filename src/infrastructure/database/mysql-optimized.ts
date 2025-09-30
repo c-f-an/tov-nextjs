@@ -3,19 +3,19 @@ import { performance } from "perf_hooks";
 
 // Optimized configuration for t2.micro (1GB RAM, 1 vCPU)
 const T2_MICRO_OPTIMIZED_CONFIG = {
-  // Connection pool sizing for t2.micro
-  connectionLimit: 5, // Reduced from 10 - t2.micro has limited resources
-  maxIdle: 3, // Keep fewer idle connections
-  idleTimeout: 30000, // 30s instead of 60s - faster cleanup
-  queueLimit: 20, // Limit queue to prevent memory issues
+  // Connection pool sizing for t2.micro - ULTRA CONSERVATIVE
+  connectionLimit: 2, // Minimal connections for t2.micro
+  maxIdle: 1, // Keep only 1 idle connection
+  idleTimeout: 60000, // 60s - keep connections alive longer
+  queueLimit: 10, // Reduce queue to prevent memory issues
 
   // Timeouts optimized for RDS in same VPC
-  connectTimeout: 30000, // 30s connection timeout
-  timeout: 20000, // 20s query timeout
+  connectTimeout: 10000, // 10s connection timeout (reduced)
+  timeout: 15000, // 15s query timeout (reduced)
 
-  // Keep-alive for persistent connections
+  // Keep-alive for persistent connections - AGGRESSIVE
   enableKeepAlive: true,
-  keepAliveInitialDelay: 10000, // 10s
+  keepAliveInitialDelay: 30000, // 30s - less frequent pings
 
   // Performance optimizations
   namedPlaceholders: false, // Keep disabled as per current setup
