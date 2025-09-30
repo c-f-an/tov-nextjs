@@ -13,6 +13,7 @@ const nanumGothic = Nanum_Gothic({
 export const metadata: Metadata = {
   title: "사단법인 토브협회 - 비영리 재정 투명성",
   description: "당신의 'Mission'과 'Fund'를 연결하는 Tov 입니다",
+  keywords: '토브협회, 사단법인 토브협회, 토브, 비영리, 비영리단체, 재정투명성, 교회재정, 종교인소득',
   openGraph: {
     title: "사단법인 토브협회 - 비영리 재정 투명성",
     description: "비영리단체를 위한 재정 투명성 정보 제공",
