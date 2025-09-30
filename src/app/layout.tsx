@@ -34,6 +34,34 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "사단법인 토브협회",
+              "alternateName": ["토브협회", "토브", "TOV협회"],
+              "url": "https://tov.ptax.kr",
+              "logo": "https://tov.ptax.kr/logo.png",
+              "description": "비영리단체의 재정 투명성과 건강한 재정운영을 지원하는 사단법인",
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "KR",
+                "addressRegion": "서울",
+                "addressLocality": "종로구",
+                "streetAddress": "삼일대로 428, 500-42호"
+              },
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+82-2-6951-1391",
+                "contactType": "고객지원"
+              }
+            })
+          }}
+        />
+      </head>
       <body className={`${nanumGothic.variable} antialiased`}>
         <AuthProvider>
           <MainLayout>{children}</MainLayout>

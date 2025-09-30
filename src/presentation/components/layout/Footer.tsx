@@ -60,6 +60,17 @@ export function Footer() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* 왼쪽 섹션 */}
             <div className="lg:col-span-2">
+              {/* 법인명 강조 */}
+              <div className="mb-4">
+                <h2 className="text-xl font-bold text-gray-900 mb-1">
+                  사단법인 토브협회
+                </h2>
+                <p className="text-sm text-gray-600">
+                  법인명: 사단법인 토브협회 (TOV Association)
+                </p>
+                <p className="text-sm text-gray-600">이사장: 최호윤</p>
+              </div>
+
               {/* 네비게이션 링크들 */}
               <nav className="mb-6">
                 <ul className="flex flex-wrap items-center gap-2 text-sm">
@@ -94,9 +105,6 @@ export function Footer() {
 
               {/* 회사 정보 */}
               <div className="mb-6 space-y-1">
-                <p className="text-xs text-gray-500">
-                  사단법인 토브협회 | 대표자: 최호윤
-                </p>
                 <p className="text-xs text-gray-500">
                   주소: 서울특별시 종로구 삼일대로 428, 500-42호
                 </p>

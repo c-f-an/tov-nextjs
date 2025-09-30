@@ -48,7 +48,9 @@ export default function AboutPage() {
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={[{ label: "About Us" }]} />
 
-      <PageHeader 
+      <h1 className="sr-only">토브협회 소개 - 사단법인 토브협회</h1>
+
+      <PageHeader
         title="About Us"
         description="당신의 'Mission'과 'Fund'를 연결하는 Tov 입니다."
       />

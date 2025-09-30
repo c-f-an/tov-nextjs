@@ -10,10 +10,35 @@ export default function GreetingPage() {
           items={[{ label: "About Us", href: "/about" }, { label: "우리는" }]}
         />
 
-        <PageHeader 
+        <PageHeader
           title="사단법인 Tov협회"
           description="Mission과 Fund가 만나는 곳"
         />
+
+        {/* 법인 정보 섹션 */}
+        <div className="mb-12 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-6 border border-primary/20">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+              사단법인 토브협회
+            </h2>
+            <div className="space-y-2 text-gray-700">
+              <p className="text-lg">
+                <span className="font-semibold">정식 명칭:</span> 사단법인 토브협회
+              </p>
+              <p className="text-lg">
+                <span className="font-semibold">영문명:</span> Tov Association
+              </p>
+              <p className="text-lg">
+                <span className="font-semibold">약칭:</span> 토브협회, 토브
+              </p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-primary/20">
+              <p className="text-base text-gray-700 leading-relaxed">
+                <span className="font-bold text-primary">토브협회</span>(Tov Association)는 비영리단체의 재정 투명성을 위해 설립된 <span className="font-semibold">사단법인</span>입니다.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* 토브 소개 섹션 */}
         <div className="mb-16">
@@ -45,7 +70,7 @@ export default function GreetingPage() {
         {/* 협회 소개 섹션 */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold mb-8 text-center">
-            (사) Tov협회는…
+            사단법인 토브협회는…
           </h2>
 
           <div className="grid md:grid-cols-3 gap-6">

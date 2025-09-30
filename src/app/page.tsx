@@ -107,6 +107,7 @@ export default async function Home() {
 
   return (
     <>
+      <h1 className="sr-only">사단법인 토브협회 | 비영리 재정 투명성 플랫폼</h1>
       {/* Main Banner */}
       <MainBanner banners={banners} />
 
