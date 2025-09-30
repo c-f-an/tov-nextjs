@@ -12,7 +12,7 @@ async function testDatabaseConnection() {
   console.log('📌 DATABASE_URL:', process.env.DATABASE_URL?.replace(/:[^:@]+@/, ':****@') || 'Not set');
   console.log('');
   console.log('⚠️  Make sure SSH tunnel is running!');
-  console.log('   Run: ./scripts/setup-ssh-tunnel.sh [SSH_HOST] [SSH_USER] [SSH_KEY_PATH]\n');
+  console.log('   Run: ./scripts/mac/setup-ssh-tunnel.sh (Mac/Linux) or .\\scripts\\windows\\setup-ssh-tunnel.ps1 (Windows)\n');
 
   try {
     await prisma.$connect();

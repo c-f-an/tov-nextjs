@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(move:*)",
+      "Bash(chmod:*)",
+      "Bash(icacls:*)",
+      "Bash(powershell:*)",
+      "Bash(findstr:*)",
+      "Bash(yarn build)",
+      "Bash(yarn start)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

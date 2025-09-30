@@ -23,8 +23,20 @@
 ## 사용 방법
 
 ### 1. SSH 터널 생성
+
+**Mac/Linux:**
 ```bash
-./scripts/setup-ssh-tunnel.sh
+./scripts/mac/setup-ssh-tunnel.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+.\scripts\windows\setup-ssh-tunnel.ps1
+```
+
+**Windows (Command Prompt):**
+```batch
+scripts\windows\setup-ssh-tunnel.bat
 ```
 
 ### 2. 터널 연결 확인
@@ -72,8 +84,17 @@ lsof -ti:3307 | xargs kill -9
 
 ### 연결 실패 시 확인사항
 1. SSH 키 파일 권한 확인
+
+   **Mac/Linux:**
    ```bash
    chmod 600 /Users/leehwayeon/.ssh/AWS/TFAN_SEOUL.pem
+   # Or use the fix script:
+   ./scripts/mac/fix-ssh-permissions.sh
+   ```
+
+   **Windows (PowerShell as Administrator):**
+   ```powershell
+   .\scripts\windows\fix-ssh-permissions.ps1
    ```
 
 2. SSH 터널이 실행 중인지 확인
