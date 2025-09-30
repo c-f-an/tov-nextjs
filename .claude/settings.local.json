@@ -8,7 +8,9 @@
       "Bash(findstr:*)",
       "Bash(yarn build)",
       "Bash(yarn start)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(yarn dev)",
+      "Bash(SKIP_DB_QUERIES=true yarn build)"
     ],
     "deny": [],
     "ask": []
