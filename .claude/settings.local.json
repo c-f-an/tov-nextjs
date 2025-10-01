@@ -11,7 +11,8 @@
       "Bash(rm:*)",
       "Bash(yarn dev)",
       "Bash(SKIP_DB_QUERIES=true yarn build)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(rmdir:*)"
     ],
     "deny": [],
     "ask": []
