@@ -7,7 +7,9 @@ const getApiUrl = () => {
     return `http://localhost:${process.env.PORT || 3004}/api`;
   }
   // 클라이언트 사이드
-  return process.env.NEXT_PUBLIC_API_URL || '/api';
+  // Remove quotes from env variable if present
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+  return apiUrl.replace(/^["']|["']$/g, '');
 };
 
 export interface NewsApiParams {

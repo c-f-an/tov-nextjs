@@ -29,6 +29,7 @@ jobs:
       - name: Build Next.js application
         run: npm run build
         env:
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_KAKAO_MAP_API_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }}
           NEXT_PUBLIC_COMPANY_ADDRESS: ${{ vars.NEXT_PUBLIC_COMPANY_ADDRESS }}
@@ -187,7 +188,7 @@ jobs:
           cd $APP_DIR/current
 
           # 환경변수 파일 생성
-          cat > .env << 'ENVFILE'
+          cat > .env << ENVFILE
           NODE_ENV=production
           PORT=3000
           DATABASE_URL=${{ secrets.DATABASE_URL }}
