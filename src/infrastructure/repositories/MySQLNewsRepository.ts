@@ -147,7 +147,7 @@ export class MySQLNewsRepository implements INewsRepository {
     }
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
-    
+
     const orderBy = params.sortBy === 'popular' ? 'views DESC' : 'published_at DESC';
 
     // Count total items
@@ -157,12 +157,12 @@ export class MySQLNewsRepository implements INewsRepository {
 
     // Get paginated items
     const sql = `
-      SELECT * FROM news 
+      SELECT * FROM news
       ${whereClause}
       ORDER BY ${orderBy}
       LIMIT ? OFFSET ?
     `;
-    
+
     const rows = await query<NewsRow[]>(sql, [...queryParams, limit, offset]);
     const items = rows.map(row => this.mapRowToNews(row));
 

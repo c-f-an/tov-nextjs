@@ -7,13 +7,14 @@ import { FinancialReport } from "@/presentation/components/home/FinancialReport"
 import { getContainer } from "@/infrastructure/config/getContainer";
 
 // Force dynamic rendering to ensure DB queries run at runtime
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   let banners: any[] = [];
   let categories: any[] = [];
   let notices: any[] = [];
   let news: any[] = [];
+  let latestNews: any[] = [];
   let quickLinks: any[] = [];
   let consultationStats = null;
   let financialReport = null;
@@ -106,6 +107,35 @@ export default async function Home() {
       container.getGetLatestFinancialReportUseCase();
     const reportResult = await getLatestFinancialReportUseCase.execute();
     financialReport = reportResult.ok ? reportResult.value : null;
+
+    // Fetch latest news from news table (is_published = 1)
+    try {
+      const getNewsListUseCase = container.getGetNewsListUseCase();
+      const newsListResult = await getNewsListUseCase.execute({
+        isPublished: true,
+        limit: 3,
+        page: 1,
+        sortBy: "latest",
+      });
+      console.log("newsListResult", newsListResult);
+      latestNews = newsListResult.items.map((item) => ({
+        id: item.id,
+        title: item.title,
+        content: item.content,
+        summary: item.summary,
+        category: item.category,
+        imageUrl: item.imageUrl || null,
+        author: item.author,
+        views: item.views,
+        isPublished: item.isPublished,
+        createdAt: item.createdAt?.toISOString() || null,
+        updatedAt: item.updatedAt?.toISOString() || null,
+        publishedAt: item.publishedAt?.toISOString() || null,
+      }));
+      console.log("latestNews", latestNews);
+    } catch (error) {
+      console.error("Error fetching news:", error);
+    }
   }
 
   return (
@@ -120,7 +150,7 @@ export default async function Home() {
       {/* Latest News & Notice */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <LatestNews notices={notices} news={news} />
+          <LatestNews notices={notices} news={news} latestNews={latestNews} />
         </div>
       </section>
 

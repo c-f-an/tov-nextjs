@@ -7,6 +7,7 @@ import { FileText, Calendar, Newspaper } from 'lucide-react';
 interface LatestNewsProps {
   notices: Post[];
   news: Post[];
+  latestNews: any[];
 }
 
 // Default data for when DB has no posts
@@ -40,9 +41,47 @@ const defaultNewsItems = [
   }
 ];
 
-export function LatestNews({ notices, news }: LatestNewsProps) {
-  // For now, use default data
-  const displayItems = defaultNewsItems;
+function getCategoryName(category: string): string {
+  const categoryMap: Record<string, string> = {
+    'notice': '공지사항',
+    'activity': '활동소식',
+    'media': '언론보도',
+    'publication': '발간자료',
+    'laws': '법령정보'
+  };
+  return categoryMap[category] || '소식';
+}
+
+function getCategoryIcon(category: string) {
+  const iconMap: Record<string, any> = {
+    'notice': FileText,
+    'activity': Calendar,
+    'media': Newspaper,
+    'publication': FileText,
+    'laws': FileText
+  };
+  return iconMap[category] || Newspaper;
+}
+
+export function LatestNews({ notices, news, latestNews }: LatestNewsProps) {
+  console.log("CLIENT latestNews received:", latestNews);
+  console.log("CLIENT latestNews type:", typeof latestNews);
+  console.log("CLIENT latestNews is array:", Array.isArray(latestNews));
+
+  // Always use latestNews if provided
+  const displayItems = (latestNews && latestNews.length > 0)
+    ? latestNews.map((item) => ({
+        id: item.id,
+        title: item.title,
+        date: item.publishedAt ? new Date(item.publishedAt).toLocaleDateString('ko-KR') : new Date(item.createdAt).toLocaleDateString('ko-KR'),
+        category: item.category,
+        categoryName: getCategoryName(item.category),
+        excerpt: item.summary || '',
+        icon: getCategoryIcon(item.category)
+      }))
+    : defaultNewsItems;
+
+  console.log("CLIENT displayItems:", displayItems);
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-8">

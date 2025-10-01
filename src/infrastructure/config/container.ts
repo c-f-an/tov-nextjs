@@ -15,6 +15,7 @@ import { INewsletterSubscriberRepository } from '@/core/domain/repositories/INew
 import { IMainBannerRepository } from '@/core/domain/repositories/IMainBannerRepository';
 import { IQuickLinkRepository } from '@/core/domain/repositories/IQuickLinkRepository';
 import { IFinancialReportRepository } from '@/core/domain/repositories/IFinancialReportRepository';
+import { INewsRepository } from '@/core/domain/repositories/INewsRepository';
 
 // Services
 import { IAuthService } from '@/core/domain/services/IAuthService';
@@ -41,6 +42,7 @@ import { GetDonationsUseCase } from '@/core/application/use-cases/donation/GetDo
 import { GetMainBannersUseCase } from '@/core/application/use-cases/main-banner/GetMainBannersUseCase';
 import { GetQuickLinksUseCase } from '@/core/application/use-cases/quick-link/GetQuickLinksUseCase';
 import { GetLatestFinancialReportUseCase } from '@/core/application/use-cases/financial-report/GetLatestFinancialReportUseCase';
+import { GetNewsListUseCase } from '@/core/application/use-cases/news/GetNewsListUseCase';
 
 // MySQL Repository implementations
 import { MySQLUserRepository } from '../repositories/MySQLUserRepository';
@@ -58,6 +60,7 @@ import { MySQLNewsletterSubscriberRepository } from '../repositories/MySQLNewsle
 import { MySQLMainBannerRepository } from '../repositories/MySQLMainBannerRepository';
 import { MySQLQuickLinkRepository } from '../repositories/MySQLQuickLinkRepository';
 import { MySQLFinancialReportRepository } from '../repositories/MySQLFinancialReportRepository';
+import { MySQLNewsRepository } from '../repositories/MySQLNewsRepository';
 
 // Services
 import { JwtAuthService } from '../services/JwtAuthService.server';
@@ -82,7 +85,8 @@ export class Container {
   private mainBannerRepository: IMainBannerRepository;
   private quickLinkRepository: IQuickLinkRepository;
   private financialReportRepository: IFinancialReportRepository;
-  
+  private newsRepository: INewsRepository;
+
   // Services
   private authService: IAuthService;
   private fileUploadService: FileUploadService;
@@ -104,7 +108,8 @@ export class Container {
     this.mainBannerRepository = new MySQLMainBannerRepository();
     this.quickLinkRepository = new MySQLQuickLinkRepository();
     this.financialReportRepository = new MySQLFinancialReportRepository();
-    
+    this.newsRepository = MySQLNewsRepository.getInstance();
+
     // Initialize services
     this.authService = new JwtAuthService(
       this.refreshTokenRepository,
@@ -180,6 +185,10 @@ export class Container {
 
   getFinancialReportRepository(): IFinancialReportRepository {
     return this.financialReportRepository;
+  }
+
+  getNewsRepository(): INewsRepository {
+    return this.newsRepository;
   }
 
   // Service getters
@@ -278,5 +287,9 @@ export class Container {
 
   getGetLatestFinancialReportUseCase(): GetLatestFinancialReportUseCase {
     return new GetLatestFinancialReportUseCase(this.financialReportRepository);
+  }
+
+  getGetNewsListUseCase(): GetNewsListUseCase {
+    return new GetNewsListUseCase(this.newsRepository);
   }
 }
