@@ -31,30 +31,30 @@ export class MySQLMainBannerRepository implements IMainBannerRepository {
 
   async findAll(onlyActive: boolean = true): Promise<MainBanner[]> {
     let whereConditions: string[] = [];
-    
+
     if (onlyActive) {
-      whereConditions.push('is_active = true');
+      whereConditions.push('is_active = 1');
     }
-    
+
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
     const rows = await query<MainBannerRow>(
       `SELECT * FROM main_banners ${whereClause} ORDER BY sort_order ASC, created_at DESC`
     );
-    
+
     return rows.map(row => this.mapToMainBanner(row));
   }
 
   async findActive(): Promise<MainBanner[]> {
     const now = new Date();
     const rows = await query<MainBannerRow>(
-      `SELECT * FROM main_banners 
-       WHERE is_active = true 
+      `SELECT * FROM main_banners
+       WHERE is_active = 1
        AND (start_date IS NULL OR start_date <= ?)
        AND (end_date IS NULL OR end_date >= ?)
        ORDER BY sort_order ASC, created_at DESC`,
       [now, now]
     );
-    
+
     return rows.map(row => this.mapToMainBanner(row));
   }
 

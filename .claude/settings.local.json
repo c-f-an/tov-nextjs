@@ -12,7 +12,14 @@
       "Bash(yarn dev)",
       "Bash(SKIP_DB_QUERIES=true yarn build)",
       "Bash(curl:*)",
-      "Bash(rmdir:*)"
+      "Bash(rmdir:*)",
+      "Bash(echo $env:SKIP_DB_QUERIES)",
+      "Bash(cat:*)",
+      "Bash(mysql:*)",
+      "Bash(npm run dev:*)",
+      "Bash(netstat:*)",
+      "Bash(node:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []
