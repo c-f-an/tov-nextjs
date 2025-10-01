@@ -186,7 +186,7 @@ if (typeof window === "undefined") {
   warmupPool().catch(console.error);
 }
 
-// Keep-alive mechanism - ping every 2 minutes to prevent connection timeout
+// Keep-alive mechanism - ping every 5 minutes to prevent connection timeout
 let lastPingTime = Date.now();
 let connectionId: any = null;
 
@@ -223,7 +223,7 @@ if (typeof window === "undefined") {
         console.error("[MySQL] Failed to recreate pool:", recreateError);
       }
     }
-  }, 120000); // 2 minutes
+  }, 300000); // 5 minutes
 
   // Clean up interval on process termination
   process.once("SIGTERM", () => clearInterval(keepAliveInterval));
