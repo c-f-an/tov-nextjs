@@ -4,17 +4,18 @@ import { performance } from "perf_hooks";
 // Optimized configuration for t2.micro (1GB RAM, 1 vCPU) with bot support
 const T2_MICRO_OPTIMIZED_CONFIG = {
   // Connection pool sizing for t2.micro - optimized for bots
-  connectionLimit: 8, // Increased for bot traffic
-  maxIdle: 4, // Keep more idle connections for faster bot responses
+  connectionLimit: 5, // Reduced for t2.micro resource limits
+  maxIdle: 2, // Reduced idle connections
   idleTimeout: 60000, // 60s - keep connections alive longer
-  queueLimit: 30, // Increased queue for bot requests
+  queueLimit: 0, // Unlimited queue
 
   // Timeouts optimized for bot crawlers (Naver requires < 10s response)
-  connectTimeout: 5000, // 5s connection timeout for faster fails
+  connectTimeout: 60000, // 60s connection timeout
+  acquireTimeout: 60000, // 60s pool acquire timeout
 
   // Keep-alive for persistent connections
   enableKeepAlive: true,
-  keepAliveInitialDelay: 10000, // 10s
+  keepAliveInitialDelay: 0, // Immediate keep-alive
 
   // Performance optimizations
   namedPlaceholders: false, // Keep disabled as per current setup
