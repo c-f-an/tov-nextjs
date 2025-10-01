@@ -11,13 +11,14 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     
+    const publishedParam = searchParams.get('published');
     const params = {
       category: searchParams.get('category') as NewsCategory | undefined,
       searchTerm: searchParams.get('search') || undefined,
       sortBy: (searchParams.get('sort') as 'latest' | 'popular') || 'latest',
       page: parseInt(searchParams.get('page') || '1'),
       limit: parseInt(searchParams.get('limit') || '12'),
-      isPublished: searchParams.get('published') === 'false' ? false : true,
+      isPublished: publishedParam ? publishedParam !== 'false' : undefined,
     };
 
     const getNewsListUseCase = new GetNewsListUseCase(newsRepository);
