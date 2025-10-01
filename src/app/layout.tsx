@@ -40,9 +40,22 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Organization",
+              "@type": ["Organization", "NGO"],
               "name": "사단법인 토브협회",
-              "alternateName": ["토브협회", "토브", "TOV협회"],
+              "alternateName": [
+                "토브협회", 
+                "사단법인 토브협회",
+                "사단법인토브협회",
+                "토브",
+                "TOV",
+                "Tov",
+                "TOV협회",
+                "Tov Association",
+                "교회재정건강성운동",
+                "CFAN",
+                "(사)토브협회"
+              ],
+              "previousOrganizationName": "교회재정건강성운동",
               "url": "https://tov.ptax.kr",
               "logo": "https://tov.ptax.kr/logo.png",
               "description": "비영리단체의 재정 투명성과 건강한 재정운영을 지원하는 사단법인",
