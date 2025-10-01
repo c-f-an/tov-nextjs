@@ -1,13 +1,12 @@
 import { NewsListResponse, NewsCategory } from '@/core/domain/entities/News';
 
-// 서버 사이드에서는 절대 경로 사용
 const getApiUrl = () => {
   if (typeof window === 'undefined') {
-    // 서버 사이드
-    return `http://localhost:${process.env.PORT || 3004}/api`;
+    // 서버 사이드 - 환경변수 사용 (없으면 로컬호스트)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || `http://localhost:${process.env.PORT || 3004}/api`;
+    return apiUrl.replace(/^["']|["']$/g, '');
   }
   // 클라이언트 사이드
-  // Remove quotes from env variable if present
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
   return apiUrl.replace(/^["']|["']$/g, '');
 };
