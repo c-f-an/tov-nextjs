@@ -71,6 +71,8 @@ const nextConfig: NextConfig = {
     ]
   },
   env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || '/api',
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || '',
     NEXT_PUBLIC_KAKAO_MAP_API_KEY: process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY || '',
     NEXT_PUBLIC_COMPANY_ADDRESS: process.env.NEXT_PUBLIC_COMPANY_ADDRESS || ''
   }

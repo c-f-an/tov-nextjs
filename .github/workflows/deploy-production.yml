@@ -200,8 +200,8 @@ jobs:
           JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
           NEXT_PUBLIC_KAKAO_MAP_API_KEY=${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }}
           NEXT_PUBLIC_COMPANY_ADDRESS=${{ vars.NEXT_PUBLIC_COMPANY_ADDRESS }}
-          NEXT_PUBLIC_APP_URL=https://tov.ptax.kr
-          NEXT_PUBLIC_API_URL=https://tov.ptax.kr/api
+          NEXT_PUBLIC_APP_URL=https://tov.or.kr
+          NEXT_PUBLIC_API_URL=https://tov.or.kr/api
           ENVFILE
 
           # Install build dependencies for native modules
