@@ -6,6 +6,9 @@ import { ConsultationBanner } from "@/presentation/components/home/ConsultationB
 import { FinancialReport } from "@/presentation/components/home/FinancialReport";
 import { getContainer } from "@/infrastructure/config/getContainer";
 
+// Force dynamic rendering to ensure DB queries run at runtime
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   let banners: any[] = [];
   let categories: any[] = [];
