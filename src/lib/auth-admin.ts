@@ -15,21 +15,31 @@ export async function verifyAdminRequest(request: NextRequest): Promise<AdminUse
     // Get access token from Authorization header or cookie
     const authHeader = request.headers.get('Authorization');
     let accessToken = authHeader?.replace('Bearer ', '');
-    
+
+    console.log('verifyAdminRequest:', {
+      hasAuthHeader: !!authHeader,
+      authHeaderValue: authHeader ? authHeader.substring(0, 20) + '...' : null
+    });
+
     // If no Authorization header, check cookies
     if (!accessToken) {
       accessToken = request.cookies.get('accessToken')?.value;
+      console.log('Checking cookies, found:', !!accessToken);
     }
-    
+
     if (!accessToken) {
+      console.log('verifyAdminRequest: No access token found');
       return null;
     }
-    
+
     // Verify access token
     const jwtSecret = process.env.JWT_ACCESS_SECRET || 'default-access-secret';
     const payload = verifyAccessToken(accessToken, jwtSecret);
-    
+
+    console.log('Token payload:', payload);
+
     if (!payload) {
+      console.log('verifyAdminRequest: Invalid token');
       return null;
     }
     

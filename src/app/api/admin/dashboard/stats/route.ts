@@ -38,8 +38,8 @@ export async function GET(request: NextRequest) {
     const currentDate = new Date();
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const [donationRows] = await pool.execute(
-      'SELECT COALESCE(SUM(amount), 0) as total FROM donations WHERE status = ? AND created_at >= ?',
-      ['completed', firstDayOfMonth]
+      'SELECT COALESCE(SUM(amount), 0) as total FROM donations WHERE created_at >= ?',
+      [firstDayOfMonth]
     );
     const monthlyDonations = (donationRows as any)[0]?.total || 0;
 

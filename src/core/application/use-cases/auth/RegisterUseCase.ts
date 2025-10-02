@@ -79,7 +79,8 @@ export class RegisterUseCase {
     const tokens = await this.authService.generateTokenPair({
       userId: savedUser.id,
       email: savedUser.email,
-      loginType: savedUser.loginType
+      loginType: savedUser.loginType,
+      role: savedUser.role
     }, userAgent, ipAddress);
 
     // TODO: Send verification email

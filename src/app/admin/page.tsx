@@ -25,39 +25,45 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     console.log('Admin page auth check:', { user, loading, isChecking });
-    
+
     // Wait for auth loading to complete
     if (loading) {
+      console.log('Auth still loading, waiting...');
       return;
     }
 
     // Check if user is admin
     if (!user) {
       console.log('No user found, redirecting to login');
-      router.push('/login?redirect=/admin');
+      window.location.href = '/login?redirect=/admin';
       return;
     }
 
     // Check if user has admin role
     if (user.role !== 'ADMIN') {
       console.log('User is not admin, redirecting to home');
-      router.push('/');
+      window.location.href = '/';
       return;
     }
 
     console.log('Admin user verified, loading dashboard');
     setIsChecking(false);
-    // Fetch dashboard stats
-    fetchDashboardStats();
-  }, [user, router, loading]);
+
+    // Fetch dashboard stats only if we have accessToken
+    if (accessToken) {
+      fetchDashboardStats();
+    }
+  }, [user, loading, accessToken]);
 
   const fetchDashboardStats = async () => {
     try {
+      console.log('Fetching dashboard stats with accessToken:', accessToken);
       const response = await fetch('/api/admin/dashboard/stats', {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
       });
+      console.log('Dashboard stats response:', response.status);
       
       if (response.ok) {
         const data = await response.json();

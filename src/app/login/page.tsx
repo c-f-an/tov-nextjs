@@ -17,17 +17,22 @@ function LoginForm() {
 
   // If already logged in, redirect
   useEffect(() => {
+    console.log('Login page useEffect:', { authLoading, user, redirect });
     if (!authLoading && user) {
+      console.log('User is logged in, redirecting...', { role: user.role, redirect });
       // If user is admin and trying to access admin page, redirect there
       if (user.role === 'ADMIN' && redirect.startsWith('/admin')) {
-        router.push(redirect);
+        console.log('Redirecting to:', redirect);
+        window.location.href = redirect;
       } else if (user.role === 'ADMIN') {
-        router.push('/admin');
+        console.log('Redirecting to: /admin');
+        window.location.href = '/admin';
       } else {
-        router.push(redirect);
+        console.log('Redirecting to:', redirect);
+        window.location.href = redirect;
       }
     }
-  }, [user, redirect, router, authLoading]);
+  }, [user, redirect, authLoading]);
 
   // Show loading while checking auth
   if (authLoading) {
@@ -62,24 +67,20 @@ function LoginForm() {
 
     try {
       const result = await login(email, password);
-      if (result.success) {
-        // 로그인 성공시 역할에 따라 리다이렉트
-        if (result.user?.role === 'ADMIN') {
-          if (redirect.startsWith('/admin')) {
-            router.push(redirect);
-          } else {
-            router.push('/admin');
-          }
-        } else {
-          // 일반 사용자는 리다이렉트 파라미터로
+      // 로그인 성공시 역할에 따라 리다이렉트
+      if (result.user?.role === 'ADMIN') {
+        if (redirect.startsWith('/admin')) {
           router.push(redirect);
+        } else {
+          router.push('/admin');
         }
       } else {
-        setError(result.error || "로그인에 실패했습니다.");
+        // 일반 사용자는 리다이렉트 파라미터로
+        router.push(redirect);
       }
     } catch (err: any) {
       console.error("Login error:", err);
-      setError("로그인에 실패했습니다.");
+      setError(err.message || "로그인에 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -93,18 +94,14 @@ function LoginForm() {
 
     try {
       const result = await login(email, password);
-      if (result.success) {
-        if (result.user?.role === 'ADMIN') {
-          router.push('/admin');
-        } else {
-          router.push('/');
-        }
+      if (result.user?.role === 'ADMIN') {
+        router.push('/admin');
       } else {
-        setError(result.error || `${name} 로그인에 실패했습니다.`);
+        router.push('/');
       }
     } catch (err: any) {
       console.error("Test login error:", err);
-      setError(`${name} 로그인에 실패했습니다.`);
+      setError(err.message || `${name} 로그인에 실패했습니다.`);
     } finally {
       setLoading(false);
     }
