@@ -100,6 +100,14 @@ export function Header() {
                   >
                     마이페이지
                   </Link>
+                  {user.role === 'ADMIN' && (
+                    <Link
+                      href="/admin"
+                      className="text-gray-600 hover:text-gray-800"
+                    >
+                      어드민
+                    </Link>
+                  )}
                   <button
                     onClick={logout}
                     className="text-gray-600 hover:text-gray-800"
