@@ -6,17 +6,22 @@ import { RowDataPacket } from 'mysql2';
 
 interface ConsultationRow extends RowDataPacket {
   id: string;
-  user_id: string;
-  counselor_id: string | null;
-  type: ConsultationType;
-  status: ConsultationStatus;
+  user_id: string | null;
+  name: string;
+  phone: string;
+  email: string | null;
+  church_name: string | null;
+  position: string | null;
+  consultation_type: ConsultationType;
+  preferred_date: Date | null;
+  preferred_time: string | null;
   title: string;
   content: string;
-  attachments: string | null;
-  preferred_date: Date;
-  preferred_time: string;
-  consultation_note: string | null;
-  completed_at: Date | null;
+  status: ConsultationStatus;
+  assigned_to: string | null;
+  consultation_date: Date | null;
+  consultation_notes: string | null;
+  privacy_agree: boolean;
   created_at: Date;
   updated_at: Date;
 }
@@ -130,49 +135,39 @@ export class MySQLConsultationRepository implements IConsultationRepository {
   }
 
   async save(consultation: Consultation): Promise<void> {
-    const attachmentsJson = consultation.attachments ? JSON.stringify(consultation.attachments) : null;
-    
+    // Note: This implementation assumes the Consultation entity will be updated
+    // to include new fields matching the DB schema
     await query(
-      `INSERT INTO consultations (id, user_id, counselor_id, type, status, title, content, attachments, preferred_date, preferred_time, consultation_note, completed_at, created_at, updated_at)
+      `INSERT INTO consultations (id, user_id, name, phone, email, consultation_type, preferred_date, preferred_time, title, content, status, privacy_agree, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         consultation.id,
-        consultation.userId,
-        consultation.counselorId,
+        consultation.userId || null,
+        consultation.name || '',
+        consultation.phone || '',
+        consultation.email || null,
         consultation.type,
-        consultation.status,
+        consultation.preferredDate || null,
+        consultation.preferredTime || null,
         consultation.title,
         consultation.content,
-        attachmentsJson,
-        consultation.preferredDate,
-        consultation.preferredTime,
-        consultation.consultationNote,
-        consultation.completedAt
+        consultation.status,
+        true // privacy_agree default
       ]
     );
   }
 
   async update(consultation: Consultation): Promise<void> {
-    const attachmentsJson = consultation.attachments ? JSON.stringify(consultation.attachments) : null;
-    
     await query(
-      `UPDATE consultations 
-       SET user_id = ?, counselor_id = ?, type = ?, status = ?, title = ?, content = ?, 
-           attachments = ?, preferred_date = ?, preferred_time = ?, consultation_note = ?, 
-           completed_at = ?, updated_at = NOW()
+      `UPDATE consultations
+       SET status = ?, consultation_notes = ?, assigned_to = ?,
+           consultation_date = ?, updated_at = NOW()
        WHERE id = ?`,
       [
-        consultation.userId,
-        consultation.counselorId,
-        consultation.type,
         consultation.status,
-        consultation.title,
-        consultation.content,
-        attachmentsJson,
-        consultation.preferredDate,
-        consultation.preferredTime,
-        consultation.consultationNote,
-        consultation.completedAt,
+        consultation.consultationNote || null,
+        consultation.counselorId || null,
+        consultation.completedAt || null,
         consultation.id
       ]
     );
@@ -191,23 +186,31 @@ export class MySQLConsultationRepository implements IConsultationRepository {
   }
 
   private mapToConsultation(row: ConsultationRow): Consultation {
-    const attachments = row.attachments ? JSON.parse(row.attachments) : undefined;
-    
-    return new Consultation(
+    // Map DB row to Consultation entity with available fields
+    const consultation = new Consultation(
       row.id,
-      row.user_id,
-      row.type,
+      row.user_id || '',
+      row.consultation_type,
       row.status,
       row.title,
       row.content,
-      row.preferred_date,
-      row.preferred_time,
+      row.preferred_date || new Date(),
+      row.preferred_time || '',
       row.created_at,
       row.updated_at,
-      row.counselor_id || undefined,
-      attachments,
-      row.consultation_note || undefined,
-      row.completed_at || undefined
+      row.assigned_to || undefined,
+      undefined, // attachments not in current schema
+      row.consultation_notes || undefined,
+      row.consultation_date || undefined
     );
+
+    // Add additional fields from DB that are not in entity
+    (consultation as any).name = row.name;
+    (consultation as any).phone = row.phone;
+    (consultation as any).email = row.email;
+    (consultation as any).churchName = row.church_name;
+    (consultation as any).position = row.position;
+
+    return consultation;
   }
 }

@@ -93,6 +93,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   };
 
   const isActive = (href: string) => {
+    // 대시보드(/admin)는 정확히 일치하는 경우에만 활성화
+    if (href === '/admin') {
+      return pathname === '/admin';
+    }
+    // 다른 메뉴들은 prefix 매칭
     return pathname === href || pathname.startsWith(href + '/');
   };
 

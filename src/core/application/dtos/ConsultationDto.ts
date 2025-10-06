@@ -46,25 +46,25 @@ export class ConsultationDto {
     this.user = data.user;
   }
 
-  static fromEntity(consultation: Consultation, includeRelations?: { user?: UserDto }): ConsultationDto {
+  static fromEntity(consultation: Consultation & any, includeRelations?: { user?: UserDto }): ConsultationDto {
     return new ConsultationDto({
-      id: consultation.id,
-      userId: consultation.userId,
-      name: consultation.name,
-      phone: consultation.phone,
-      email: consultation.email,
-      churchName: consultation.churchName,
-      position: consultation.position,
-      consultationType: consultation.consultationType,
+      id: parseInt(consultation.id),
+      userId: consultation.userId ? parseInt(consultation.userId) : null,
+      name: consultation.name || '',
+      phone: consultation.phone || '',
+      email: consultation.email || null,
+      churchName: consultation.churchName || null,
+      position: consultation.position || null,
+      consultationType: consultation.type || consultation.consultationType,
       preferredDate: consultation.preferredDate,
       preferredTime: consultation.preferredTime,
       title: consultation.title,
       content: consultation.content,
       status: consultation.status,
-      assignedTo: consultation.assignedTo,
-      consultationDate: consultation.consultationDate,
-      consultationNotes: consultation.consultationNotes,
-      privacyAgree: consultation.privacyAgree,
+      assignedTo: consultation.counselorId ? parseInt(consultation.counselorId) : null,
+      consultationDate: consultation.completedAt || consultation.consultationDate || null,
+      consultationNotes: consultation.consultationNote || consultation.consultationNotes || null,
+      privacyAgree: consultation.privacyAgree !== undefined ? consultation.privacyAgree : true,
       createdAt: consultation.createdAt,
       updatedAt: consultation.updatedAt,
       user: includeRelations?.user
