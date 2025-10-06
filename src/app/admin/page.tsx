@@ -12,6 +12,22 @@ interface DashboardStats {
   monthlyDonations: number;
 }
 
+interface RecentPost {
+  id: number;
+  title: string;
+  category: string;
+  created_at: string;
+  author_name: string;
+}
+
+interface RecentConsultation {
+  id: number;
+  title: string;
+  status: string;
+  created_at: string;
+  user_name: string;
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
   const { user, accessToken, loading } = useAuth();
@@ -21,6 +37,9 @@ export default function AdminDashboard() {
     pendingConsultations: 0,
     monthlyDonations: 0
   });
+  const [recentPosts, setRecentPosts] = useState<RecentPost[]>([]);
+  const [recentConsultations, setRecentConsultations] = useState<RecentConsultation[]>([]);
+  const [isLoadingRecent, setIsLoadingRecent] = useState(true);
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
@@ -52,6 +71,7 @@ export default function AdminDashboard() {
     // Fetch dashboard stats only if we have accessToken
     if (accessToken) {
       fetchDashboardStats();
+      fetchRecentData();
     }
   }, [user, loading, accessToken]);
 
@@ -64,7 +84,7 @@ export default function AdminDashboard() {
         }
       });
       console.log('Dashboard stats response:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         setStats(data);
@@ -81,11 +101,76 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchRecentData = async () => {
+    try {
+      setIsLoadingRecent(true);
+      console.log('Fetching recent data with accessToken:', accessToken);
+      const response = await fetch('/api/admin/dashboard/recent', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      console.log('Recent data response:', response.status);
+
+      if (response.ok) {
+        const data = await response.json();
+        setRecentPosts(data.recentPosts || []);
+        setRecentConsultations(data.recentConsultations || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch recent data:', error);
+    } finally {
+      setIsLoadingRecent(false);
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('ko-KR', {
       style: 'currency',
       currency: 'KRW'
     }).format(amount);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  };
+
+  const getCategoryLabel = (category: string) => {
+    const categoryMap: { [key: string]: string } = {
+      notice: '공지사항',
+      activity: '활동소식',
+      media: '언론보도',
+      publication: '정기간행물',
+      laws: '관계법령'
+    };
+    return categoryMap[category] || category;
+  };
+
+  const getStatusLabel = (status: string) => {
+    const statusMap: { [key: string]: string } = {
+      pending: '대기중',
+      processing: '처리중',
+      completed: '완료',
+      cancelled: '취소됨'
+    };
+    return statusMap[status] || status;
+  };
+
+  const getStatusColor = (status: string) => {
+    const colorMap: { [key: string]: string } = {
+      pending: 'text-yellow-600 bg-yellow-100',
+      processing: 'text-blue-600 bg-blue-100',
+      completed: 'text-green-600 bg-green-100',
+      cancelled: 'text-gray-600 bg-gray-100'
+    };
+    return colorMap[status] || 'text-gray-600 bg-gray-100';
   };
 
   // Show loading while checking auth
@@ -189,9 +274,36 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-semibold">최근 게시글</h2>
             </div>
             <div className="p-6">
-              <div className="text-center text-gray-500 py-8">
-                <p>데이터를 불러오는 중...</p>
-              </div>
+              {isLoadingRecent ? (
+                <div className="text-center text-gray-500 py-8">
+                  <p>데이터를 불러오는 중...</p>
+                </div>
+              ) : recentPosts.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  <p>게시글이 없습니다</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {recentPosts.map((post) => (
+                    <div key={post.id} className="border-b pb-4 last:border-b-0 last:pb-0">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-900 mb-1">
+                            {post.title}
+                          </h3>
+                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                              {getCategoryLabel(post.category)}
+                            </span>
+                            <span>{post.author_name}</span>
+                            <span>{formatDate(post.created_at)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -201,9 +313,36 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-semibold">최근 상담 신청</h2>
             </div>
             <div className="p-6">
-              <div className="text-center text-gray-500 py-8">
-                <p>데이터를 불러오는 중...</p>
-              </div>
+              {isLoadingRecent ? (
+                <div className="text-center text-gray-500 py-8">
+                  <p>데이터를 불러오는 중...</p>
+                </div>
+              ) : recentConsultations.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  <p>상담 신청이 없습니다</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {recentConsultations.map((consultation) => (
+                    <div key={consultation.id} className="border-b pb-4 last:border-b-0 last:pb-0">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-900 mb-1">
+                            {consultation.title}
+                          </h3>
+                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(consultation.status)}`}>
+                              {getStatusLabel(consultation.status)}
+                            </span>
+                            <span>{consultation.user_name}</span>
+                            <span>{formatDate(consultation.created_at)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -2,6 +2,103 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminRequest, logAdminAction } from '@/lib/auth-admin';
 import { query } from '@/infrastructure/database/mysql';
 
+export async function POST(request: NextRequest) {
+  try {
+    // Verify admin access
+    const admin = await verifyAdminRequest(request);
+    if (!admin) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Admin access required' },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const {
+      title,
+      categoryId,
+      content,
+      summary,
+      thumbnailUrl,
+      isNotice,
+      status,
+      tags
+    } = body;
+
+    // Validate required fields
+    if (!title || !categoryId || !content) {
+      return NextResponse.json(
+        { error: 'Title, category, and content are required' },
+        { status: 400 }
+      );
+    }
+
+    // Insert post
+    const result = await query(
+      `INSERT INTO posts (
+        title,
+        slug,
+        category_id,
+        user_id,
+        content,
+        excerpt,
+        featured_image,
+        is_notice,
+        status,
+        published_at,
+        created_at,
+        updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [
+        title,
+        title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/(^-|-$)/g, ''),
+        categoryId,
+        admin.id,
+        content,
+        summary || null,
+        thumbnailUrl || null,
+        isNotice ? 1 : 0,
+        status || 'draft',
+        status === 'published' ? new Date() : null
+      ]
+    );
+
+    const postId = (result as any).insertId;
+
+    // TODO: Implement tags functionality when post_tags table is created
+    // if (tags && tags.length > 0) {
+    //   const tagValues = tags.map((tag: string) => [postId, tag]);
+    //   await query(
+    //     `INSERT INTO post_tags (post_id, tag) VALUES ?`,
+    //     [tagValues]
+    //   );
+    // }
+
+    // Log admin action
+    await logAdminAction(
+      admin.id,
+      'CREATE_POST',
+      'posts',
+      postId,
+      { title, categoryId, status, isNotice },
+      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+      request.headers.get('user-agent')
+    );
+
+    return NextResponse.json({
+      success: true,
+      id: postId,
+      message: 'Post created successfully'
+    });
+  } catch (error) {
+    console.error('Admin post creation error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     // Verify admin access

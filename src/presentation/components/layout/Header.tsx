@@ -2,13 +2,172 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/presentation/contexts/AuthContext";
+
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  type: string;
+}
+
+interface MenuItem {
+  title: string;
+  href: string;
+  submenu?: { title: string; href: string }[];
+}
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
+
+  const fetchMenuItems = async () => {
+    try {
+      // 카테고리 가져오기
+      const response = await fetch('/api/categories');
+      const categories: Category[] = await response.json();
+
+      // 카테고리를 타입별로 그룹화
+      const postsCategories = categories.filter(cat =>
+        ['notice', 'news', 'activity', 'media', 'publication', 'laws'].includes(cat.type)
+      );
+
+      // 정적 메뉴 아이템 구성
+      const staticMenuItems: MenuItem[] = [
+        {
+          title: "About Us",
+          href: "/about",
+          submenu: [
+            { title: "우리는", href: "/about/greeting" },
+            { title: "함께하는이들", href: "/about/organization" },
+            { title: "사업보고", href: "/about/business" },
+            { title: "오시는길", href: "/about/location" },
+            { title: "FAQ", href: "/about/faq" },
+          ],
+        },
+        {
+          title: "토브운동",
+          href: "/movement",
+          submenu: [
+            { title: "건강한 재정관리", href: "/movement/financial-management" },
+            { title: "건강한 재정교육", href: "/movement/financial-education" },
+            { title: "결산서 공개 운동", href: "/movement/financial-disclosure" },
+            { title: "종교인 소득신고", href: "/movement/religious-income-report" },
+            { title: "연대협력", href: "/movement/cooperation" },
+          ],
+        },
+        {
+          title: "토브 소식",
+          href: "/posts",
+          submenu: postsCategories.map(cat => ({
+            title: cat.name,
+            href: `/posts/${cat.slug}`
+          }))
+        },
+        {
+          title: "자료실",
+          href: "/resources",
+          submenu: [
+            { title: "종교인소득", href: "/resources/religious-income" },
+            { title: "비영리재정", href: "/resources/nonprofit-finance" },
+            { title: "결산공시", href: "/resources/settlement" },
+          ],
+        },
+        {
+          title: "상담센터",
+          href: "/consultation",
+          submenu: [
+            { title: "상담신청", href: "/consultation/apply" },
+            { title: "상담안내", href: "/consultation/guide" },
+          ],
+        },
+        {
+          title: "후원하기",
+          href: "/donation",
+          submenu: [
+            { title: "후원안내", href: "/donation/guide" },
+            { title: "후원신청", href: "/donation/apply" },
+            { title: "재정보고", href: "/donation/report" },
+          ],
+        },
+      ];
+
+      setMenuItems(staticMenuItems);
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+
+      // 에러 시 기본 메뉴 사용
+      const fallbackMenuItems: MenuItem[] = [
+        {
+          title: "About Us",
+          href: "/about",
+          submenu: [
+            { title: "우리는", href: "/about/greeting" },
+            { title: "함께하는이들", href: "/about/organization" },
+            { title: "사업보고", href: "/about/business" },
+            { title: "오시는길", href: "/about/location" },
+            { title: "FAQ", href: "/about/faq" },
+          ],
+        },
+        {
+          title: "토브운동",
+          href: "/movement",
+          submenu: [
+            { title: "건강한 재정관리", href: "/movement/financial-management" },
+            { title: "건강한 재정교육", href: "/movement/financial-education" },
+            { title: "결산서 공개 운동", href: "/movement/financial-disclosure" },
+            { title: "종교인 소득신고", href: "/movement/religious-income-report" },
+            { title: "연대협력", href: "/movement/cooperation" },
+          ],
+        },
+        {
+          title: "토브 소식",
+          href: "/posts",
+          submenu: [
+            { title: "공지사항", href: "/posts/notice" },
+            { title: "활동소식", href: "/posts/activity" },
+            { title: "언론보도", href: "/posts/media" },
+            { title: "정기간행물", href: "/posts/publication" },
+          ],
+        },
+        {
+          title: "자료실",
+          href: "/resources",
+          submenu: [
+            { title: "종교인소득", href: "/resources/religious-income" },
+            { title: "비영리재정", href: "/resources/nonprofit-finance" },
+            { title: "결산공시", href: "/resources/settlement" },
+          ],
+        },
+        {
+          title: "상담센터",
+          href: "/consultation",
+          submenu: [
+            { title: "상담신청", href: "/consultation/apply" },
+            { title: "상담안내", href: "/consultation/guide" },
+          ],
+        },
+        {
+          title: "후원하기",
+          href: "/donation",
+          submenu: [
+            { title: "후원안내", href: "/donation/guide" },
+            { title: "후원신청", href: "/donation/apply" },
+            { title: "재정보고", href: "/donation/report" },
+          ],
+        },
+      ];
+
+      setMenuItems(fallbackMenuItems);
+    }
+  };
 
   const toggleSubmenu = (href: string) => {
     setExpandedMenus((prev) =>
@@ -17,69 +176,6 @@ export function Header() {
         : [...prev, href]
     );
   };
-
-  const menuItems = [
-    {
-      title: "About Us",
-      href: "/about",
-      submenu: [
-        { title: "우리는", href: "/about/greeting" },
-        { title: "함께하는이들", href: "/about/organization" },
-        { title: "사업보고", href: "/about/business" },
-        { title: "오시는길", href: "/about/location" },
-        { title: "FAQ", href: "/about/faq" },
-      ],
-    },
-    {
-      title: "토브운동",
-      href: "/movement",
-      submenu: [
-        { title: "건강한 재정관리", href: "/movement/financial-management" },
-        { title: "건강한 재정교육", href: "/movement/financial-education" },
-        { title: "결산서 공개 운동", href: "/movement/financial-disclosure" },
-        { title: "종교인 소득신고", href: "/movement/religious-income-report" },
-        { title: "연대협력", href: "/movement/cooperation" },
-      ],
-    },
-    {
-      title: "토브 소식",
-      href: "/news",
-      submenu: [
-        { title: "공지사항", href: "/news/notice" },
-        { title: "활동소식", href: "/news/activity" },
-        { title: "언론보도", href: "/news/media" },
-        { title: "정기간행물", href: "/news/publication" },
-        { title: "관계법령", href: "/news/laws" },
-      ],
-    },
-    {
-      title: "자료실",
-      href: "/resources",
-      submenu: [
-        { title: "종교인소득", href: "/resources/religious-income" },
-        { title: "비영리재정", href: "/resources/nonprofit-finance" },
-        { title: "결산공시", href: "/resources/settlement" },
-      ],
-    },
-    {
-      title: "상담센터",
-      href: "/consultation",
-      submenu: [
-        { title: "상담신청", href: "/consultation/apply" },
-        { title: "상담안내", href: "/consultation/guide" },
-      ],
-    },
-
-    {
-      title: "후원하기",
-      href: "/donation",
-      submenu: [
-        { title: "후원안내", href: "/donation/guide" },
-        { title: "후원신청", href: "/donation/apply" },
-        { title: "재정보고", href: "/donation/report" },
-      ],
-    },
-  ];
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -161,7 +257,7 @@ export function Header() {
                 >
                   {item.title}
                 </Link>
-                {item.submenu && (
+                {item.submenu && item.submenu.length > 0 && (
                   <div className="absolute left-0 top-full w-48 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div className="py-2">
                       {item.submenu.map((subItem) => (
@@ -225,7 +321,7 @@ export function Header() {
                   >
                     {item.title}
                   </Link>
-                  {item.submenu && (
+                  {item.submenu && item.submenu.length > 0 && (
                     <button
                       onClick={() => toggleSubmenu(item.href)}
                       className="p-2 hover:bg-gray-100 rounded"

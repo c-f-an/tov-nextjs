@@ -87,7 +87,7 @@ export function LatestNews({ notices, news, latestNews }: LatestNewsProps) {
     <div className="bg-white rounded-lg shadow-sm p-8">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">토브소식</h2>
-        <Link href="/news" className="text-sm text-blue-600 hover:underline">
+        <Link href="/posts" className="text-sm text-blue-600 hover:underline">
           전체보기 →
         </Link>
       </div>
@@ -98,7 +98,7 @@ export function LatestNews({ notices, news, latestNews }: LatestNewsProps) {
           return (
             <Link
               key={item.id}
-              href={`/news/${item.category}/${item.id}`}
+              href={`/posts/${item.category}/${item.id}`}
               className="group"
             >
               <div className="bg-gray-50 rounded-lg p-6 h-full hover:shadow-md transition-shadow">

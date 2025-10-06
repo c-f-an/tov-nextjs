@@ -29,12 +29,12 @@ export default function SitemapPage() {
     {
       title: "토브 소식",
       links: [
-        { name: "토브 소식", href: "/news" },
-        { name: "공지사항", href: "/news/notice" },
-        { name: "활동소식", href: "/news/activity" },
-        { name: "언론보도", href: "/news/media" },
-        { name: "정기간행물", href: "/news/publication" },
-        { name: "관계법령", href: "/news/laws" },
+        { name: "토브 소식", href: "/posts" },
+        { name: "공지사항", href: "/posts/notice" },
+        { name: "활동소식", href: "/posts/activity" },
+        { name: "언론보도", href: "/posts/media" },
+        { name: "정기간행물", href: "/posts/publication" },
+        { name: "관계법령", href: "/posts/laws" },
       ],
     },
     {
