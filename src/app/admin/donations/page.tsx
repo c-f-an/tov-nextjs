@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { AdminLayout } from '@/presentation/components/admin/AdminLayout';
+import { DonationRegistrationModal } from '@/presentation/components/admin/DonationRegistrationModal';
 import { formatDate } from '@/lib/utils/date';
 
 interface Donation {
@@ -30,18 +31,20 @@ export default function AdminDonationsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
 
   useEffect(() => {
     fetchDonations();
   }, [currentPage, startDate, endDate]);
 
   const fetchDonations = async () => {
+    setIsLoading(true);
     try {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '20'
       });
-      
+
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
 
@@ -57,6 +60,36 @@ export default function AdminDonationsPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleExcelDownload = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+
+      const response = await fetch(`/api/donations/export?${params}`);
+      if (!response.ok) throw new Error('Failed to export donations');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `donations_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading Excel:', error);
+      alert('엑셀 다운로드에 실패했습니다.');
+    }
+  };
+
+  const handleDateReset = () => {
+    setStartDate('');
+    setEndDate('');
+    setCurrentPage(1);
   };
 
   const formatCurrency = (amount: number) => {
@@ -82,12 +115,12 @@ export default function AdminDonationsPage() {
       <div>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">후원 내역</h1>
-          <Link
-            href="/admin/donations/new"
+          <button
+            onClick={() => setIsRegistrationModalOpen(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
             후원 등록
-          </Link>
+          </button>
         </div>
 
         {/* Summary Cards */}
@@ -129,16 +162,25 @@ export default function AdminDonationsPage() {
                 className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="flex items-end">
-              <button 
+            <div className="flex items-end space-x-2">
+              <button
                 onClick={fetchDonations}
-                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 조회
               </button>
+              <button
+                onClick={handleDateReset}
+                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+              >
+                초기화
+              </button>
             </div>
             <div className="flex items-end ml-auto">
-              <button className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+              <button
+                onClick={handleExcelDownload}
+                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
                 엑셀 다운로드
               </button>
             </div>
@@ -278,6 +320,15 @@ export default function AdminDonationsPage() {
             </nav>
           </div>
         )}
+
+        {/* Donation Registration Modal */}
+        <DonationRegistrationModal
+          isOpen={isRegistrationModalOpen}
+          onClose={() => setIsRegistrationModalOpen(false)}
+          onSuccess={() => {
+            fetchDonations();
+          }}
+        />
       </div>
     </AdminLayout>
   );

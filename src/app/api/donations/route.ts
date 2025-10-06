@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const container = getContainer();
     const createDonationUseCase = container.getCreateDonationUseCase();
     
     const donation = await createDonationUseCase.execute({

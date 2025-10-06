@@ -20,7 +20,8 @@
       "Bash(netstat:*)",
       "Bash(node:*)",
       "Bash(taskkill:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

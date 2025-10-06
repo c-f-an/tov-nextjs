@@ -128,29 +128,33 @@ export class MySQLDonationRepository implements IDonationRepository {
     return rows.map(row => this.mapToDonation(row));
   }
 
-  async save(donation: Donation): Promise<void> {
-    await query(
-      `INSERT INTO donations (id, user_id, type, status, amount, payment_method, payment_day, start_date, end_date, last_payment_date, next_payment_date, total_amount, payment_count, receipt_required, receipt_email, receipt_phone, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+  async save(donation: any): Promise<any> {
+    // Handle both old Donation entity and new DonationNew entity
+    const sponsorId = donation.sponsorId || donation.userId;
+    const donationType = donation.donationType || donation.type || 'one_time';
+    const paymentDate = donation.paymentDate || donation.startDate || new Date();
+
+    const result = await query(
+      `INSERT INTO donations (sponsor_id, donation_type, amount, payment_method, payment_date, receipt_number, purpose, memo, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
-        donation.id,
-        donation.userId,
-        donation.type,
-        donation.status,
+        sponsorId,
+        donationType,
         donation.amount,
-        donation.paymentMethod,
-        donation.paymentDay,
-        donation.startDate,
-        donation.endDate,
-        donation.lastPaymentDate,
-        donation.nextPaymentDate,
-        donation.totalAmount,
-        donation.paymentCount,
-        donation.receiptRequired,
-        donation.receiptEmail,
-        donation.receiptPhone
+        donation.paymentMethod || null,
+        paymentDate,
+        donation.receiptNumber || null,
+        donation.purpose || null,
+        donation.memo || null
       ]
     );
+
+    // Return the saved donation with the new ID
+    const insertId = (result as any).insertId;
+    return {
+      ...donation,
+      id: insertId
+    };
   }
 
   async update(donation: Donation): Promise<void> {

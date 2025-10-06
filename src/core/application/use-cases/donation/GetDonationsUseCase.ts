@@ -21,20 +21,29 @@ export class GetDonationsUseCase {
   async execute(request: GetDonationsRequest): Promise<GetDonationsResponse> {
     const page = request.page || 1;
     const limit = request.limit || 10;
-    const offset = (page - 1) * limit;
-    const { donations, total, totalAmount } = await this.donationRepository.findPaginated({
-      sponsorId: request.sponsorId,
-      offset,
-      limit,
-      startDate: request.startDate,
-      endDate: request.endDate
-    });
+
+    // Get donations with pagination
+    const result = await this.donationRepository.findAll(
+      {
+        userId: request.sponsorId?.toString(),
+        dateFrom: request.startDate,
+        dateTo: request.endDate
+      },
+      {
+        page,
+        limit
+      }
+    );
+
+    // Calculate total amount from the donations
+    const totalAmount = result.data.reduce((sum, donation) => sum + donation.amount, 0);
+
     return {
-      donations: donations.map(DonationDto.fromEntity),
-      total,
+      donations: result.data.map(DonationDto.fromEntity),
+      total: result.total,
       totalAmount,
-      page,
-      totalPages: Math.ceil(total / limit)
+      page: result.page,
+      totalPages: result.totalPages
     };
   }
 }
