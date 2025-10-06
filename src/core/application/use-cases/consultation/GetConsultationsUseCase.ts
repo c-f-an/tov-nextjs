@@ -20,18 +20,23 @@ export class GetConsultationsUseCase {
   async execute(request: GetConsultationsRequest): Promise<GetConsultationsResponse> {
     const page = request.page || 1;
     const limit = request.limit || 10;
-    const offset = (page - 1) * limit;
-    const { consultations, total } = await this.consultationRepository.findPaginated({
-      userId: request.userId,
-      status: request.status,
-      offset,
-      limit
-    });
+
+    const result = await this.consultationRepository.findAll(
+      {
+        userId: request.userId?.toString(),
+        status: request.status
+      },
+      {
+        page,
+        limit
+      }
+    );
+
     return {
-      consultations: consultations.map(ConsultationDto.fromEntity),
-      total,
-      page,
-      totalPages: Math.ceil(total / limit)
+      consultations: result.data.map(ConsultationDto.fromEntity),
+      total: result.total,
+      page: result.page,
+      totalPages: result.totalPages
     };
   }
 }
