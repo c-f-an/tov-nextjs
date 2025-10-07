@@ -70,17 +70,26 @@ export default function AdminDashboard() {
 
     // Fetch dashboard stats only if we have accessToken
     if (accessToken) {
-      fetchDashboardStats();
-      fetchRecentData();
+      console.log('AccessToken available, fetching dashboard data');
+      fetchDashboardStats(accessToken);
+      fetchRecentData(accessToken);
+    } else {
+      console.log('No accessToken available yet');
     }
   }, [user, loading, accessToken]);
 
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = async (token?: string) => {
+    const authToken = token || accessToken;
+    if (!authToken) {
+      console.log('No token available for dashboard stats');
+      return;
+    }
+
     try {
-      console.log('Fetching dashboard stats with accessToken:', accessToken);
+      console.log('Fetching dashboard stats with token');
       const response = await fetch('/api/admin/dashboard/stats', {
         headers: {
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer ${authToken}`
         }
       });
       console.log('Dashboard stats response:', response.status);
@@ -101,21 +110,32 @@ export default function AdminDashboard() {
     }
   };
 
-  const fetchRecentData = async () => {
+  const fetchRecentData = async (token?: string) => {
+    const authToken = token || accessToken;
+    if (!authToken) {
+      console.log('No token available for recent data');
+      setIsLoadingRecent(false);
+      return;
+    }
+
     try {
       setIsLoadingRecent(true);
-      console.log('Fetching recent data with accessToken:', accessToken);
+      console.log('Fetching recent data with token');
       const response = await fetch('/api/admin/dashboard/recent', {
         headers: {
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer ${authToken}`
         }
       });
-      console.log('Recent data response:', response.status);
+      console.log('Recent data response:', response.status, response.statusText);
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Recent data received:', data);
         setRecentPosts(data.recentPosts || []);
         setRecentConsultations(data.recentConsultations || []);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Recent data fetch failed:', response.status, errorData);
       }
     } catch (error) {
       console.error('Failed to fetch recent data:', error);

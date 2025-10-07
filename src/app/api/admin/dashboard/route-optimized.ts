@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       
       // Recent posts with minimal data
       pool.query(`
-        SELECT 
+        SELECT
           p.id,
           p.title,
           p.status,
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
           u.name as author_name,
           c.name as category_name
         FROM posts p
-        LEFT JOIN users u ON p.author_id = u.id
+        LEFT JOIN users u ON p.user_id = u.id
         LEFT JOIN categories c ON p.category_id = c.id
         ORDER BY p.created_at DESC
         LIMIT 5

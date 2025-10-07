@@ -8,11 +8,12 @@ import { formatDate } from '@/lib/utils/date';
 interface Post {
   id: number;
   title: string;
-  categoryId: number;
-  category?: { name: string; slug: string };
-  user?: { name: string };
-  status: string;
-  viewCount: number;
+  category: string;
+  categoryName: string;
+  categorySlug: string;
+  author: { name: string; email: string };
+  isPublished: boolean;
+  views: number;
   isNotice: boolean;
   createdAt: string;
 }
@@ -25,10 +26,24 @@ export default function AdminPostsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [categories, setCategories] = useState<{id: number; name: string; type: string}[]>([]);
 
   useEffect(() => {
+    fetchCategories();
     fetchPosts();
   }, [currentPage, selectedCategory]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const fetchPosts = async () => {
     try {
@@ -36,26 +51,31 @@ export default function AdminPostsPage() {
         page: currentPage.toString(),
         limit: '20'
       });
-      
+
       if (selectedCategory) {
-        params.append('categoryId', selectedCategory);
+        params.append('category', selectedCategory);
       }
 
       const response = await fetch(`/api/posts?${params}`);
       if (!response.ok) throw new Error('Failed to fetch posts');
 
       const data = await response.json();
-      setPosts(data.posts);
-      setTotalPages(data.totalPages);
+      console.log('Posts API response:', data); // Debug log
+
+      // API returns 'items' not 'posts'
+      setPosts(data.items || []);
+      setTotalPages(data.totalPages || 1);
     } catch (error) {
       console.error('Error fetching posts:', error);
+      setPosts([]); // Set empty array on error
+      setTotalPages(1);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
+    if (e.target.checked && posts) {
       setSelectedPosts(posts.map(post => post.id));
     } else {
       setSelectedPosts([]);
@@ -118,12 +138,11 @@ export default function AdminPostsPage() {
               className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">전체 카테고리</option>
-              <option value="1">공지사항</option>
-              <option value="2">토브소식</option>
-              <option value="3">언론보도</option>
-              <option value="4">발간자료</option>
-              <option value="5">자료실</option>
-              <option value="6">활동소식</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.type}>
+                  {category.name}
+                </option>
+              ))}
             </select>
             <button className="px-6 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
               검색
@@ -170,7 +189,7 @@ export default function AdminPostsPage() {
                     <input
                       type="checkbox"
                       onChange={handleSelectAll}
-                      checked={posts.length > 0 && selectedPosts.length === posts.length}
+                      checked={posts && posts.length > 0 && selectedPosts.length === posts.length}
                       className="rounded border-gray-300"
                     />
                   </th>
@@ -198,7 +217,7 @@ export default function AdminPostsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {posts.map((post) => (
+                {posts && posts.map((post) => (
                   <tr key={post.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <input
@@ -224,18 +243,18 @@ export default function AdminPostsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {post.category?.name || '-'}
+                      {post.categoryName || '-'}
                     </td>
                     <td className="px-6 py-4 text-center text-sm text-gray-500">
-                      {post.user?.name || '관리자'}
+                      {post.author?.name || '관리자'}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusLabels[post.status]?.color}`}>
-                        {statusLabels[post.status]?.label || post.status}
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${post.isPublished ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                        {post.isPublished ? '공개' : '비공개'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center text-sm text-gray-500">
-                      {post.viewCount}
+                      {post.views}
                     </td>
                     <td className="px-6 py-4 text-center text-sm text-gray-500">
                       {formatDate(post.createdAt)}
