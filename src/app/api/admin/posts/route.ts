@@ -33,6 +33,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate thumbnail URL (block base64 data)
+    if (thumbnailUrl && thumbnailUrl.startsWith('data:')) {
+      return NextResponse.json(
+        { error: '썸네일은 URL 형식이어야 합니다. 이미지를 S3에 업로드하거나 외부 URL을 사용하세요.' },
+        { status: 400 }
+      );
+    }
+
     // Insert post
     const result = await query(
       `INSERT INTO posts (

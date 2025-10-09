@@ -13,7 +13,8 @@ const nanumGothic = Nanum_Gothic({
 export const metadata: Metadata = {
   title: "사단법인 토브협회 - 비영리 재정 투명성",
   description: "당신의 'Mission'과 'Fund'를 연결하는 Tov 입니다",
-  keywords: '토브협회, 사단법인 토브협회, 토브, 비영리, 비영리단체, 재정투명성, 교회재정, 종교인소득',
+  keywords:
+    "토브협회, 사단법인 토브협회, 토브, 비영리, 비영리단체, 재정투명성, 교회재정, 종교인소득",
   openGraph: {
     title: "사단법인 토브협회 - 비영리 재정 투명성",
     description: "비영리단체를 위한 재정 투명성 정보 제공",
@@ -41,9 +42,9 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": ["Organization", "NGO"],
-              "name": "사단법인 토브협회",
-              "alternateName": [
-                "토브협회", 
+              name: "사단법인 토브협회",
+              alternateName: [
+                "토브협회",
                 "사단법인 토브협회",
                 "사단법인토브협회",
                 "토브",
@@ -53,25 +54,26 @@ export default function RootLayout({
                 "Tov Association",
                 "교회재정건강성운동",
                 "CFAN",
-                "(사)토브협회"
+                "(사)토브협회",
               ],
-              "previousOrganizationName": "교회재정건강성운동",
-              "url": "https://tov.ptax.kr",
-              "logo": "https://tov.ptax.kr/logo.png",
-              "description": "비영리단체의 재정 투명성과 건강한 재정운영을 지원하는 사단법인",
-              "address": {
+              previousOrganizationName: "교회재정건강성운동",
+              url: "https://tov.ptax.kr",
+              logo: "https://tov.ptax.kr/logo.png",
+              description:
+                "비영리단체의 재정 투명성과 건강한 재정운영을 지원하는 사단법인",
+              address: {
                 "@type": "PostalAddress",
-                "addressCountry": "KR",
-                "addressRegion": "서울",
-                "addressLocality": "종로구",
-                "streetAddress": "삼일대로 428, 500-42호"
+                addressCountry: "KR",
+                addressRegion: "서울",
+                addressLocality: "종로구",
+                streetAddress: "삼일대로 428, 500-42호",
               },
-              "contactPoint": {
+              contactPoint: {
                 "@type": "ContactPoint",
-                "telephone": "+82-2-6951-1391",
-                "contactType": "고객지원"
-              }
-            })
+                telephone: "+82-2-6951-1391",
+                contactType: "고객지원",
+              },
+            }),
           }}
         />
       </head>

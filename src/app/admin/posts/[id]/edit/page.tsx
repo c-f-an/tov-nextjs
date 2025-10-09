@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { AdminLayout } from '@/presentation/components/admin/AdminLayout';
 import { Editor } from '@/presentation/components/admin/Editor';
@@ -15,7 +15,7 @@ interface PostFormData {
   summary: string;
   thumbnailUrl: string;
   isNotice: boolean;
-  status: 'draft' | 'published';
+  isPublished: boolean;
   tags: string[];
 }
 
@@ -26,8 +26,12 @@ interface Category {
   slug: string;
 }
 
-export default function NewPostPage() {
+export default function EditPostPage() {
   const router = useRouter();
+  const params = useParams();
+  const postId = params.id as string;
+
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState<PostFormData>({
@@ -38,19 +42,22 @@ export default function NewPostPage() {
     summary: '',
     thumbnailUrl: '',
     isNotice: false,
-    status: 'draft',
+    isPublished: false,
     tags: []
   });
   const [tagInput, setTagInput] = useState('');
 
-  // 카테고리 목록 가져오기
+  // 게시글 데이터 가져오기
   useEffect(() => {
     fetchCategories();
-  }, []);
+    fetchPost();
+  }, [postId]);
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/categories');
+      const response = await fetch('/api/categories', {
+        credentials: 'include', // 쿠키 포함
+      });
       if (response.ok) {
         const data = await response.json();
         setCategories(data);
@@ -60,7 +67,41 @@ export default function NewPostPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent, status: 'draft' | 'published') => {
+  const fetchPost = async () => {
+    try {
+      const response = await fetch(`/api/admin/posts/${postId}`, {
+        credentials: 'include', // 쿠키 포함
+      });
+      if (!response.ok) {
+        throw new Error('게시글을 불러올 수 없습니다.');
+      }
+
+      const post = await response.json();
+
+      // 카테고리 정보 찾기
+      const category = categories.find(c => c.type === post.categoryType || c.name === post.categoryName);
+
+      setFormData({
+        title: post.title || '',
+        categoryId: category?.id.toString() || '',
+        categoryType: post.categoryType || category?.type || '',
+        content: post.content || '',
+        summary: post.summary || '',
+        thumbnailUrl: post.thumbnailUrl || '',
+        isNotice: post.isNotice || false,
+        isPublished: post.isPublished !== undefined ? post.isPublished : true,
+        tags: post.tags || []
+      });
+    } catch (error) {
+      console.error('Error fetching post:', error);
+      alert('게시글을 불러오는데 실패했습니다.');
+      router.push('/admin/posts');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.title.trim()) {
@@ -68,7 +109,7 @@ export default function NewPostPage() {
       return;
     }
 
-    if (!formData.categoryId) {
+    if (!formData.categoryId && !formData.categoryType) {
       alert('카테고리를 선택해주세요.');
       return;
     }
@@ -81,34 +122,53 @@ export default function NewPostPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/admin/posts', {
-        method: 'POST',
+      const response = await fetch(`/api/admin/posts/${postId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          status
-        }),
+        credentials: 'include', // 쿠키 포함
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || '게시글 작성에 실패했습니다.');
+        throw new Error(error.message || '게시글 수정에 실패했습니다.');
       }
 
-      const data = await response.json();
-
-      if (status === 'published') {
-        alert('게시글이 성공적으로 발행되었습니다.');
-      } else {
-        alert('게시글이 임시저장되었습니다.');
-      }
-
-      router.push(`/admin/posts/${data.id}/edit`);
+      alert('게시글이 성공적으로 수정되었습니다.');
+      router.push('/admin/posts');
     } catch (error) {
-      console.error('Error creating post:', error);
-      alert(error instanceof Error ? error.message : '게시글 작성에 실패했습니다.');
+      console.error('Error updating post:', error);
+      alert(error instanceof Error ? error.message : '게시글 수정에 실패했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`/api/admin/posts/${postId}`, {
+        method: 'DELETE',
+        credentials: 'include', // 쿠키 포함
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || '게시글 삭제에 실패했습니다.');
+      }
+
+      alert('게시글이 삭제되었습니다.');
+      router.push('/admin/posts');
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert(error instanceof Error ? error.message : '게시글 삭제에 실패했습니다.');
     } finally {
       setIsSubmitting(false);
     }
@@ -161,6 +221,16 @@ export default function NewPostPage() {
     'activity': '활동소식'
   };
 
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex justify-center items-center min-h-screen">
+          <p className="text-gray-500">로딩 중...</p>
+        </div>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout>
       <div className="max-w-6xl">
@@ -174,11 +244,21 @@ export default function NewPostPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </Link>
-            <h1 className="text-2xl font-bold">새 게시글 작성</h1>
+            <h1 className="text-2xl font-bold">게시글 수정</h1>
           </div>
+
+          {/* 삭제 버튼 */}
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+          >
+            삭제
+          </button>
         </div>
 
-        <form onSubmit={(e) => handleSubmit(e, 'published')}>
+        <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* 메인 컨텐츠 영역 */}
             <div className="lg:col-span-2 space-y-6">
@@ -256,6 +336,20 @@ export default function NewPostPage() {
                   </select>
                 </div>
 
+                {/* 공개 상태 */}
+                <div className="mb-4">
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.isPublished}
+                      onChange={(e) => setFormData(prev => ({ ...prev, isPublished: e.target.checked }))}
+                      className="rounded border-gray-300"
+                      disabled={isSubmitting}
+                    />
+                    <span className="text-sm font-medium text-gray-700">공개</span>
+                  </label>
+                </div>
+
                 {/* 공지사항 설정 */}
                 <div className="mb-4">
                   <label className="flex items-center space-x-2">
@@ -270,24 +364,14 @@ export default function NewPostPage() {
                   </label>
                 </div>
 
-                {/* 발행 버튼 */}
-                <div className="flex space-x-2">
-                  <button
-                    type="button"
-                    onClick={(e) => handleSubmit(e, 'draft')}
-                    disabled={isSubmitting}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    임시저장
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {isSubmitting ? '처리 중...' : '발행하기'}
-                  </button>
-                </div>
+                {/* 수정 버튼 */}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isSubmitting ? '처리 중...' : '수정하기'}
+                </button>
               </div>
 
               {/* 썸네일 */}
@@ -321,7 +405,7 @@ export default function NewPostPage() {
                     folder="posts/thumbnails"
                     buttonText="썸네일 이미지 업로드"
                     maxSize={10}
-                    postId="new"
+                    postId={postId}
                     categoryId={formData.categoryId || 'uncategorized'}
                   />
 
