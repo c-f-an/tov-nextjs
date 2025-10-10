@@ -55,13 +55,13 @@ echo "EC2 인스턴스에 IAM Role이 연결되어 있다면 Enter를 눌러 건
 read -p "AWS 설정을 진행하시겠습니까? (y/n/skip): " answer
 if [ "$answer" = "y" ]; then
     # AWS 자격 증명 입력
-    read -p "AWS Access Key ID: " AWS_ACCESS_KEY_ID
-    read -sp "AWS Secret Access Key: " AWS_SECRET_ACCESS_KEY
+    read -p "AWS Access Key ID: " DEPLOY_AWS_ACCESS_KEY_ID
+    read -sp "AWS Secret Access Key: " DEPLOY_AWS_SECRET_ACCESS_KEY
     echo
     
     # AWS CLI 설정
-    aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
-    aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+    aws configure set aws_access_key_id "$DEPLOY_AWS_ACCESS_KEY_ID"
+    aws configure set aws_secret_access_key "$DEPLOY_AWS_SECRET_ACCESS_KEY"
     aws configure set region "ap-northeast-2"
     aws configure set output "json"
     
@@ -72,8 +72,8 @@ fi
 
 # S3 접근 테스트
 echo -e "${YELLOW}🔍 S3 접근 테스트...${NC}"
-S3_BUCKET_NAME="tov-deploy/production"
-if aws s3 ls s3://${S3_BUCKET_NAME}/deployments/ &> /dev/null; then
+DEPLOY_S3_BUCKET_NAME="tov-deploy/production"
+if aws s3 ls s3://${DEPLOY_S3_BUCKET_NAME}/deployments/ &> /dev/null; then
     echo -e "${GREEN}✅ S3 버킷 접근 성공!${NC}"
 else
     echo -e "${RED}❌ S3 버킷에 접근할 수 없습니다. AWS 자격 증명을 확인하세요.${NC}"

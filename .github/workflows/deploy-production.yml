@@ -39,9 +39,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.DEPLOY_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.DEPLOY_AWS_REGION }}
 
       - name: Create server.js file
         run: |
@@ -124,8 +124,8 @@ jobs:
       - name: Upload to S3
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          aws s3 cp deploy-package.tar.gz s3://${{ secrets.S3_BUCKET_NAME }}/production/deploy-${TIMESTAMP}.tar.gz
-          aws s3 cp deploy-package.tar.gz s3://${{ secrets.S3_BUCKET_NAME }}/production/latest.tar.gz
+          aws s3 cp deploy-package.tar.gz s3://${{ secrets.DEPLOY_S3_BUCKET_NAME }}/production/deploy-${TIMESTAMP}.tar.gz
+          aws s3 cp deploy-package.tar.gz s3://${{ secrets.DEPLOY_S3_BUCKET_NAME }}/production/latest.tar.gz
 
       - name: Setup SSH keys
         run: |
@@ -136,7 +136,7 @@ jobs:
 
       - name: Deploy to EC2 via Bastion
         env:
-          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+          S3_BUCKET_NAME: ${{ secrets.DEPLOY_S3_BUCKET_NAME }}
           EC2_USER: ${{ secrets.EC2_USER }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
@@ -149,7 +149,7 @@ jobs:
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_PRIVATE_IP }} bash << 'DEPLOY_SCRIPT'
 
           # 환경 변수
-          S3_BUCKET_NAME="${{ secrets.S3_BUCKET_NAME }}/production"
+          S3_BUCKET_NAME="${{ secrets.DEPLOY_S3_BUCKET_NAME }}/production"
           APP_DIR="/apps/tov-homepage"
           SERVICE_NAME="tov-homepage"
 
@@ -203,6 +203,19 @@ jobs:
           NEXT_PUBLIC_COMPANY_ADDRESS=${{ vars.NEXT_PUBLIC_COMPANY_ADDRESS }}
           NEXT_PUBLIC_APP_URL=https://tov.or.kr
           NEXT_PUBLIC_API_URL=https://tov.or.kr/api
+
+          # AWS S3 Configuration
+          AWS_REGION=${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}
+
+          # S3 Bucket Configuration (set to 'false' for private bucket with pre-signed URLs)
+          AWS_S3_BUCKET_IS_PUBLIC=${{ secrets.AWS_S3_BUCKET_IS_PUBLIC }}
+
+          # Next.js Configuration
+          NEXT_PUBLIC_S3_BUCKET_URL=${{ vars.NEXT_PUBLIC_S3_BUCKET_URL }}
+
           ENVFILE
 
           # Install build dependencies for native modules
