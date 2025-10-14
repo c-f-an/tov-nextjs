@@ -11,6 +11,9 @@ const resourceTypeGroups = {
   'education': { title: '교육 자료', icon: BookOpen }
 };
 
+// Force dynamic rendering to ensure DB queries run at runtime
+export const dynamic = "force-dynamic";
+
 const faqs = [
   {
     question: '종교인 소득과 근로소득의 차이점은 무엇인가요?',
@@ -35,18 +38,21 @@ export default async function ReligiousIncomePage() {
   let category = null;
   let resources = [];
 
-  try {
-    category = await categoryRepo.findBySlug('religious-income');
+  // Skip database queries during build
+  if (process.env.SKIP_DB_QUERIES !== "true") {
+    try {
+      category = await categoryRepo.findBySlug('religious-income');
 
-    if (category) {
-      const result = await resourceRepo.findAll(
-        { categoryId: category.id, isActive: true },
-        { page: 1, limit: 100, orderBy: 'resource_type,published_at', orderDirection: 'DESC' }
-      );
-      resources = result.items;
+      if (category) {
+        const result = await resourceRepo.findAll(
+          { categoryId: category.id, isActive: true },
+          { page: 1, limit: 100, orderBy: 'resource_type,published_at', orderDirection: 'DESC' }
+        );
+        resources = result.items;
+      }
+    } catch (error) {
+      console.error('Error fetching resources:', error);
     }
-  } catch (error) {
-    console.error('Error fetching resources:', error);
   }
 
   // Group resources by type

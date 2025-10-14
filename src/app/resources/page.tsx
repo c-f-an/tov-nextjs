@@ -12,6 +12,9 @@ const iconMap: { [key: string]: any } = {
   'Scale': Scale
 };
 
+// Force dynamic rendering to ensure DB queries run at runtime
+export const dynamic = "force-dynamic";
+
 const defaultCategories = [
   {
     title: '종교인소득',
@@ -52,15 +55,18 @@ export default async function ResourcesPage() {
   let categories = [];
   let featuredResources = [];
 
-  try {
-    categories = await resourceCategoryRepo.findActive();
-    const featuredResult = await resourceRepo.findAll(
-      { isFeatured: true, isActive: true },
-      { page: 1, limit: 5, orderBy: 'published_at', orderDirection: 'DESC' }
-    );
-    featuredResources = featuredResult.items;
-  } catch (error) {
-    console.error('Error fetching data:', error);
+  // Skip database queries during build
+  if (process.env.SKIP_DB_QUERIES !== "true") {
+    try {
+      categories = await resourceCategoryRepo.findActive();
+      const featuredResult = await resourceRepo.findAll(
+        { isFeatured: true, isActive: true },
+        { page: 1, limit: 5, orderBy: 'published_at', orderDirection: 'DESC' }
+      );
+      featuredResources = featuredResult.items;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   }
 
   // Map categories to display format

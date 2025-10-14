@@ -13,6 +13,9 @@ const resourceTypeGroups = {
   'etc': { title: '기타 자료', icon: FileText }
 };
 
+// Force dynamic rendering to ensure DB queries run at runtime
+export const dynamic = "force-dynamic";
+
 const recentUpdates = [
   {
     date: '2024.01.15',
@@ -40,18 +43,21 @@ export default async function LawsPage() {
   let category = null;
   let resources = [];
 
-  try {
-    category = await categoryRepo.findBySlug('laws');
+  // Skip database queries during build
+  if (process.env.SKIP_DB_QUERIES !== "true") {
+    try {
+      category = await categoryRepo.findBySlug('laws');
 
-    if (category) {
-      const result = await resourceRepo.findAll(
-        { categoryId: category.id, isActive: true },
-        { page: 1, limit: 100, orderBy: 'resource_type,published_at', orderDirection: 'DESC' }
-      );
-      resources = result.items;
+      if (category) {
+        const result = await resourceRepo.findAll(
+          { categoryId: category.id, isActive: true },
+          { page: 1, limit: 100, orderBy: 'resource_type,published_at', orderDirection: 'DESC' }
+        );
+        resources = result.items;
+      }
+    } catch (error) {
+      console.error('Error fetching resources:', error);
     }
-  } catch (error) {
-    console.error('Error fetching resources:', error);
   }
 
   // Group resources by type
