@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   alternates: {
-    canonical: "https://tov.ptax.kr",
+    canonical: "https://tov.or.kr",
   },
 };
 
@@ -57,8 +57,8 @@ export default function RootLayout({
                 "(사)토브협회",
               ],
               previousOrganizationName: "교회재정건강성운동",
-              url: "https://tov.ptax.kr",
-              logo: "https://tov.ptax.kr/logo.png",
+              url: "https://tov.or.kr",
+              logo: "https://tov.or.kr/logo.png",
               description:
                 "비영리단체의 재정 투명성과 건강한 재정운영을 지원하는 사단법인",
               address: {
