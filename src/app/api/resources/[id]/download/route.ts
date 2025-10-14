@@ -56,47 +56,23 @@ export async function GET(
     const s3Service = new S3Service();
 
     try {
-      // Check if file path is S3 key (starts with data-archive/)
-      const isS3File = resource.filePath.includes('data-archive/') ||
-                       resource.filePath.includes('resources/');
+      // Always stream file directly from S3 to avoid CORS issues
+      const fileData = await s3Service.getFile(resource.filePath);
 
-      if (isS3File) {
-        // Generate presigned URL for S3 download
-        const presignedUrl = await s3Service.getPresignedDownloadUrl(
-          resource.filePath,
-          3600 // 1 hour expiration
-        );
+      // Set appropriate headers for file download
+      const headers = new Headers();
+      headers.set('Content-Type', fileData.contentType || resource.fileType || 'application/octet-stream');
+      headers.set('Content-Disposition', `attachment; filename="${encodeURIComponent(resource.originalFilename || 'download')}"`);
+      headers.set('Content-Length', fileData.contentLength?.toString() || resource.fileSize?.toString() || '0');
+      headers.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      headers.set('Access-Control-Allow-Origin', '*'); // Allow CORS
+      headers.set('Access-Control-Allow-Methods', 'GET');
+      headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-        // Redirect to presigned URL
-        return NextResponse.redirect(presignedUrl);
-      } else {
-        // For backward compatibility - try to get file from S3 directly
-        try {
-          const fileData = await s3Service.getFile(resource.filePath);
-
-          // Set appropriate headers
-          const headers = new Headers();
-          headers.set('Content-Type', fileData.contentType || resource.fileType || 'application/octet-stream');
-          headers.set('Content-Disposition', `attachment; filename="${resource.originalFilename || 'download'}"`);
-          headers.set('Content-Length', fileData.contentLength?.toString() || resource.fileSize?.toString() || '0');
-          headers.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-
-          return new NextResponse(fileData.body, {
-            status: 200,
-            headers
-          });
-        } catch (s3Error) {
-          console.error('S3 download error:', s3Error);
-
-          // If file doesn't exist in S3, generate presigned URL anyway
-          const presignedUrl = await s3Service.getPresignedDownloadUrl(
-            resource.filePath,
-            3600
-          );
-
-          return NextResponse.redirect(presignedUrl);
-        }
-      }
+      return new NextResponse(fileData.body, {
+        status: 200,
+        headers
+      });
     } catch (error) {
       console.error('Error accessing file:', error);
       return NextResponse.json(
