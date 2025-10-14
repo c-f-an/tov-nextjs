@@ -1,6 +1,3 @@
-import nodemailer from 'nodemailer';
-import Mail from 'nodemailer/lib/mailer';
-
 // Email template types
 export type EmailTemplate =
   | 'welcome'
@@ -28,14 +25,15 @@ interface BulkEmailOptions {
 }
 
 class FreeEmailService {
-  private transporter: Mail | null = null;
+  private transporter: any = null;
   private isConfigured: boolean = false;
+  private nodemailer: any = null;
 
   constructor() {
     this.initializeTransporter();
   }
 
-  private initializeTransporter() {
+  private async initializeTransporter() {
     const service = process.env.EMAIL_SERVICE || 'gmail'; // gmail, naver, outlook
     const user = process.env.EMAIL_USER;
     const pass = process.env.EMAIL_PASS;
@@ -46,9 +44,12 @@ class FreeEmailService {
     }
 
     try {
+      // Use require for server-side only nodemailer
+      this.nodemailer = require('nodemailer');
+
       // 서비스별 설정
       if (service === 'gmail') {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = this.nodemailer.createTransport({
           service: 'gmail',
           auth: {
             user,
@@ -56,7 +57,7 @@ class FreeEmailService {
           },
         });
       } else if (service === 'naver') {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = this.nodemailer.createTransport({
           host: 'smtp.naver.com',
           port: 587,
           secure: false,
@@ -66,7 +67,7 @@ class FreeEmailService {
           },
         });
       } else if (service === 'outlook' || service === 'hotmail') {
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = this.nodemailer.createTransport({
           host: 'smtp-mail.outlook.com',
           port: 587,
           secure: false,
@@ -80,7 +81,7 @@ class FreeEmailService {
         });
       } else {
         // 커스텀 SMTP 설정
-        this.transporter = nodemailer.createTransporter({
+        this.transporter = this.nodemailer.createTransport({
           host: process.env.SMTP_HOST,
           port: parseInt(process.env.SMTP_PORT || '587'),
           secure: process.env.SMTP_SECURE === 'true',
@@ -279,7 +280,7 @@ class FreeEmailService {
     }
 
     try {
-      const mailOptions: Mail.Options = {
+      const mailOptions = {
         from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
         to: options.to,
         subject: options.subject,
@@ -328,7 +329,7 @@ class FreeEmailService {
 
       for (const recipient of options.to) {
         try {
-          const mailOptions: Mail.Options = {
+          const mailOptions = {
             from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
             to: recipient,
             subject: options.subject,

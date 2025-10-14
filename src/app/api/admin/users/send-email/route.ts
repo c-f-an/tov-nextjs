@@ -77,6 +77,11 @@ export async function POST(request: NextRequest) {
 
       if (success) {
         // Log admin action
+        const ipAddress = request.headers.get('x-forwarded-for') ||
+                         request.headers.get('x-real-ip') ||
+                         'unknown';
+        const userAgent = request.headers.get('user-agent') || 'unknown';
+
         await logAdminAction(
           adminUser.id,
           "SEND_EMAIL",
@@ -89,7 +94,8 @@ export async function POST(request: NextRequest) {
             subject,
             template,
           },
-          request
+          ipAddress,
+          userAgent
         );
 
         return NextResponse.json({
@@ -130,11 +136,16 @@ export async function POST(request: NextRequest) {
 
       if (success) {
         // Log admin action
+        const ipAddress = request.headers.get('x-forwarded-for') ||
+                         request.headers.get('x-real-ip') ||
+                         'unknown';
+        const userAgent = request.headers.get('user-agent') || 'unknown';
+
         await logAdminAction(
           adminUser.id,
           "SEND_BULK_EMAIL",
           "users",
-          null,
+          undefined,
           {
             action: "send_bulk_email",
             userIds,
@@ -142,7 +153,8 @@ export async function POST(request: NextRequest) {
             subject,
             template,
           },
-          request
+          ipAddress,
+          userAgent
         );
 
         return NextResponse.json({
