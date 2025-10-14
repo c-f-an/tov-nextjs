@@ -1,0 +1,225 @@
+import { IResourceRepository, ResourceFilter, PaginationOptions, PaginatedResult } from '@/core/domain/repositories/IResourceRepository';
+import { Resource, ResourceType } from '@/core/domain/entities/Resource';
+import { pool } from '@/infrastructure/database/mysql';
+
+export class MySQLResourceRepository implements IResourceRepository {
+
+  async findAll(filter?: ResourceFilter, pagination?: PaginationOptions): Promise<PaginatedResult<Resource>> {
+    const page = pagination?.page || 1;
+    const limit = pagination?.limit || 10;
+    const offset = (page - 1) * limit;
+    const orderBy = pagination?.orderBy || 'created_at';
+    const orderDirection = pagination?.orderDirection || 'DESC';
+
+    let whereConditions: string[] = [];
+    let params: any[] = [];
+
+    if (filter) {
+      if (filter.categoryId !== undefined) {
+        whereConditions.push('r.category_id = ?');
+        params.push(filter.categoryId);
+      }
+      if (filter.resourceType !== undefined) {
+        whereConditions.push('r.resource_type = ?');
+        params.push(filter.resourceType);
+      }
+      if (filter.isFeatured !== undefined) {
+        whereConditions.push('r.is_featured = ?');
+        params.push(filter.isFeatured ? 1 : 0);
+      }
+      if (filter.isActive !== undefined) {
+        whereConditions.push('r.is_active = ?');
+        params.push(filter.isActive ? 1 : 0);
+      }
+      if (filter.searchTerm) {
+        whereConditions.push('(r.title LIKE ? OR r.description LIKE ?)');
+        params.push(`%${filter.searchTerm}%`, `%${filter.searchTerm}%`);
+      }
+    }
+
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+    // Get total count
+    const [countResult] = await pool.execute(
+      `SELECT COUNT(*) as total FROM resources r ${whereClause}`,
+      params
+    );
+    const total = (countResult as any)[0].total;
+
+    // Get paginated results with category
+    const [rows] = await pool.execute(
+      `SELECT r.*, rc.name as category_name, rc.slug as category_slug
+       FROM resources r
+       LEFT JOIN resource_categories rc ON r.category_id = rc.id
+       ${whereClause}
+       ORDER BY r.${orderBy} ${orderDirection}
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+
+    const items = (rows as any[]).map(row => this.mapRowToEntity(row));
+
+    return {
+      items,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    };
+  }
+
+  async findById(id: number): Promise<Resource | null> {
+    const [rows] = await pool.execute(
+      `SELECT r.*, rc.name as category_name, rc.slug as category_slug
+       FROM resources r
+       LEFT JOIN resource_categories rc ON r.category_id = rc.id
+       WHERE r.id = ?`,
+      [id]
+    );
+    const row = (rows as any[])[0];
+    return row ? this.mapRowToEntity(row) : null;
+  }
+
+  async findByCategoryId(categoryId: number, pagination?: PaginationOptions): Promise<PaginatedResult<Resource>> {
+    return this.findAll({ categoryId, isActive: true }, pagination);
+  }
+
+  async findFeatured(limit: number = 5): Promise<Resource[]> {
+    const [rows] = await pool.execute(
+      `SELECT r.*, rc.name as category_name, rc.slug as category_slug
+       FROM resources r
+       LEFT JOIN resource_categories rc ON r.category_id = rc.id
+       WHERE r.is_featured = 1 AND r.is_active = 1
+       ORDER BY r.published_at DESC
+       LIMIT ?`,
+      [limit]
+    );
+    return (rows as any[]).map(row => this.mapRowToEntity(row));
+  }
+
+  async create(resource: Resource): Promise<Resource> {
+    const [result] = await pool.execute(
+      `INSERT INTO resources
+       (category_id, title, description, resource_type, file_type, file_path, file_size,
+        original_filename, thumbnail_path, external_link, download_count, view_count,
+        is_featured, is_active, published_at, created_by, updated_by, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [
+        resource.categoryId,
+        resource.title,
+        resource.description,
+        resource.resourceType,
+        resource.fileType,
+        resource.filePath,
+        resource.fileSize,
+        resource.originalFilename,
+        resource.thumbnailPath,
+        resource.externalLink,
+        resource.downloadCount,
+        resource.viewCount,
+        resource.isFeatured ? 1 : 0,
+        resource.isActive ? 1 : 0,
+        resource.publishedAt,
+        resource.createdBy,
+        resource.updatedBy
+      ]
+    );
+    const insertId = (result as any).insertId;
+    const created = await this.findById(insertId);
+    if (!created) throw new Error('Failed to create resource');
+    return created;
+  }
+
+  async update(resource: Resource): Promise<Resource> {
+    await pool.execute(
+      `UPDATE resources
+       SET category_id = ?, title = ?, description = ?, resource_type = ?,
+           file_type = ?, file_path = ?, file_size = ?, original_filename = ?,
+           thumbnail_path = ?, external_link = ?, is_featured = ?, is_active = ?,
+           published_at = ?, updated_by = ?, updated_at = NOW()
+       WHERE id = ?`,
+      [
+        resource.categoryId,
+        resource.title,
+        resource.description,
+        resource.resourceType,
+        resource.fileType,
+        resource.filePath,
+        resource.fileSize,
+        resource.originalFilename,
+        resource.thumbnailPath,
+        resource.externalLink,
+        resource.isFeatured ? 1 : 0,
+        resource.isActive ? 1 : 0,
+        resource.publishedAt,
+        resource.updatedBy,
+        resource.id
+      ]
+    );
+    const updated = await this.findById(resource.id);
+    if (!updated) throw new Error('Failed to update resource');
+    return updated;
+  }
+
+  async delete(id: number): Promise<void> {
+    await pool.execute('DELETE FROM resources WHERE id = ?', [id]);
+  }
+
+  async incrementDownloadCount(id: number): Promise<void> {
+    await pool.execute(
+      'UPDATE resources SET download_count = download_count + 1 WHERE id = ?',
+      [id]
+    );
+  }
+
+  async incrementViewCount(id: number): Promise<void> {
+    await pool.execute(
+      'UPDATE resources SET view_count = view_count + 1 WHERE id = ?',
+      [id]
+    );
+  }
+
+  async logDownload(resourceId: number, userId: number | null, ipAddress: string, userAgent: string | null): Promise<void> {
+    await pool.execute(
+      `INSERT INTO resource_download_logs
+       (resource_id, user_id, ip_address, user_agent, downloaded_at)
+       VALUES (?, ?, ?, ?, NOW())`,
+      [resourceId, userId, ipAddress, userAgent]
+    );
+  }
+
+  private mapRowToEntity(row: any): Resource {
+    const resource = new Resource(
+      row.id,
+      row.category_id,
+      row.title,
+      row.description,
+      row.resource_type as ResourceType,
+      row.file_type,
+      row.file_path,
+      row.file_size,
+      row.original_filename,
+      row.thumbnail_path,
+      row.external_link,
+      row.download_count,
+      row.view_count,
+      Boolean(row.is_featured),
+      Boolean(row.is_active),
+      row.published_at ? new Date(row.published_at) : null,
+      row.created_by,
+      row.updated_by,
+      new Date(row.created_at),
+      new Date(row.updated_at)
+    );
+
+    // Add category if available
+    if (row.category_name) {
+      resource.category = {
+        id: row.category_id,
+        name: row.category_name,
+        slug: row.category_slug
+      };
+    }
+
+    return resource;
+  }
+}

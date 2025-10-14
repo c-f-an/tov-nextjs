@@ -3,60 +3,82 @@ import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/ca
 import { FileText, Calculator, Receipt, Scale, Download } from 'lucide-react'
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
 import PageHeader from '@/presentation/components/common/PageHeader'
+import { getContainer } from '@/infrastructure/config/getContainer';
 
-const resourceCategories = [
+const iconMap: { [key: string]: any } = {
+  'Calculator': Calculator,
+  'Receipt': Receipt,
+  'FileText': FileText,
+  'Scale': Scale
+};
+
+const defaultCategories = [
   {
     title: '종교인소득',
     description: '종교인 소득세 관련 자료와 가이드',
     href: '/resources/religious-income',
-    icon: Calculator,
+    icon: 'Calculator',
     items: ['소득세 신고 가이드', '절세 방안', '관련 서식', 'FAQ']
   },
   {
     title: '비영리재정',
     description: '비영리법인 재정 관리 자료',
     href: '/resources/nonprofit-finance',
-    icon: Receipt,
+    icon: 'Receipt',
     items: ['회계 기준', '재무제표 작성', '내부 통제', '감사 대응']
   },
   {
     title: '결산공시',
     description: '교회 결산 및 공시 관련 자료',
     href: '/resources/settlement',
-    icon: FileText,
+    icon: 'FileText',
     items: ['결산 절차', '공시 의무', '보고서 양식', '체크리스트']
   },
   {
     title: '관계법령',
     description: '교회 세무 관련 법령 정보',
     href: '/resources/laws',
-    icon: Scale,
+    icon: 'Scale',
     items: ['종교인과세 특례', '법인세법', '부가가치세법', '최신 개정사항']
   }
-]
+];
 
-const recentResources = [
-  {
-    title: '2024년 종교인 소득세 신고 가이드',
-    date: '2024.01.15',
-    category: '종교인소득',
-    type: 'PDF'
-  },
-  {
-    title: '비영리법인 회계처리 실무 매뉴얼',
-    date: '2024.01.10',
-    category: '비영리재정',
-    type: 'PDF'
-  },
-  {
-    title: '교회 재정 투명성 제고 방안',
-    date: '2024.01.05',
-    category: '결산공시',
-    type: 'PDF'
+export default async function ResourcesPage() {
+  const container = getContainer();
+  const resourceCategoryRepo = container.getResourceCategoryRepository();
+  const resourceRepo = container.getResourceRepository();
+
+  // Get categories from database
+  let categories = [];
+  let featuredResources = [];
+
+  try {
+    categories = await resourceCategoryRepo.findActive();
+    const featuredResult = await resourceRepo.findAll(
+      { isFeatured: true, isActive: true },
+      { page: 1, limit: 5, orderBy: 'published_at', orderDirection: 'DESC' }
+    );
+    featuredResources = featuredResult.items;
+  } catch (error) {
+    console.error('Error fetching data:', error);
   }
-]
 
-export default function ResourcesPage() {
+  // Map categories to display format
+  const resourceCategories = categories.length > 0
+    ? categories.map(cat => ({
+        title: cat.name,
+        description: cat.description || '',
+        href: `/resources/${cat.slug}`,
+        icon: cat.icon || 'FileText',
+        items: ['자료 보기', '다운로드', '최신 업데이트']
+      }))
+    : defaultCategories;
+
+  const formatDate = (date: Date | string | null) => {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleDateString('ko-KR');
+  };
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={[{ label: '자료실' }]} />
@@ -68,7 +90,7 @@ export default function ResourcesPage() {
       {/* 자료 카테고리 */}
       <div className="grid gap-6 md:grid-cols-2 mb-12">
         {resourceCategories.map((category) => {
-          const Icon = category.icon
+          const Icon = iconMap[category.icon] || FileText
           return (
             <Link key={category.href} href={category.href}>
               <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
@@ -103,30 +125,39 @@ export default function ResourcesPage() {
       <div className="bg-gray-50 rounded-lg p-8">
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
           <Download className="h-6 w-6" />
-          최신 자료
+          주요 자료
         </h2>
         <div className="space-y-4">
-          {recentResources.map((resource, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center gap-4">
-                <div className="p-2 bg-gray-100 rounded">
-                  <FileText className="h-5 w-5 text-gray-600" />
+          {featuredResources.length > 0 ? (
+            featuredResources.map((resource) => (
+              <div
+                key={resource.id}
+                className="bg-white rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-gray-100 rounded">
+                    <FileText className="h-5 w-5 text-gray-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{resource.title}</h3>
+                    <p className="text-sm text-gray-600">
+                      {resource.category?.name || ''} • {formatDate(resource.publishedAt)} • {resource.fileType}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold">{resource.title}</h3>
-                  <p className="text-sm text-gray-600">
-                    {resource.category} • {resource.date}
-                  </p>
-                </div>
+                <Link
+                  href={`/api/resources/${resource.id}/download`}
+                  className="px-4 py-2 text-sm bg-primary text-white rounded hover:bg-primary/90 transition-colors"
+                >
+                  다운로드
+                </Link>
               </div>
-              <button className="px-4 py-2 text-sm bg-primary text-white rounded hover:bg-primary/90 transition-colors">
-                다운로드
-              </button>
+            ))
+          ) : (
+            <div className="text-center text-gray-500 py-8">
+              주요 자료가 없습니다.
             </div>
-          ))}
+          )}
         </div>
       </div>
 

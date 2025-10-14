@@ -24,7 +24,8 @@
       "Bash(npm install:*)",
       "Bash(mkdir:*)",
       "Bash(python:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

@@ -16,6 +16,8 @@ import { IMainBannerRepository } from '@/core/domain/repositories/IMainBannerRep
 import { IQuickLinkRepository } from '@/core/domain/repositories/IQuickLinkRepository';
 import { IFinancialReportRepository } from '@/core/domain/repositories/IFinancialReportRepository';
 import { INewsRepository } from '@/core/domain/repositories/INewsRepository';
+import { IResourceRepository } from '@/core/domain/repositories/IResourceRepository';
+import { IResourceCategoryRepository } from '@/core/domain/repositories/IResourceCategoryRepository';
 
 // Services
 import { IAuthService } from '@/core/domain/services/IAuthService';
@@ -61,6 +63,8 @@ import { MySQLMainBannerRepository } from '../repositories/MySQLMainBannerReposi
 import { MySQLQuickLinkRepository } from '../repositories/MySQLQuickLinkRepository';
 import { MySQLFinancialReportRepository } from '../repositories/MySQLFinancialReportRepository';
 import { MySQLNewsRepository } from '../repositories/MySQLNewsRepository';
+import { MySQLResourceRepository } from '../repositories/MySQLResourceRepository';
+import { MySQLResourceCategoryRepository } from '../repositories/MySQLResourceCategoryRepository';
 
 // Services
 import { JwtAuthService } from '../services/JwtAuthService.server';
@@ -86,6 +90,8 @@ export class Container {
   private quickLinkRepository: IQuickLinkRepository;
   private financialReportRepository: IFinancialReportRepository;
   private newsRepository: INewsRepository;
+  private resourceRepository: IResourceRepository;
+  private resourceCategoryRepository: IResourceCategoryRepository;
 
   // Services
   private authService: IAuthService;
@@ -109,6 +115,8 @@ export class Container {
     this.quickLinkRepository = new MySQLQuickLinkRepository();
     this.financialReportRepository = new MySQLFinancialReportRepository();
     this.newsRepository = MySQLNewsRepository.getInstance();
+    this.resourceRepository = new MySQLResourceRepository();
+    this.resourceCategoryRepository = new MySQLResourceCategoryRepository();
 
     // Initialize services
     this.authService = new JwtAuthService(
@@ -189,6 +197,14 @@ export class Container {
 
   getNewsRepository(): INewsRepository {
     return this.newsRepository;
+  }
+
+  getResourceRepository(): IResourceRepository {
+    return this.resourceRepository;
+  }
+
+  getResourceCategoryRepository(): IResourceCategoryRepository {
+    return this.resourceCategoryRepository;
   }
 
   // Service getters
