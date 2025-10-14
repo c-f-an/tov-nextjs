@@ -216,6 +216,12 @@ jobs:
           # Next.js Configuration
           NEXT_PUBLIC_S3_BUCKET_URL=${{ vars.NEXT_PUBLIC_S3_BUCKET_URL }}
 
+          # Gmail 설정
+          EMAIL_SERVICE=${{ vars.EMAIL_SERVICE }}
+          EMAIL_USER=${{ vars.EMAIL_USER }}
+          EMAIL_PASS=${{ vars.EMAIL_PASS }}
+          EMAIL_FROM=${{ vars.EMAIL_FROM }}
+
           ENVFILE
 
           # Install build dependencies for native modules
