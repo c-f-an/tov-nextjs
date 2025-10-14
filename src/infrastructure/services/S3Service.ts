@@ -13,7 +13,7 @@ export class S3Service {
   private bucketName: string;
   private basePath: string;
 
-  constructor() {
+  constructor(basePath: string = 'data-archive') {
     // Initialize S3 client with credentials from environment variables
     this.s3Client = new S3Client({
       region: process.env.AWS_REGION || 'ap-northeast-2',
@@ -24,7 +24,7 @@ export class S3Service {
     });
 
     this.bucketName = process.env.AWS_S3_BUCKET || 'tov-homepage-resource-production';
-    this.basePath = 'data-archive';
+    this.basePath = basePath;
   }
 
   /**
@@ -77,6 +77,27 @@ export class S3Service {
       const command = new GetObjectCommand({
         Bucket: this.bucketName,
         Key: key.startsWith(this.basePath) ? key : `${this.basePath}/${key}`
+      });
+
+      const url = await getSignedUrl(this.s3Client, command, { expiresIn });
+      return url;
+    } catch (error) {
+      console.error('S3 presigned URL error:', error);
+      throw new Error(`Failed to generate presigned URL: ${error}`);
+    }
+  }
+
+  /**
+   * Generate presigned URL for download (using absolute key without basePath)
+   */
+  async getPresignedDownloadUrlAbsolute(
+    key: string,
+    expiresIn: number = 3600 // 1 hour default
+  ): Promise<string> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: key // Use key as-is without basePath
       });
 
       const url = await getSignedUrl(this.s3Client, command, { expiresIn });
@@ -236,5 +257,28 @@ export class S3Service {
       : `${timestamp}_${randomString}_${safeName}`;
 
     return key;
+  }
+
+  /**
+   * Upload image file with resizing (for thumbnails)
+   */
+  async uploadImage(
+    key: string,
+    body: Buffer,
+    contentType: string = 'image/jpeg',
+    metadata?: Record<string, string>
+  ): Promise<{
+    key: string;
+    url: string;
+    etag?: string;
+  }> {
+    return this.uploadFile(key, body, contentType, metadata);
+  }
+
+  /**
+   * Get base path for the S3 service instance
+   */
+  getBasePath(): string {
+    return this.basePath;
   }
 }

@@ -42,13 +42,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Initialize S3 service
-    const s3Service = new S3Service();
+    // Initialize S3 service with 'data-archive' base path
+    const s3Service = new S3Service('data-archive');
 
-    // Generate unique key for S3
+    // Generate unique key for S3 (year/month subdirectory for organization)
     const year = new Date().getFullYear();
     const month = String(new Date().getMonth() + 1).padStart(2, '0');
-    const directory = `resources/${year}/${month}`;
+    const directory = `${year}/${month}`;
     const fileKey = s3Service.generateFileKey(file.name, directory);
 
     // Convert file to buffer

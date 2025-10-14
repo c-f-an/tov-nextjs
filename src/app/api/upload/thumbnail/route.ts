@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
-import { uploadToS3 } from '@/infrastructure/storage/s3';
+import { S3Service } from '@/infrastructure/services/S3Service';
 
 // 썸네일 설정
 const THUMBNAIL_CONFIG = {
@@ -83,25 +83,40 @@ export async function POST(request: NextRequest) {
       resizedBuffer = buffer;
     }
 
-    // 파일명 생성 및 S3 키 생성 (.jpg 확장자로 통일)
+    // Initialize S3 service with 'posts' base path for post thumbnails
+    const s3Service = new S3Service('posts');
+
+    // 파일명 생성 (.jpg 확장자로 통일)
     // 형식: posts-thumbnail_categoryId_postId_timestamp.jpg
     const timestamp = Date.now();
     const fileName = `posts-thumbnail_${categoryId}_${postId}_${timestamp}.jpg`;
-    const key = `${folder}/${fileName}`;
+
+    // S3 키 생성 (folder는 이미 'posts/thumbnails' 형태)
+    // basePath가 'posts'이므로 최종 경로: posts/thumbnails/파일명
+    const subDirectory = folder.replace(/^posts\/?/, ''); // 'posts/' 접두사 제거
+    const fileKey = subDirectory ? `${subDirectory}/${fileName}` : fileName;
 
     // S3 업로드
-    const result = await uploadToS3(key, resizedBuffer, 'image/jpeg');
-
-    // 기본 S3 URL 생성 (presigned URL이 아닌 짧은 URL)
-    const baseUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    const uploadResult = await s3Service.uploadImage(
+      fileKey,
+      resizedBuffer,
+      'image/jpeg',
+      {
+        originalName: file.name,
+        uploadedAt: new Date().toISOString(),
+        postId,
+        categoryId
+      }
+    );
 
     return NextResponse.json({
-      url: baseUrl,  // presigned URL 대신 기본 URL 반환
-      key: result.key,
+      url: uploadResult.url,
+      key: uploadResult.key,
       fileName: file.name,
       originalSize: file.size,
       resizedSize: resizedBuffer.length,
-      reduction: `${(100 - (resizedBuffer.length / file.size * 100)).toFixed(1)}%`
+      reduction: `${(100 - (resizedBuffer.length / file.size * 100)).toFixed(1)}%`,
+      etag: uploadResult.etag
     }, { status: 201 });
   } catch (error) {
     console.error('Error uploading thumbnail:', error);
