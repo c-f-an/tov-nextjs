@@ -25,7 +25,8 @@
       "Bash(mkdir:*)",
       "Bash(python:*)",
       "Bash(dir:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(cmd.exe //c \"taskkill /IM node.exe /F\")"
     ],
     "deny": [],
     "ask": []

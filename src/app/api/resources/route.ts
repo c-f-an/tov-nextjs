@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getContainer } from '@/infrastructure/config/getContainer';
+import { verifyAdminRequest } from '@/lib/auth-admin';
 
 // GET /api/resources - Get all resources with pagination
 export async function GET(request: NextRequest) {
   try {
+    console.log('Resources API: Starting request');
     const container = getContainer();
     const resourceRepository = container.getResourceRepository();
+    console.log('Resources API: Got repository');
+
+    // Check if user is admin
+    const adminUser = await verifyAdminRequest(request);
+    const isAdmin = !!adminUser;
+    console.log('Resources API: Admin check:', isAdmin);
 
     const searchParams = request.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');
@@ -19,9 +27,13 @@ export async function GET(request: NextRequest) {
       ...(categoryId && { categoryId: parseInt(categoryId) }),
       ...(resourceType && { resourceType }),
       ...(isFeatured !== null && { isFeatured: isFeatured === 'true' }),
-      isActive: true,
+      // Only apply isActive filter for non-admin users
+      ...(!isAdmin && { isActive: true }),
       ...(searchTerm && { searchTerm })
     };
+
+    console.log('Resources API: Filter:', filter);
+    console.log('Resources API: Pagination:', { page, limit });
 
     const result = await resourceRepository.findAll(filter, {
       page,
@@ -30,9 +42,11 @@ export async function GET(request: NextRequest) {
       orderDirection: 'DESC'
     });
 
+    console.log('Resources API: Result count:', result.items?.length || 0);
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Error fetching resources:', error);
+    console.error('Error fetching resources - Full error:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
     return NextResponse.json(
       { error: 'Failed to fetch resources' },
       { status: 500 }

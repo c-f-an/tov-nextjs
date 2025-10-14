@@ -1,78 +1,80 @@
 import Link from 'next/link'
-import { FileText, Download, BookOpen, Calculator, ArrowLeft, AlertCircle } from 'lucide-react'
+import { FileText, Download, BookOpen, Calculator, ArrowLeft } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
 import PageHeader from "@/presentation/components/common/PageHeader"
+import { getContainer } from '@/infrastructure/config/getContainer';
 
-const resources = [
-  {
-    category: '회계 기준',
-    icon: Calculator,
-    items: [
-      { title: '비영리법인 회계기준 실무 적용 가이드', type: 'PDF', size: '3.2MB', updated: '2024.01.20' },
-      { title: '종교법인 특례 회계처리 기준', type: 'PDF', size: '2.1MB', updated: '2024.01.15' },
-      { title: '복식부기 전환 실무 매뉴얼', type: 'PDF', size: '4.5MB', updated: '2023.12.10' }
-    ]
-  },
-  {
-    category: '재무제표 작성',
-    icon: FileText,
-    items: [
-      { title: '재무상태표 작성 실무 (엑셀 양식 포함)', type: 'XLSX', size: '856KB', updated: '2024.01.10' },
-      { title: '운영성과표 작성 가이드', type: 'PDF', size: '1.8MB', updated: '2024.01.05' },
-      { title: '주석 작성 예시 및 체크리스트', type: 'DOC', size: '620KB', updated: '2023.12.20' }
-    ]
-  },
-  {
-    category: '내부 통제',
-    icon: BookOpen,
-    items: [
-      { title: '교회 재정 내부통제 시스템 구축 가이드', type: 'PDF', size: '2.8MB', updated: '2023.11.25' },
-      { title: '재무 감사 대응 체크리스트', type: 'PDF', size: '980KB', updated: '2023.11.15' },
-      { title: '횡령 예방을 위한 실무 지침', type: 'PDF', size: '1.5MB', updated: '2023.10.30' }
-    ]
+const resourceTypeGroups = {
+  'guide': { title: '회계 가이드', icon: FileText },
+  'form': { title: '재무 서식', icon: Calculator },
+  'education': { title: '교육 자료', icon: BookOpen },
+  'law': { title: '관련 법규', icon: FileText },
+  'etc': { title: '기타 자료', icon: FileText }
+};
+
+export default async function NonprofitFinancePage() {
+  const container = getContainer();
+  const categoryRepo = container.getResourceCategoryRepository();
+  const resourceRepo = container.getResourceRepository();
+
+  // Get category by slug
+  let category = null;
+  let resources = [];
+
+  try {
+    category = await categoryRepo.findBySlug('nonprofit-finance');
+
+    if (category) {
+      const result = await resourceRepo.findAll(
+        { categoryId: category.id, isActive: true },
+        { page: 1, limit: 100, orderBy: 'resource_type,published_at', orderDirection: 'DESC' }
+      );
+      resources = result.items;
+    }
+  } catch (error) {
+    console.error('Error fetching resources:', error);
   }
-]
 
-const bestPractices = [
-  {
-    title: '투명한 재정 운영',
-    items: [
-      '정기적인 재정 보고',
-      '외부 감사 실시',
-      '재정 위원회 운영'
-    ]
-  },
-  {
-    title: '체계적인 회계 관리',
-    items: [
-      '복식부기 도입',
-      '전산화 시스템 구축',
-      '정기 결산 실시'
-    ]
-  },
-  {
-    title: '법적 의무 준수',
-    items: [
-      '세무 신고 기한 준수',
-      '공시 의무 이행',
-      '관련 서류 보관'
-    ]
-  }
-]
+  // Group resources by type
+  const groupedResources = resources.reduce((acc: any, resource: any) => {
+    const type = resource.resourceType;
+    if (!acc[type]) {
+      acc[type] = [];
+    }
+    acc[type].push(resource);
+    return acc;
+  }, {});
 
-export default function NonprofitFinancePage() {
+  const formatFileSize = (bytes: number | null) => {
+    if (!bytes) return 'N/A';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let size = bytes;
+    let unitIndex = 0;
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+    return `${size.toFixed(1)} ${units[unitIndex]}`;
+  };
+
+  const formatDate = (date: Date | string | null) => {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleDateString('ko-KR').replace(/\. /g, '.').replace(/\.$/, '');
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <Breadcrumb 
+      <Breadcrumb
         items={[
           { label: "자료실", href: "/resources" },
           { label: "비영리재정" }
         ]}
       />
       {/* 뒤로가기 */}
-      <Link 
-        href="/resources" 
+      <Link
+        href="/resources"
         className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -81,113 +83,124 @@ export default function NonprofitFinancePage() {
 
       <PageHeader
         title="비영리재정 자료실"
-        description="비영리법인의 투명하고 체계적인 재정 관리를 위한 실무 자료를 제공합니다."
+        description="비영리법인의 투명한 재정 운영을 위한 회계 기준, 재무제표 작성법, 관련 서식을 제공합니다."
       />
-
-      {/* 중요 공지 */}
-      <div className="mb-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
-          <div>
-            <h3 className="font-semibold mb-1">2024년 회계기준 개정사항</h3>
-            <p className="text-sm text-gray-700">
-              2024년부터 적용되는 비영리법인 회계기준 주요 개정사항을 반영한 자료로 업데이트되었습니다.
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* 자료 목록 */}
       <div className="space-y-8 mb-12">
-        {resources.map((category) => {
-          const Icon = category.icon
+        {Object.entries(resourceTypeGroups).map(([type, config]) => {
+          const Icon = config.icon;
+          const typeResources = groupedResources[type] || [];
+
+          if (typeResources.length === 0) return null;
+
           return (
-            <Card key={category.category}>
+            <Card key={type}>
               <CardHeader className="bg-gray-50">
                 <CardTitle className="flex items-center gap-2">
                   <Icon className="h-5 w-5" />
-                  {category.category}
+                  {config.title}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-3">
-                  {category.items.map((item, index) => (
+                  {typeResources.map((resource: any) => (
                     <div
-                      key={index}
+                      key={resource.id}
                       className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <FileText className="h-5 w-5 text-gray-400" />
                         <div>
-                          <h4 className="font-medium">{item.title}</h4>
+                          <h4 className="font-medium">{resource.title}</h4>
                           <p className="text-sm text-gray-600">
-                            {item.type} • {item.size} • 업데이트: {item.updated}
+                            {resource.fileType} • {formatFileSize(resource.fileSize)} • 업데이트: {formatDate(resource.publishedAt)}
                           </p>
+                          {resource.description && (
+                            <p className="text-sm text-gray-500 mt-1">{resource.description}</p>
+                          )}
                         </div>
                       </div>
-                      <button className="flex items-center gap-1 px-3 py-1 text-sm bg-primary text-white rounded hover:bg-primary/90 transition-colors">
+                      <Link
+                        href={`/api/resources/${resource.id}/download`}
+                        className="flex items-center gap-1 px-3 py-1 text-sm bg-primary text-white rounded hover:bg-primary/90 transition-colors"
+                      >
                         <Download className="h-4 w-4" />
                         다운로드
-                      </button>
+                      </Link>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          )
+          );
         })}
+
+        {resources.length === 0 && (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-gray-500">등록된 자료가 없습니다.</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
-      {/* 우수 사례 */}
-      <div className="bg-blue-50 rounded-lg p-8 mb-8">
-        <h2 className="text-2xl font-bold mb-6">비영리재정 관리 우수 사례</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          {bestPractices.map((practice, index) => (
-            <div key={index} className="bg-white rounded-lg p-6">
-              <h3 className="font-semibold mb-3">{practice.title}</h3>
-              <ul className="space-y-2">
-                {practice.items.map((item, itemIndex) => (
-                  <li key={itemIndex} className="flex items-start gap-2 text-gray-700">
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5"></span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+      {/* 주요 안내사항 */}
+      <div className="bg-blue-50 rounded-lg p-8">
+        <h2 className="text-2xl font-bold mb-6">비영리법인 회계 핵심 사항</h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-lg p-6">
+            <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <span className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm">1</span>
+              복식부기 원칙
+            </h3>
+            <p className="text-gray-700 text-sm">
+              모든 거래를 차변과 대변으로 기록하여 재무상태와 운영성과를 정확히 파악해야 합니다.
+            </p>
+          </div>
+          <div className="bg-white rounded-lg p-6">
+            <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <span className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm">2</span>
+              발생주의 회계
+            </h3>
+            <p className="text-gray-700 text-sm">
+              현금 수수와 관계없이 거래 발생 시점을 기준으로 수익과 비용을 인식합니다.
+            </p>
+          </div>
+          <div className="bg-white rounded-lg p-6">
+            <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <span className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm">3</span>
+              재무제표 공시
+            </h3>
+            <p className="text-gray-700 text-sm">
+              재무상태표, 운영성과표, 현금흐름표를 작성하여 투명하게 공개해야 합니다.
+            </p>
+          </div>
+          <div className="bg-white rounded-lg p-6">
+            <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <span className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm">4</span>
+              내부 통제
+            </h3>
+            <p className="text-gray-700 text-sm">
+              회계 부정과 오류를 방지하기 위한 내부 통제 시스템을 구축해야 합니다.
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* 교육 프로그램 안내 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>관련 교육 프로그램</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="border-l-4 border-primary pl-4">
-              <h4 className="font-semibold">비영리법인 회계실무 기초과정</h4>
-              <p className="text-sm text-gray-600 mt-1">
-                매월 둘째 주 토요일 • 오전 9시-12시 • 온라인/오프라인 동시 진행
-              </p>
-            </div>
-            <div className="border-l-4 border-primary pl-4">
-              <h4 className="font-semibold">재무제표 작성 실무 워크샵</h4>
-              <p className="text-sm text-gray-600 mt-1">
-                분기별 1회 • 오후 2시-5시 • 실습 위주 진행
-              </p>
-            </div>
-          </div>
-          <div className="mt-6">
-            <Link 
-              href="/education" 
-              className="text-primary hover:text-primary/80 font-medium"
-            >
-              교육 프로그램 자세히 보기 →
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      {/* 추가 안내 */}
+      <div className="mt-8 bg-gray-100 rounded-lg p-6">
+        <h3 className="font-bold mb-2">전문가 상담이 필요하신가요?</h3>
+        <p className="text-gray-700 mb-4">
+          비영리법인 회계 및 재정 관리에 대한 맞춤형 컨설팅을 제공합니다.
+        </p>
+        <Link
+          href="/consultation"
+          className="inline-block px-6 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-colors"
+        >
+          상담 신청하기
+        </Link>
+      </div>
     </div>
   )
 }

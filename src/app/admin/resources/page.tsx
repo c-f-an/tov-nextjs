@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdminLayout } from '@/presentation/components/admin/AdminLayout';
 import { useAuth } from '@/presentation/contexts/AuthContext';
@@ -37,7 +37,7 @@ interface ResourceCategory {
 
 export default function AdminResourcesPage() {
   const router = useRouter();
-  const { user, accessToken } = useAuth();
+  const { user, accessToken, loading: authLoading } = useAuth();
   const [resources, setResources] = useState<Resource[]>([]);
   const [categories, setCategories] = useState<ResourceCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,16 +46,7 @@ export default function AdminResourcesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    if (!user || user.role !== 'ADMIN') {
-      router.push('/login?redirect=/admin/resources');
-      return;
-    }
-    fetchCategories();
-    fetchResources();
-  }, [user, page, selectedCategory]);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await fetch('/api/resources/categories');
       if (response.ok) {
@@ -65,9 +56,11 @@ export default function AdminResourcesPage() {
     } catch (error) {
       console.error('Failed to fetch categories:', error);
     }
-  };
+  }, []);
 
-  const fetchResources = async () => {
+  const fetchResources = useCallback(async () => {
+    if (!accessToken) return;
+
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -77,18 +70,51 @@ export default function AdminResourcesPage() {
         ...(searchTerm && { search: searchTerm })
       });
 
-      const response = await fetch(`/api/resources?${params}`);
+      const response = await fetch(`/api/resources?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
       if (response.ok) {
         const data = await response.json();
-        setResources(data.items);
-        setTotalPages(data.totalPages);
+        console.log('Fetched resources:', data); // Debug log
+        setResources(data.items || []);
+        setTotalPages(data.totalPages || 1);
+      } else {
+        console.error('Failed to fetch resources, status:', response.status);
+        const errorData = await response.text();
+        console.error('Error response:', errorData);
       }
     } catch (error) {
       console.error('Failed to fetch resources:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [accessToken, page, selectedCategory, searchTerm]);
+
+  // 인증 확인 및 초기 로드
+  useEffect(() => {
+    // 인증 로딩 중이면 대기
+    if (authLoading) {
+      return;
+    }
+
+    // 인증 로딩이 완료되었고, user가 없거나 ADMIN이 아니면 리다이렉트
+    if (!user || user.role !== 'ADMIN') {
+      router.push('/login?redirect=/admin/resources');
+      return;
+    }
+
+    // ADMIN 권한이 확인되면 카테고리만 로드 (최초 1회)
+    fetchCategories();
+  }, [user, authLoading, router, fetchCategories]);
+
+  // 리소스 데이터 로드 (페이지, 카테고리, 검색어 변경 시)
+  useEffect(() => {
+    if (!authLoading && user && user.role === 'ADMIN') {
+      fetchResources();
+    }
+  }, [authLoading, user, fetchResources]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,6 +168,21 @@ export default function AdminResourcesPage() {
     return types[type] || type;
   };
 
+  // 인증 로딩 중일 때 로딩 표시
+  if (authLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">인증 확인 중...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // 인증 완료 후 권한 체크
   if (!user || user.role !== 'ADMIN') {
     return null;
   }

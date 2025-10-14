@@ -8,8 +8,14 @@ export class MySQLResourceRepository implements IResourceRepository {
     const page = pagination?.page || 1;
     const limit = pagination?.limit || 10;
     const offset = (page - 1) * limit;
-    const orderBy = pagination?.orderBy || 'created_at';
-    const orderDirection = pagination?.orderDirection || 'DESC';
+
+    // Whitelist allowed orderBy columns to prevent SQL injection
+    const allowedOrderColumns = ['created_at', 'updated_at', 'published_at', 'title', 'download_count', 'view_count'];
+    const orderBy = pagination?.orderBy && allowedOrderColumns.includes(pagination.orderBy)
+      ? pagination.orderBy
+      : 'published_at';
+
+    const orderDirection = pagination?.orderDirection === 'ASC' ? 'ASC' : 'DESC';
 
     let whereConditions: string[] = [];
     let params: any[] = [];
@@ -40,22 +46,43 @@ export class MySQLResourceRepository implements IResourceRepository {
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
     // Get total count
-    const [countResult] = await pool.execute(
-      `SELECT COUNT(*) as total FROM resources r ${whereClause}`,
-      params
-    );
+    const countQuery = `SELECT COUNT(*) as total FROM resources r ${whereClause}`;
+    const [countResult] = params.length > 0
+      ? await pool.execute(countQuery, params)
+      : await pool.query(countQuery);
     const total = (countResult as any)[0].total;
 
     // Get paginated results with category
-    const [rows] = await pool.execute(
-      `SELECT r.*, rc.name as category_name, rc.slug as category_slug
+    // Build order clause safely
+    const orderClause = `ORDER BY r.${orderBy} ${orderDirection}`;
+
+    // Build the main query with placeholders or direct values
+    let mainQuery: string;
+    let queryParams: any[];
+
+    if (whereConditions.length > 0) {
+      // When we have WHERE conditions, use placeholders for everything
+      mainQuery = `SELECT r.*, rc.name as category_name, rc.slug as category_slug
        FROM resources r
        LEFT JOIN resource_categories rc ON r.category_id = rc.id
        ${whereClause}
-       ORDER BY r.${orderBy} ${orderDirection}
-       LIMIT ? OFFSET ?`,
-      [...params, limit, offset]
-    );
+       ${orderClause}
+       LIMIT ? OFFSET ?`;
+      queryParams = [...params, limit, offset];
+    } else {
+      // When no WHERE conditions, use direct values for LIMIT and OFFSET
+      mainQuery = `SELECT r.*, rc.name as category_name, rc.slug as category_slug
+       FROM resources r
+       LEFT JOIN resource_categories rc ON r.category_id = rc.id
+       ${orderClause}
+       LIMIT ${limit} OFFSET ${offset}`;
+      queryParams = [];
+    }
+
+    // Execute query
+    const [rows] = queryParams.length > 0
+      ? await pool.execute(mainQuery, queryParams)
+      : await pool.query(mainQuery);
 
     const items = (rows as any[]).map(row => this.mapRowToEntity(row));
 
@@ -88,10 +115,10 @@ export class MySQLResourceRepository implements IResourceRepository {
       `SELECT r.*, rc.name as category_name, rc.slug as category_slug
        FROM resources r
        LEFT JOIN resource_categories rc ON r.category_id = rc.id
-       WHERE r.is_featured = 1 AND r.is_active = 1
+       WHERE r.is_featured = ? AND r.is_active = ?
        ORDER BY r.published_at DESC
        LIMIT ?`,
-      [limit]
+      [1, 1, limit]
     );
     return (rows as any[]).map(row => this.mapRowToEntity(row));
   }
