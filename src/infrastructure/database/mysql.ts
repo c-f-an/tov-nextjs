@@ -11,7 +11,7 @@ const T2_MICRO_OPTIMIZED_CONFIG = {
 
   // Timeouts optimized for bot crawlers (Naver requires < 10s response)
   connectTimeout: 60000, // 60s connection timeout
-  acquireTimeout: 60000, // 60s pool acquire timeout
+  // Note: acquireTimeout is not a valid mysql2 option, removed
 
   // Keep-alive for persistent connections
   enableKeepAlive: true,

@@ -4,10 +4,11 @@ import { getContainer } from '@/infrastructure/config/getContainer';
 // GET /api/resources/[id] - Get single resource
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resourceId = parseInt(params.id);
+    const { id } = await params;
+    const resourceId = parseInt(id);
 
     if (isNaN(resourceId)) {
       return NextResponse.json(
@@ -44,11 +45,12 @@ export async function GET(
 // PUT /api/resources/[id] - Update resource (Admin only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // TODO: Add authentication check
-    const resourceId = parseInt(params.id);
+    const { id } = await params;
+    const resourceId = parseInt(id);
 
     if (isNaN(resourceId)) {
       return NextResponse.json(
@@ -102,11 +104,12 @@ export async function PUT(
 // DELETE /api/resources/[id] - Delete resource (Admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // TODO: Add authentication check
-    const resourceId = parseInt(params.id);
+    const { id } = await params;
+    const resourceId = parseInt(id);
 
     if (isNaN(resourceId)) {
       return NextResponse.json(
