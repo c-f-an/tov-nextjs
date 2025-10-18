@@ -26,7 +26,10 @@
       "Bash(python:*)",
       "Bash(dir:*)",
       "Bash(find:*)",
-      "Bash(cmd.exe //c \"taskkill /IM node.exe /F\")"
+      "Bash(cmd.exe //c \"taskkill /IM node.exe /F\")",
+      "Bash(echo $env:DATABASE_URL)",
+      "Bash(Get-Process -Name node -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object Id, ProcessName)"
     ],
     "deny": [],
     "ask": []

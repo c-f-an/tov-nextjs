@@ -8,7 +8,8 @@ import { getContainer } from '@/infrastructure/config/getContainer';
 const resourceTypeGroups = {
   'guide': { title: '신고 가이드', icon: FileText },
   'form': { title: '신고 서식', icon: BookOpen },
-  'education': { title: '교육 자료', icon: BookOpen }
+  'education': { title: '교육 자료', icon: BookOpen },
+  'etc': { title: '기타 자료', icon: FileText }
 };
 
 // Force dynamic rendering to ensure DB queries run at runtime
@@ -42,6 +43,7 @@ export default async function ReligiousIncomePage() {
   if (process.env.SKIP_DB_QUERIES !== "true") {
     try {
       category = await categoryRepo.findBySlug('religious-income');
+      console.log('Category found:', category);
 
       if (category) {
         const result = await resourceRepo.findAll(
@@ -49,10 +51,15 @@ export default async function ReligiousIncomePage() {
           { page: 1, limit: 100, orderBy: 'resource_type,published_at', orderDirection: 'DESC' }
         );
         resources = result.items;
+        console.log('Resources found:', resources.length, resources);
+      } else {
+        console.log('Category not found for slug: religious-income');
       }
     } catch (error) {
       console.error('Error fetching resources:', error);
     }
+  } else {
+    console.log('Skipping DB queries during build');
   }
 
   // Group resources by type
@@ -107,60 +114,68 @@ export default async function ReligiousIncomePage() {
 
       {/* 자료 목록 */}
       <div className="space-y-8 mb-12">
-        {Object.entries(resourceTypeGroups).map(([type, config]) => {
-          const Icon = config.icon;
-          const typeResources = groupedResources[type] || [];
-
-          if (typeResources.length === 0) return null;
-
-          return (
-            <Card key={type}>
-              <CardHeader className="bg-gray-50">
-                <CardTitle className="flex items-center gap-2">
-                  <Icon className="h-5 w-5" />
-                  {config.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-3">
-                  {typeResources.map((resource: any) => (
-                    <div
-                      key={resource.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <FileText className="h-5 w-5 text-gray-400" />
-                        <div>
-                          <h4 className="font-medium">{resource.title}</h4>
-                          <p className="text-sm text-gray-600">
-                            {resource.fileType} • {formatFileSize(resource.fileSize)} • 업데이트: {formatDate(resource.publishedAt)}
-                          </p>
-                          {resource.description && (
-                            <p className="text-sm text-gray-500 mt-1">{resource.description}</p>
-                          )}
-                        </div>
-                      </div>
-                      <Link
-                        href={`/api/resources/${resource.id}/download`}
-                        className="flex items-center gap-1 px-3 py-1 text-sm bg-primary text-white rounded hover:bg-primary/90 transition-colors"
-                      >
-                        <Download className="h-4 w-4" />
-                        다운로드
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-
-        {resources.length === 0 && (
+        {resources.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <p className="text-gray-500">등록된 자료가 없습니다.</p>
             </CardContent>
           </Card>
+        ) : (
+          Object.entries(resourceTypeGroups).map(([type, config]) => {
+            const Icon = config.icon;
+            const typeResources = groupedResources[type] || [];
+
+            if (typeResources.length === 0) return null;
+
+            return (
+              <div key={type}>
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Icon className="h-6 w-6 text-primary" />
+                  {config.title}
+                </h2>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {typeResources.map((resource: any) => (
+                    <Card key={resource.id} className="hover:shadow-lg transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-start gap-3 mb-3">
+                              <FileText className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                              <div className="flex-1">
+                                <h3 className="font-bold text-lg mb-2">{resource.title}</h3>
+                                {resource.description && (
+                                  <p className="text-sm text-gray-600 mb-3">{resource.description}</p>
+                                )}
+                                <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+                                  <span className="bg-gray-100 px-2 py-1 rounded">{resource.fileType}</span>
+                                  <span className="bg-gray-100 px-2 py-1 rounded">{formatFileSize(resource.fileSize)}</span>
+                                  <span className="bg-gray-100 px-2 py-1 rounded">업데이트: {formatDate(resource.publishedAt)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {resource.filePath || resource.externalLink ? (
+                          <Link
+                            href={`/api/resources/${resource.id}/download`}
+                            className="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                          >
+                            <Download className="h-4 w-4" />
+                            다운로드
+                          </Link>
+                        ) : (
+                          <div className="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2 text-sm bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed">
+                            <FileText className="h-4 w-4" />
+                            파일 준비중
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
 

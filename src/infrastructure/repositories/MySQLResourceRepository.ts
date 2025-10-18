@@ -5,15 +5,24 @@ import { pool } from '@/infrastructure/database/mysql';
 export class MySQLResourceRepository implements IResourceRepository {
 
   async findAll(filter?: ResourceFilter, pagination?: PaginationOptions): Promise<PaginatedResult<Resource>> {
-    const page = pagination?.page || 1;
-    const limit = pagination?.limit || 10;
+    const page = Number(pagination?.page || 1);
+    const limit = Number(pagination?.limit || 10);
     const offset = (page - 1) * limit;
 
     // Whitelist allowed orderBy columns to prevent SQL injection
-    const allowedOrderColumns = ['created_at', 'updated_at', 'published_at', 'title', 'download_count', 'view_count'];
-    const orderBy = pagination?.orderBy && allowedOrderColumns.includes(pagination.orderBy)
-      ? pagination.orderBy
-      : 'published_at';
+    const allowedOrderColumns = ['created_at', 'updated_at', 'published_at', 'title', 'download_count', 'view_count', 'resource_type'];
+
+    // Handle multiple column ordering (e.g., "resource_type,published_at")
+    let orderClauseColumns: string[] = [];
+    if (pagination?.orderBy) {
+      const orderColumns = pagination.orderBy.split(',').map(col => col.trim());
+      orderClauseColumns = orderColumns.filter(col => allowedOrderColumns.includes(col));
+    }
+
+    // Use provided columns or default to published_at
+    const orderBy = orderClauseColumns.length > 0
+      ? orderClauseColumns.map(col => `r.${col}`).join(', ')
+      : 'r.published_at';
 
     const orderDirection = pagination?.orderDirection === 'ASC' ? 'ASC' : 'DESC';
 
@@ -31,11 +40,11 @@ export class MySQLResourceRepository implements IResourceRepository {
       }
       if (filter.isFeatured !== undefined) {
         whereConditions.push('r.is_featured = ?');
-        params.push(filter.isFeatured ? 1 : 0);
+        params.push(Number(filter.isFeatured));
       }
       if (filter.isActive !== undefined) {
         whereConditions.push('r.is_active = ?');
-        params.push(filter.isActive ? 1 : 0);
+        params.push(Number(filter.isActive));
       }
       if (filter.searchTerm) {
         whereConditions.push('(r.title LIKE ? OR r.description LIKE ?)');
@@ -53,35 +62,24 @@ export class MySQLResourceRepository implements IResourceRepository {
     const total = (countResult as any)[0].total;
 
     // Get paginated results with category
-    // Build order clause safely
-    const orderClause = `ORDER BY r.${orderBy} ${orderDirection}`;
+    // Build order clause safely (orderBy already includes 'r.' prefix)
+    const orderClause = `ORDER BY ${orderBy} ${orderDirection}`;
 
     // Build the main query with placeholders or direct values
     let mainQuery: string;
     let queryParams: any[];
 
-    if (whereConditions.length > 0) {
-      // When we have WHERE conditions, use placeholders for everything
-      mainQuery = `SELECT r.*, rc.name as category_name, rc.slug as category_slug
-       FROM resources r
-       LEFT JOIN resource_categories rc ON r.category_id = rc.id
-       ${whereClause}
-       ${orderClause}
-       LIMIT ? OFFSET ?`;
-      queryParams = [...params, limit, offset];
-    } else {
-      // When no WHERE conditions, use direct values for LIMIT and OFFSET
-      mainQuery = `SELECT r.*, rc.name as category_name, rc.slug as category_slug
-       FROM resources r
-       LEFT JOIN resource_categories rc ON r.category_id = rc.id
-       ${orderClause}
-       LIMIT ${limit} OFFSET ${offset}`;
-      queryParams = [];
-    }
+    // Build query with direct LIMIT/OFFSET values to avoid mysql2 parameter issues
+    mainQuery = `SELECT r.*, rc.name as category_name, rc.slug as category_slug
+     FROM resources r
+     LEFT JOIN resource_categories rc ON r.category_id = rc.id
+     ${whereClause}
+     ${orderClause}
+     LIMIT ${limit} OFFSET ${offset}`;
 
-    // Execute query
-    const [rows] = queryParams.length > 0
-      ? await pool.execute(mainQuery, queryParams)
+    // Execute query with params only for WHERE conditions
+    const [rows] = params.length > 0
+      ? await pool.execute(mainQuery, params)
       : await pool.query(mainQuery);
 
     const items = (rows as any[]).map(row => this.mapRowToEntity(row));

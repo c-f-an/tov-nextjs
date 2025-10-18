@@ -93,21 +93,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }))
 
-    // 상담 사례 가져오기 (공개된 것만)
-    const consultations = await query<{id: number, updated_at: Date}[]>(`
-      SELECT id, updated_at
-      FROM consultations
-      WHERE status = 'completed' AND is_public = 1
-      ORDER BY updated_at DESC
-      LIMIT 500
-    `)
-
-    const consultationUrls: MetadataRoute.Sitemap = consultations.map((consultation) => ({
-      url: `${baseUrl}/consultation/${consultation.id}`,
-      lastModified: new Date(consultation.updated_at),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    }))
+    // 상담 사례는 비공개로 처리하므로 sitemap에서 제외
+    const consultationUrls: MetadataRoute.Sitemap = []
 
 
     // 비즈니스 보고서 가져오기

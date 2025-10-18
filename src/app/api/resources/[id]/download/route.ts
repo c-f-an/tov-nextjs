@@ -52,12 +52,16 @@ export async function GET(
     await resourceRepository.logDownload(resourceId, null, ipAddress, userAgent);
     await resourceRepository.incrementDownloadCount(resourceId);
 
-    // Initialize S3 service
-    const s3Service = new S3Service();
+    // Initialize S3 service with empty basePath since resource.filePath already includes the full path
+    const s3Service = new S3Service('');
 
     try {
+      console.log('Attempting to download file:', resource.filePath);
+
       // Always stream file directly from S3 to avoid CORS issues
       const fileData = await s3Service.getFile(resource.filePath);
+
+      console.log('File downloaded from S3, size:', fileData.contentLength);
 
       // Set appropriate headers for file download
       const headers = new Headers();
@@ -74,9 +78,11 @@ export async function GET(
         headers
       });
     } catch (error) {
-      console.error('Error accessing file:', error);
+      console.error('Error accessing file from S3:', error);
+      console.error('File path:', resource.filePath);
+      console.error('Bucket:', process.env.AWS_S3_BUCKET_NAME);
       return NextResponse.json(
-        { error: 'File not found or inaccessible' },
+        { error: 'File not found or inaccessible', details: error instanceof Error ? error.message : 'Unknown error' },
         { status: 404 }
       );
     }
