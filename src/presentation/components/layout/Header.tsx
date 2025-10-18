@@ -30,12 +30,16 @@ export function Header() {
 
   const fetchMenuItems = async () => {
     try {
-      // 카테고리 가져오기
-      const response = await fetch('/api/categories');
-      const categories: Category[] = await response.json();
+      // 게시판 카테고리 가져오기
+      const postsResponse = await fetch('/api/categories');
+      const postsCategories: Category[] = await postsResponse.json();
+
+      // 자료실 카테고리 가져오기 (활성화된 것만)
+      const resourcesResponse = await fetch('/api/resources/categories?active=true');
+      const resourceCategories = await resourcesResponse.json();
 
       // 카테고리를 타입별로 그룹화
-      const postsCategories = categories.filter(cat =>
+      const filteredPostsCategories = postsCategories.filter(cat =>
         ['notice', 'news', 'activity', 'media', 'publication', 'laws'].includes(cat.type)
       );
 
@@ -66,7 +70,7 @@ export function Header() {
         {
           title: "토브 소식",
           href: "/posts",
-          submenu: postsCategories.map(cat => ({
+          submenu: filteredPostsCategories.map(cat => ({
             title: cat.name,
             href: `/posts/${cat.slug}`
           }))
@@ -74,11 +78,10 @@ export function Header() {
         {
           title: "자료실",
           href: "/resources",
-          submenu: [
-            { title: "종교인소득", href: "/resources/religious-income" },
-            { title: "비영리재정", href: "/resources/nonprofit-finance" },
-            { title: "결산공시", href: "/resources/settlement" },
-          ],
+          submenu: resourceCategories.map((cat: any) => ({
+            title: cat.name,
+            href: `/resources/${cat.slug}`
+          }))
         },
         {
           title: "상담센터",
@@ -144,6 +147,7 @@ export function Header() {
             { title: "종교인소득", href: "/resources/religious-income" },
             { title: "비영리재정", href: "/resources/nonprofit-finance" },
             { title: "결산공시", href: "/resources/settlement" },
+            { title: "관계법령", href: "/resources/laws" },
           ],
         },
         {
