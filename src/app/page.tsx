@@ -13,7 +13,6 @@ export default async function Home() {
   let banners: any[] = [];
   let categories: any[] = [];
   let notices: any[] = [];
-  let news: any[] = [];
   let latestNews: any[] = [];
   let quickLinks: any[] = [];
   let consultationStats = null;
@@ -42,9 +41,8 @@ export default async function Home() {
     const categoriesResult = await getCategoriesUseCase.execute();
     categories = Array.isArray(categoriesResult) ? categoriesResult : [];
 
-    // Find notice and news category IDs
+    // Find notice category ID
     const noticeCategory = categories.find((cat) => cat.slug === "notice");
-    const newsCategory = categories.find((cat) => cat.slug === "news");
 
     // Fetch latest posts
     const getPostsUseCase = container.getGetPostsUseCase();
@@ -59,23 +57,6 @@ export default async function Home() {
       : null;
     notices = noticesResult?.posts
       ? noticesResult.posts.map((post: any) => ({
-          ...post,
-          createdAt: post.createdAt?.toISOString() || null,
-          updatedAt: post.updatedAt?.toISOString() || null,
-          publishedAt: post.publishedAt?.toISOString() || null,
-        }))
-      : [];
-
-    // Fetch latest news
-    const newsResult = newsCategory
-      ? await getPostsUseCase.execute({
-          categoryId: newsCategory.id,
-          limit: 4,
-          page: 1,
-        })
-      : null;
-    news = newsResult?.posts
-      ? newsResult.posts.map((post: any) => ({
           ...post,
           createdAt: post.createdAt?.toISOString() || null,
           updatedAt: post.updatedAt?.toISOString() || null,
@@ -108,33 +89,30 @@ export default async function Home() {
     const reportResult = await getLatestFinancialReportUseCase.execute();
     financialReport = reportResult.ok ? reportResult.value : null;
 
-    // Fetch latest news from news table (is_published = 1)
+    // Fetch latest news from posts table (최신 게시물 3개)
     try {
-      const getNewsListUseCase = container.getGetNewsListUseCase();
-      const newsListResult = await getNewsListUseCase.execute({
-        isPublished: true,
+      const allPostsResult = await getPostsUseCase.execute({
         limit: 3,
         page: 1,
-        sortBy: "latest",
       });
-      console.log("newsListResult", newsListResult);
-      latestNews = newsListResult.items.map((item) => ({
-        id: item.id,
-        title: item.title,
-        content: item.content,
-        summary: item.summary,
-        category: item.category,
-        imageUrl: item.imageUrl || null,
-        author: item.author,
-        views: item.views,
-        isPublished: item.isPublished,
-        createdAt: item.createdAt?.toISOString() || null,
-        updatedAt: item.updatedAt?.toISOString() || null,
-        publishedAt: item.publishedAt?.toISOString() || null,
-      }));
-      console.log("latestNews", latestNews);
+      latestNews = allPostsResult?.posts
+        ? allPostsResult.posts.map((post: any) => ({
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            summary: post.summary || "",
+            category: post.category?.slug || "news",
+            imageUrl: post.imageUrl || null,
+            author: post.author?.username || "관리자",
+            views: post.views || 0,
+            isPublished: post.isPublished,
+            createdAt: post.createdAt?.toISOString() || null,
+            updatedAt: post.updatedAt?.toISOString() || null,
+            publishedAt: post.publishedAt?.toISOString() || null,
+          }))
+        : [];
     } catch (error) {
-      console.error("Error fetching news:", error);
+      console.error("Error fetching latest posts:", error);
     }
   }
 
@@ -150,7 +128,7 @@ export default async function Home() {
       {/* Latest News & Notice */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <LatestNews notices={notices} news={news} latestNews={latestNews} />
+          <LatestNews notices={notices} news={[]} latestNews={latestNews} />
         </div>
       </section>
 
