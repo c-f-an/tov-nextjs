@@ -7,6 +7,7 @@ export class MainBanner {
     public subtitle: string | null,
     public description: string | null,
     public imagePath: string,
+    public imageOption: string | null,
     public linkUrl: string | null,
     public linkTarget: LinkTarget,
     public sortOrder: number,
@@ -22,6 +23,7 @@ export class MainBanner {
     subtitle?: string | null;
     description?: string | null;
     imagePath: string;
+    imageOption?: string | null;
     linkUrl?: string | null;
     linkTarget?: LinkTarget;
     sortOrder?: number;
@@ -35,6 +37,7 @@ export class MainBanner {
       data.subtitle || null,
       data.description || null,
       data.imagePath,
+      data.imageOption || null,
       data.linkUrl || null,
       data.linkTarget || '_self',
       data.sortOrder || 0,
@@ -51,6 +54,7 @@ export class MainBanner {
     subtitle?: string | null;
     description?: string | null;
     imagePath?: string;
+    imageOption?: string | null;
     linkUrl?: string | null;
     linkTarget?: LinkTarget;
   }): void {
@@ -58,6 +62,7 @@ export class MainBanner {
     if (data.subtitle !== undefined) this.subtitle = data.subtitle;
     if (data.description !== undefined) this.description = data.description;
     if (data.imagePath !== undefined) this.imagePath = data.imagePath;
+    if (data.imageOption !== undefined) this.imageOption = data.imageOption;
     if (data.linkUrl !== undefined) this.linkUrl = data.linkUrl;
     if (data.linkTarget !== undefined) this.linkTarget = data.linkTarget;
   }

@@ -9,6 +9,7 @@ interface MainBannerRow extends RowDataPacket {
   subtitle: string | null;
   description: string | null;
   image_path: string;
+  image_option: string | null;
   link_url: string | null;
   link_target: LinkTarget;
   sort_order: number;
@@ -60,13 +61,14 @@ export class MySQLMainBannerRepository implements IMainBannerRepository {
 
   async save(banner: MainBanner): Promise<MainBanner> {
     const result = await query<any>(
-      `INSERT INTO main_banners (title, subtitle, description, image_path, link_url, link_target, sort_order, is_active, start_date, end_date, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      `INSERT INTO main_banners (title, subtitle, description, image_path, image_option, link_url, link_target, sort_order, is_active, start_date, end_date, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         banner.title,
         banner.subtitle,
         banner.description,
         banner.imagePath,
+        banner.imageOption,
         banner.linkUrl,
         banner.linkTarget,
         banner.sortOrder,
@@ -75,13 +77,14 @@ export class MySQLMainBannerRepository implements IMainBannerRepository {
         banner.endDate
       ]
     );
-    
+
     return new MainBanner(
       result.insertId,
       banner.title,
       banner.subtitle,
       banner.description,
       banner.imagePath,
+      banner.imageOption,
       banner.linkUrl,
       banner.linkTarget,
       banner.sortOrder,
@@ -95,9 +98,9 @@ export class MySQLMainBannerRepository implements IMainBannerRepository {
 
   async update(banner: MainBanner): Promise<void> {
     await query(
-      `UPDATE main_banners 
-       SET title = ?, subtitle = ?, description = ?, image_path = ?, link_url = ?, 
-           link_target = ?, sort_order = ?, is_active = ?, start_date = ?, end_date = ?, 
+      `UPDATE main_banners
+       SET title = ?, subtitle = ?, description = ?, image_path = ?, image_option = ?, link_url = ?,
+           link_target = ?, sort_order = ?, is_active = ?, start_date = ?, end_date = ?,
            updated_at = NOW()
        WHERE id = ?`,
       [
@@ -105,6 +108,7 @@ export class MySQLMainBannerRepository implements IMainBannerRepository {
         banner.subtitle,
         banner.description,
         banner.imagePath,
+        banner.imageOption,
         banner.linkUrl,
         banner.linkTarget,
         banner.sortOrder,
@@ -127,6 +131,7 @@ export class MySQLMainBannerRepository implements IMainBannerRepository {
       row.subtitle,
       row.description,
       row.image_path,
+      row.image_option,
       row.link_url,
       row.link_target,
       row.sort_order,

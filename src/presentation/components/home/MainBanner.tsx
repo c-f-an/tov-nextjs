@@ -15,6 +15,7 @@ const defaultBanners = [
     subtitle: '토브협회가 함께합니다',
     description: '종교인 소득세, 비영리 회계 전문 상담',
     imagePath: '/images/banner1.jpg',
+    imageOption: '',
     linkUrl: '/about',
     linkText: '협회 소개'
   },
@@ -24,6 +25,7 @@ const defaultBanners = [
     subtitle: '맞춤형 솔루션 제공',
     description: '회계, 세무, 법률 전문가의 통합 상담',
     imagePath: '/images/banner2.jpg',
+    imageOption: '',
     linkUrl: '/consultation/apply',
     linkText: '상담 신청'
   },
@@ -33,6 +35,7 @@ const defaultBanners = [
     subtitle: '실무자를 위한 전문 교육',
     description: '비영리 회계 실무 교육 프로그램',
     imagePath: '/images/banner3.jpg',
+    imageOption: '',
     linkUrl: '/resources',
     linkText: '자료실 바로가기'
   }
@@ -63,6 +66,7 @@ export function MainBanner({ banners }: MainBannerProps) {
     subtitle: banner.subtitle || '',
     description: banner.description || '',
     imagePath: banner.imagePath,
+    imageOption: banner.imageOption || '',
     linkUrl: banner.linkUrl || '#',
     linkText: getLinkText(banner.linkUrl)
   })) : defaultBanners;
@@ -86,9 +90,22 @@ export function MainBanner({ banners }: MainBannerProps) {
             index === currentSlide ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-white/80 to-white/40 z-10" />
-          <div className="absolute inset-0 bg-blue-100/30 z-10" />
-          
+          {/* Background Image */}
+          {banner.imagePath && (
+            <div
+              className={`absolute inset-0 bg-cover bg-center ${banner.imageOption || ''}`}
+              style={{ backgroundImage: `url(${banner.imagePath})` }}
+            />
+          )}
+
+          {/* Overlay gradients - only show if no custom imageOption */}
+          {!banner.imageOption && (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-white/80 to-white/40 z-10" />
+              <div className="absolute inset-0 bg-blue-100/30 z-10" />
+            </>
+          )}
+
           {/* Banner Content */}
           <div className="relative z-20 h-full flex items-center">
             <div className="container mx-auto px-4">
