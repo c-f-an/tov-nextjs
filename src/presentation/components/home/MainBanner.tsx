@@ -68,19 +68,41 @@ function parseImageOption(imageOption?: string): React.CSSProperties {
     styles.opacity = parseInt(opacityMatch[1]) / 100;
   }
 
-  // Parse gradient
-  if (imageOption.includes("bg-gradient-to-b")) {
-    const fromMatch = imageOption.match(/from-\[([^\]]+)\]/);
-    const toMatch = imageOption.match(/to-\[([^\]]+)\]/);
-    if (fromMatch && toMatch) {
-      styles.background = `linear-gradient(to bottom, ${fromMatch[1]}, ${toMatch[1]})`;
+  // Parse radial gradient
+  if (imageOption.includes("radial-gradient")) {
+    const radialMatch = imageOption.match(/radial-gradient\(circle,([^,]+),([^)]+)\)/);
+    if (radialMatch) {
+      styles.background = `radial-gradient(circle, ${radialMatch[1]}, ${radialMatch[2]})`;
     }
   }
+  // Parse linear gradient with direction
+  else if (imageOption.includes("bg-gradient-")) {
+    const directionMatch = imageOption.match(/bg-gradient-(to-[a-z]+)/);
+    const fromMatch = imageOption.match(/from-\[([^\]]+)\]/);
+    const toMatch = imageOption.match(/to-\[([^\]]+)\]/);
 
-  // Parse background color (fallback)
-  const bgMatch = imageOption.match(/bg-\[([^\]]+)\]/);
-  if (bgMatch && !styles.background) {
-    styles.backgroundColor = bgMatch[1];
+    if (directionMatch && fromMatch && toMatch) {
+      const direction = directionMatch[1];
+      // Convert Tailwind direction to CSS gradient direction
+      const cssDirection: Record<string, string> = {
+        'to-t': 'to top',
+        'to-b': 'to bottom',
+        'to-l': 'to left',
+        'to-r': 'to right',
+        'to-tl': 'to top left',
+        'to-tr': 'to top right',
+        'to-bl': 'to bottom left',
+        'to-br': 'to bottom right',
+      };
+      styles.background = `linear-gradient(${cssDirection[direction] || 'to bottom'}, ${fromMatch[1]}, ${toMatch[1]})`;
+    }
+  }
+  // Parse solid background color (fallback)
+  else if (imageOption.includes("bg-[") && !imageOption.includes("radial-gradient")) {
+    const bgMatch = imageOption.match(/bg-\[([^\]]+)\]/);
+    if (bgMatch && !styles.background) {
+      styles.backgroundColor = bgMatch[1];
+    }
   }
 
   return styles;
