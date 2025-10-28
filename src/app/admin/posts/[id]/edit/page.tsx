@@ -49,8 +49,11 @@ export default function EditPostPage() {
 
   // 게시글 데이터 가져오기
   useEffect(() => {
-    fetchCategories();
-    fetchPost();
+    const loadData = async () => {
+      await fetchCategories();
+      await fetchPost();
+    };
+    loadData();
   }, [postId]);
 
   const fetchCategories = async () => {
@@ -61,9 +64,12 @@ export default function EditPostPage() {
       if (response.ok) {
         const data = await response.json();
         setCategories(data);
+        return data; // 카테고리 데이터 반환
       }
+      return [];
     } catch (error) {
       console.error('Failed to fetch categories:', error);
+      return [];
     }
   };
 
@@ -78,19 +84,23 @@ export default function EditPostPage() {
 
       const post = await response.json();
 
-      // 카테고리 정보 찾기
-      const category = categories.find(c => c.type === post.categoryType || c.name === post.categoryName);
+      // 카테고리 정보 찾기 (최신 categories 상태 사용)
+      setCategories((currentCategories) => {
+        const category = currentCategories.find(c => c.type === post.categoryType || c.name === post.categoryName);
 
-      setFormData({
-        title: post.title || '',
-        categoryId: category?.id.toString() || '',
-        categoryType: post.categoryType || category?.type || '',
-        content: post.content || '',
-        summary: post.summary || '',
-        thumbnailUrl: post.thumbnailUrl || '',
-        isNotice: post.isNotice || false,
-        isPublished: post.isPublished !== undefined ? post.isPublished : true,
-        tags: post.tags || []
+        setFormData({
+          title: post.title || '',
+          categoryId: category?.id.toString() || '',
+          categoryType: post.categoryType || category?.type || '',
+          content: post.content || '',
+          summary: post.summary || '',
+          thumbnailUrl: post.thumbnailUrl || '',
+          isNotice: post.isNotice || false,
+          isPublished: post.isPublished !== undefined ? post.isPublished : true,
+          tags: post.tags || []
+        });
+
+        return currentCategories; // 상태 변경하지 않음
       });
     } catch (error) {
       console.error('Error fetching post:', error);
