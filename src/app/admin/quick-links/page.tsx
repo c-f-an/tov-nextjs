@@ -302,7 +302,7 @@ export default function AdminQuickLinksPage() {
 
       {/* 모달 */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">
               {editingLink ? '퀵링크 수정' : '새 퀵링크 추가'}

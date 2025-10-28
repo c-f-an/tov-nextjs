@@ -288,6 +288,22 @@ export function QuickLinks({ links }: QuickLinksProps) {
           color: getColor(index),
         }))
       : defaultQuickLinks;
+
+  // 개수에 따라 동적으로 그리드 열 개수 결정
+  const count = displayLinks.length;
+
+  // Tailwind 클래스는 동적으로 생성할 수 없으므로 전체 클래스명을 조건부로 설정
+  const getGridClass = () => {
+    if (count === 1) return "grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6";
+    if (count === 2) return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6";
+    if (count === 3) return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+    if (count === 4) return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6";
+    if (count === 5) return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6";
+    if (count === 6) return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6";
+    // 6개 초과는 한 줄에 6개씩
+    return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6";
+  };
+
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
@@ -299,7 +315,7 @@ export function QuickLinks({ links }: QuickLinksProps) {
         </div>
 
         <div className="flex justify-center">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className={getGridClass()}>
             {displayLinks.map((link) => (
               <Link
                 key={link.id}
