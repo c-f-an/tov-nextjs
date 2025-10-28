@@ -299,9 +299,13 @@ export function QuickLinks({ links }: QuickLinksProps) {
         </div>
 
         <div className="flex justify-center">
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {displayLinks.map((link) => (
-              <Link key={link.id} href={link.href} className="group text-center">
+              <Link
+                key={link.id}
+                href={link.href}
+                className="group text-center"
+              >
                 <div
                   className={`${link.color} text-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}
                 >
