@@ -77,22 +77,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }))
 
-    // 뉴스 가져오기
-    const newsItems = await query<{id: number, category: string, updated_at: Date}[]>(`
-      SELECT id, category, updated_at
-      FROM news
-      WHERE is_published = 1
-      ORDER BY updated_at DESC
-      LIMIT 1000
-    `)
-
-    const newsUrls: MetadataRoute.Sitemap = newsItems.map((news) => ({
-      url: `${baseUrl}/news/${news.category}/${news.id}`,
-      lastModified: new Date(news.updated_at),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    }))
-
     // 상담 사례는 비공개로 처리하므로 sitemap에서 제외
     const consultationUrls: MetadataRoute.Sitemap = []
 
@@ -116,7 +100,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [
       ...staticUrls,
       ...postUrls,
-      ...newsUrls,
       ...consultationUrls,
       ...reportUrls,
     ]

@@ -15,7 +15,6 @@ import { INewsletterSubscriberRepository } from '@/core/domain/repositories/INew
 import { IMainBannerRepository } from '@/core/domain/repositories/IMainBannerRepository';
 import { IQuickLinkRepository } from '@/core/domain/repositories/IQuickLinkRepository';
 import { IFinancialReportRepository } from '@/core/domain/repositories/IFinancialReportRepository';
-import { INewsRepository } from '@/core/domain/repositories/INewsRepository';
 import { IResourceRepository } from '@/core/domain/repositories/IResourceRepository';
 import { IResourceCategoryRepository } from '@/core/domain/repositories/IResourceCategoryRepository';
 
@@ -44,7 +43,6 @@ import { GetDonationsUseCase } from '@/core/application/use-cases/donation/GetDo
 import { GetMainBannersUseCase } from '@/core/application/use-cases/main-banner/GetMainBannersUseCase';
 import { GetQuickLinksUseCase } from '@/core/application/use-cases/quick-link/GetQuickLinksUseCase';
 import { GetLatestFinancialReportUseCase } from '@/core/application/use-cases/financial-report/GetLatestFinancialReportUseCase';
-import { GetNewsListUseCase } from '@/core/application/use-cases/news/GetNewsListUseCase';
 
 // MySQL Repository implementations
 import { MySQLUserRepository } from '../repositories/MySQLUserRepository';
@@ -62,7 +60,6 @@ import { MySQLNewsletterSubscriberRepository } from '../repositories/MySQLNewsle
 import { MySQLMainBannerRepository } from '../repositories/MySQLMainBannerRepository';
 import { MySQLQuickLinkRepository } from '../repositories/MySQLQuickLinkRepository';
 import { MySQLFinancialReportRepository } from '../repositories/MySQLFinancialReportRepository';
-import { MySQLNewsRepository } from '../repositories/MySQLNewsRepository';
 import { MySQLResourceRepository } from '../repositories/MySQLResourceRepository';
 import { MySQLResourceCategoryRepository } from '../repositories/MySQLResourceCategoryRepository';
 
@@ -89,7 +86,6 @@ export class Container {
   private mainBannerRepository: IMainBannerRepository;
   private quickLinkRepository: IQuickLinkRepository;
   private financialReportRepository: IFinancialReportRepository;
-  private newsRepository: INewsRepository;
   private resourceRepository: IResourceRepository;
   private resourceCategoryRepository: IResourceCategoryRepository;
 
@@ -114,7 +110,6 @@ export class Container {
     this.mainBannerRepository = new MySQLMainBannerRepository();
     this.quickLinkRepository = new MySQLQuickLinkRepository();
     this.financialReportRepository = new MySQLFinancialReportRepository();
-    this.newsRepository = MySQLNewsRepository.getInstance();
     this.resourceRepository = new MySQLResourceRepository();
     this.resourceCategoryRepository = new MySQLResourceCategoryRepository();
 
@@ -195,9 +190,6 @@ export class Container {
     return this.financialReportRepository;
   }
 
-  getNewsRepository(): INewsRepository {
-    return this.newsRepository;
-  }
 
   getResourceRepository(): IResourceRepository {
     return this.resourceRepository;
@@ -305,7 +297,4 @@ export class Container {
     return new GetLatestFinancialReportUseCase(this.financialReportRepository);
   }
 
-  getGetNewsListUseCase(): GetNewsListUseCase {
-    return new GetNewsListUseCase(this.newsRepository);
-  }
 }
