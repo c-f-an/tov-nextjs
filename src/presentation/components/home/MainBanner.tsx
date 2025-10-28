@@ -56,6 +56,36 @@ function getLinkText(linkUrl?: string | null): string {
   return linkTextMap[linkUrl] || "자세히 보기";
 }
 
+// Helper function to parse imageOption string to inline styles
+function parseImageOption(imageOption?: string): React.CSSProperties {
+  if (!imageOption) return {};
+
+  const styles: React.CSSProperties = {};
+
+  // Parse opacity
+  const opacityMatch = imageOption.match(/opacity-(\d+)/);
+  if (opacityMatch) {
+    styles.opacity = parseInt(opacityMatch[1]) / 100;
+  }
+
+  // Parse gradient
+  if (imageOption.includes("bg-gradient-to-b")) {
+    const fromMatch = imageOption.match(/from-\[([^\]]+)\]/);
+    const toMatch = imageOption.match(/to-\[([^\]]+)\]/);
+    if (fromMatch && toMatch) {
+      styles.background = `linear-gradient(to bottom, ${fromMatch[1]}, ${toMatch[1]})`;
+    }
+  }
+
+  // Parse background color (fallback)
+  const bgMatch = imageOption.match(/bg-\[([^\]]+)\]/);
+  if (bgMatch && !styles.background) {
+    styles.backgroundColor = bgMatch[1];
+  }
+
+  return styles;
+}
+
 export function MainBanner({ banners }: MainBannerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -98,9 +128,8 @@ export function MainBanner({ banners }: MainBannerProps) {
             <img
               src={banner.imagePath}
               alt={banner.title}
-              className={`absolute inset-0 w-full h-full object-contain ${
-                banner.imageOption || ""
-              }`}
+              className="absolute inset-0 w-full h-full object-contain"
+              style={parseImageOption(banner.imageOption)}
             />
           )}
 
