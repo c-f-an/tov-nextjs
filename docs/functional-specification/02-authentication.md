@@ -13,9 +13,10 @@ TOV 시스템의 사용자 인증 및 권한 관리 시스템에 대한 명세�
 {
   "userId": 1,
   "email": "user@example.com",
-  "role": "USER",
+  "loginType": "email",
+  "role": "ADMIN",
   "iat": 1697280000,
-  "exp": 1697283600  // 1시간
+  "exp": 1697280900  // 15분 (900초)
 }
 ```
 
@@ -25,14 +26,19 @@ TOV 시스템의 사용자 인증 및 권한 관리 시스템에 대한 명세�
   "userId": 1,
   "tokenId": "uuid-v4",
   "iat": 1697280000,
-  "exp": 1697884800  // 7일
+  "exp": 1697884800  // 7일 (604800초)
 }
 ```
 
 ### 토큰 저장 방식
-- **Access Token**: 메모리 또는 LocalStorage
-- **Refresh Token**: HttpOnly Cookie
-- **보안**: HTTPS 전송, SameSite 쿠키 설정
+- **Access Token**: Authorization 헤더 (Bearer token)
+- **Refresh Token**: HttpOnly Cookie (SHA256 해시 후 DB 저장)
+- **보안**:
+  - HTTPS 전송 필수
+  - SameSite 쿠키 설정
+  - SHA256 해싱으로 DB 저장
+  - JWT 블랙리스트 관리 (jwt_blacklist 테이블)
+  - 토큰 회전(rotation) 지원
 
 ## 👤 회원가입
 
@@ -95,10 +101,22 @@ TOV 시스템의 사용자 인증 및 권한 관리 시스템에 대한 명세�
 
 ### 로그인 유형
 - **이메일 로그인**: 기본 로그인 방식
-- **소셜 로그인**: (향후 구현 예정)
-  - Google
-  - Naver
-  - Kakao
+- **소셜 로그인**: (테이블 준비 완료, 구현 예정)
+  - Google OAuth 2.0
+  - Naver Login
+  - Kakao Login
+  - Apple Sign In
+
+### 로그인 보안 강화
+- **로그인 시도 추적**: login_attempts 테이블에 기록
+  - IP 주소 기록
+  - User Agent 기록
+  - 성공/실패 상태
+  - 실패 사유
+- **멀티 디바이스 세션 관리**: user_devices 테이블
+  - 디바이스별 세션 추적
+  - 신뢰할 수 있는 디바이스 관리
+  - 최종 활동 시간 추적
 
 ### API 엔드포인트
 - **POST** `/api/auth/login`
@@ -218,24 +236,33 @@ suspended → active: 관리자 정지 해제
   - 일괄 삭제
 
 ### 로그 관리
-- **로그인 로그**: 접속 기록
-- **활동 로그**: 사용자 활동 기록
-- **관리자 로그**: 관리 작업 기록
+- **로그인 로그**: login_attempts 테이블에 모든 로그인 시도 기록
+- **활동 로그**: activity_logs 테이블에 사용자 활동 기록
+- **관리자 로그**: admin_logs 테이블에 관리 작업 상세 기록 (JSON details)
+- **디바이스 로그**: user_devices 테이블에 디바이스별 세션 추적
 
 ## 🔧 설정
 
 ### 인증 관련 환경변수
 ```env
 # JWT 설정
-JWT_ACCESS_SECRET=your-access-secret
-JWT_REFRESH_SECRET=your-refresh-secret
-JWT_ACCESS_EXPIRY=1h
-JWT_REFRESH_EXPIRY=7d
+JWT_ACCESS_SECRET=your-access-secret-key-at-least-32-chars
+JWT_REFRESH_SECRET=your-refresh-secret-key-at-least-32-chars
+JWT_ACCESS_EXPIRY=15m   # 15분 (실제 구현)
+JWT_REFRESH_EXPIRY=7d   # 7일 (실제 구현)
 
 # 보안 설정
 BCRYPT_ROUNDS=10
 MAX_LOGIN_ATTEMPTS=5
 LOCKOUT_DURATION=15m
+
+# 소셜 로그인 (준비됨, 구현 예정)
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+NAVER_CLIENT_ID=...
+NAVER_CLIENT_SECRET=...
+KAKAO_CLIENT_ID=...
+KAKAO_CLIENT_SECRET=...
 ```
 
 ## 📱 클라이언트 구현
@@ -277,6 +304,51 @@ const AuthContext = createContext<{
 | AUTH006 | Unauthorized | 권한 없음 |
 | AUTH007 | Too many attempts | 로그인 시도 초과 |
 
+## 🆕 2FA (이중 인증) - 준비 완료
+
+### Two-Factor Authentication
+시스템에 2FA 지원 테이블이 준비되어 있습니다:
+
+**two_factor_auth 테이블**:
+- user_id (UNIQUE): 사용자 ID
+- secret (암호화): TOTP 시크릿 키
+- recovery_codes (JSON): 복구 코드 목록
+- enabled_at: 활성화 일시
+- last_used_at: 마지막 사용 일시
+
+### 구현 예정 기능
+- Google Authenticator 연동
+- SMS 인증 코드
+- 복구 코드 생성
+- 신뢰할 수 있는 디바이스 관리
+
+## 🔐 추가 보안 기능 (구현됨)
+
+### Refresh Token 관리
+- **DB 저장**: refresh_tokens 테이블에 SHA256 해시로 저장
+- **디바이스 정보**: device_info, ip_address 기록
+- **만료 관리**: expires_at 자동 체크
+- **토큰 무효화**: revoked_at, revoked_reason 지원
+
+### JWT 블랙리스트
+- **jwt_blacklist 테이블**: 무효화된 JWT 관리
+- **JTI (JWT ID)**: 각 토큰의 고유 ID
+- **자동 정리**: 만료된 토큰 자동 삭제
+
+### 비밀번호 재설정
+- **password_reset_tokens 테이블**:
+  - email: 재설정 요청 이메일
+  - token: 재설정 토큰 (해시)
+  - created_at: 생성 시간 (1시간 유효)
+
+### 이메일/SMS 인증
+- **verification_codes 테이블**:
+  - identifier: 이메일 또는 전화번호
+  - code: 인증 코드
+  - type: 'email', 'sms', '2fa'
+  - expires_at: 만료 시간
+  - attempts: 시도 횟수 (최대 3회)
+
 ---
 
-*최종 업데이트: 2024년 10월 14일*
+*최종 업데이트: 2025년 1월 29일*

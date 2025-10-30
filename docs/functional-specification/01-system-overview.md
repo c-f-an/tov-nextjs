@@ -15,8 +15,8 @@ TOV는 교회 재정 투명성 증진을 위한 종합 플랫폼으로, 다음�
 ```
 ┌─────────────────────────────────────────────────┐
 │                   Frontend                       │
-│         Next.js 14 / React 18 / TypeScript      │
-│              Tailwind CSS / ShadcnUI            │
+│         Next.js 15 / React 19 / TypeScript      │
+│              Tailwind CSS / Lucide React        │
 └─────────────────────────────────────────────────┘
                          ↕
 ┌─────────────────────────────────────────────────┐
@@ -64,8 +64,10 @@ tov-nextjs/
 
 ### 인증 시스템
 - **JWT 기반 인증**: Access Token + Refresh Token
-- **토큰 저장**: HttpOnly Cookie (Refresh Token), Memory/LocalStorage (Access Token)
-- **토큰 만료**: Access Token (1시간), Refresh Token (7일)
+- **토큰 저장**: HttpOnly Cookie (Refresh Token), Authorization Header (Access Token)
+- **토큰 만료**: Access Token (15분), Refresh Token (7일)
+- **토큰 보안**: SHA256 해싱, 토큰 회전 지원, 블랙리스트 관리
+- **소셜 로그인**: Google, Naver, Kakao, Apple 지원 (테이블 준비됨)
 
 ### 권한 관리
 ```typescript
@@ -79,19 +81,55 @@ enum UserStatus {
   INACTIVE = "inactive",  // 비활성
   SUSPENDED = "suspended" // 정지
 }
+
+enum LoginType {
+  EMAIL = "email",    // 이메일 로그인
+  GOOGLE = "google",  // 구글 소셜 로그인
+  NAVER = "naver",    // 네이버 소셜 로그인
+  KAKAO = "kakao",    // 카카오 소셜 로그인
+  APPLE = "apple"     // 애플 소셜 로그인
+}
 ```
 
 ## 📊 데이터베이스 구조
 
-### 주요 테이블
+### 주요 테이블 (33+ 테이블)
+**사용자 & 인증**
 - **users**: 사용자 정보
-- **posts**: 게시물
-- **categories**: 카테고리
+- **user_profiles**: 사용자 프로필 (1:1)
+- **refresh_tokens**: JWT 리프레시 토큰
+- **jwt_blacklist**: 무효화된 JWT
+- **social_accounts**: 소셜 로그인 연동
+- **login_attempts**: 로그인 시도 기록
+
+**콘텐츠 관리**
+- **posts**: 게시물 (news 테이블 통합)
+- **categories**: 계층형 카테고리
+- **attachments**: 첨부파일 (다형성)
+
+**메인 페이지**
+- **main_banners**: 메인 배너 (gradient 지원)
+- **quick_links**: 퀵링크 메뉴
+
+**상담 & 후원**
 - **consultations**: 상담 신청
-- **donations**: 후원
-- **sponsors**: 후원자
-- **attachments**: 첨부파일
+- **donations**: 후원 내역
+- **sponsors**: 후원자 관리
+- **financial_reports**: 재정 보고서
+
+**자료실 & 리소스**
+- **resources**: 자료 관리
+- **resource_categories**: 자료 카테고리
+- **resource_tags**: 자료 태그
+- **resource_download_logs**: 다운로드 추적
+
+**사이트 관리**
+- **menus**: 메뉴 관리
+- **faqs**: FAQ
+- **site_settings**: 사이트 설정
+- **popups**: 팝업 관리
 - **admin_logs**: 관리자 활동 로그
+- **activity_logs**: 사용자 활동 로그
 
 ## 🌐 URL 구조
 
@@ -113,11 +151,16 @@ enum UserStatus {
 - `/admin` - 대시보드
 - `/admin/users` - 회원 관리
 - `/admin/posts` - 게시물 관리
+- `/admin/categories` - 카테고리 관리
+- `/admin/banners` - 배너 관리 (NEW)
+- `/admin/quick-links` - 퀵링크 관리 (NEW)
 - `/admin/consultations` - 상담 관리
 - `/admin/donations` - 후원 관리
-- `/admin/categories` - 카테고리 관리
 - `/admin/sponsors` - 후원자 관리
+- `/admin/resources` - 자료실 관리
 - `/admin/settings` - 시스템 설정
+- `/admin/logs` - 로그 조회
+- `/admin/db-monitor` - DB 모니터링
 
 ## 🔄 데이터 흐름
 
@@ -167,12 +210,23 @@ enum UserStatus {
 ## 🔧 환경 설정
 
 ### 환경 변수 카테고리
-1. **Database**: DATABASE_URL
-2. **Authentication**: JWT_ACCESS_SECRET, JWT_REFRESH_SECRET
-3. **Email**: EMAIL_SERVICE, EMAIL_USER, EMAIL_PASS
-4. **Storage**: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET_NAME
-5. **External API**: NEXT_PUBLIC_KAKAO_MAP_API_KEY
-6. **Application**: NEXT_PUBLIC_APP_URL, NODE_ENV
+1. **Database**:
+   - DATABASE_URL, DATABASE_HOST, DATABASE_PORT
+   - DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME
+2. **Authentication**:
+   - JWT_ACCESS_SECRET, JWT_REFRESH_SECRET
+3. **Email**:
+   - SENDGRID_API_KEY (선택), EMAIL_FROM
+   - EMAIL_SERVICE, EMAIL_USER, EMAIL_PASS (Nodemailer 대체)
+4. **Storage (AWS S3/Cloudflare R2)**:
+   - AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+   - AWS_S3_BUCKET, AWS_CLOUDFRONT_URL
+5. **External API**:
+   - NEXT_PUBLIC_KAKAO_MAP_API_KEY
+   - NEXT_PUBLIC_COMPANY_ADDRESS
+6. **Application**:
+   - NEXT_PUBLIC_APP_URL, NODE_ENV
+   - NEXT_PUBLIC_S3_BUCKET_URL
 
 ## 📱 반응형 디자인
 
@@ -193,6 +247,27 @@ enum UserStatus {
 - **ko-KR**: 한국어 (기본)
 - **en-US**: 영어 (예정)
 
+## 🆕 최근 업데이트 (2025년 1월 기준)
+
+### 신규 기능
+1. **퀵링크 시스템** - 홈페이지 퀵 메뉴 관리
+2. **배너 관리** - 그라데이션 오버레이 지원
+3. **Posts 테이블 통합** - news 테이블 → posts 테이블로 통합
+4. **자료실 시스템** - 권한별 접근 제어, 다운로드 추적
+5. **재정 컨설팅 사례** - 성공 사례 관리
+
+### 인프라 최적화
+- **DB 커넥션 풀 최적화**: AWS t2.micro 환경에 최적화
+- **쿼리 성능 모니터링**: 느린 쿼리 자동 감지 (>1000ms)
+- **메모리 사용량 추적**: 실시간 모니터링
+- **헬스체크 개선**: `/api/health` 엔드포인트 강화
+
+### 아키텍처 개선
+- **Clean Architecture**: 도메인 주도 설계 적용
+- **Repository Pattern**: 데이터 접근 추상화
+- **DI Container**: 의존성 주입 컨테이너 구축
+- **Use Case Pattern**: 비즈니스 로직 캡슐화
+
 ---
 
-*최종 업데이트: 2024년 10월 14일*
+*최종 업데이트: 2025년 1월 29일*

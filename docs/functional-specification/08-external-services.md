@@ -6,12 +6,12 @@ TOV 시스템에서 사용하는 외부 서비스 및 API 연동 명세입니다
 
 ## ☁️ AWS Services
 
-### S3 (Simple Storage Service)
+### S3 / Cloudflare R2 (Simple Storage Service)
 
 #### 용도
 - 파일 업로드 저장소
-- 이미지 호스팅
-- 문서 파일 저장
+- 이미지 호스팅 (배너, 프로필, 썸네일)
+- 문서 파일 저장 (자료실 리소스)
 - 백업 스토리지
 
 #### 설정
@@ -19,28 +19,44 @@ TOV 시스템에서 사용하는 외부 서비스 및 API 연동 명세입니다
 AWS_REGION=ap-northeast-2
 AWS_ACCESS_KEY_ID=AKIA...
 AWS_SECRET_ACCESS_KEY=...
-AWS_S3_BUCKET_NAME=tov-homepage-resource-production
+AWS_S3_BUCKET=tov-homepage-resource-production
+AWS_CLOUDFRONT_URL=https://d1234567890.cloudfront.net (선택)
 NEXT_PUBLIC_S3_BUCKET_URL=https://tov-homepage-resource-production.s3.ap-northeast-2.amazonaws.com
 ```
 
 #### 버킷 구조
 ```
 tov-homepage-resource-production/
-├── posts/          # 게시물 이미지
-│   ├── thumbnails/ # 썸네일
-│   └── content/    # 본문 이미지
-├── consultations/  # 상담 첨부파일
-├── profiles/       # 프로필 이미지
-├── documents/      # 일반 문서
-└── backups/        # 백업 파일
+├── posts/              # 게시물 이미지
+│   ├── thumbnails/     # 썸네일
+│   └── content/        # 본문 이미지
+├── consultations/      # 상담 첨부파일
+├── profiles/           # 프로필 이미지
+├── documents/          # 일반 문서
+├── resources/          # 자료실 파일 (NEW)
+│   ├── pdfs/          # PDF 문서
+│   ├── excel/         # 엑셀 파일
+│   └── hwp/           # HWP 파일
+├── banners/            # 메인 배너 이미지 (NEW)
+└── data-archive/       # 백업 및 아카이브
 ```
 
 #### 보안 정책
-- **버킷 정책**: Private (Pre-signed URL 사용)
+- **버킷 정책**: Private (Pre-signed URL 사용, 1시간 만료)
 - **CORS 설정**: 도메인 제한
-- **암호화**: AES-256
+- **암호화**: AES-256 (Server-side encryption)
+- **Storage Class**: STANDARD_IA (비용 최적화)
 - **버저닝**: 활성화
 - **수명 주기**: 90일 후 Glacier 이동
+
+#### S3Service 기능 (src/infrastructure/services/S3Service.ts)
+- `uploadFile()`: 일반 파일 업로드
+- `uploadImage()`: 이미지 파일 업로드 (메타데이터 포함)
+- `getPresignedDownloadUrl()`: 다운로드용 사전서명 URL (1시간 유효)
+- `deleteFile()`: 파일 삭제
+- `fileExists()`: 파일 존재 여부 확인
+- `listFiles()`: 파일 목록 조회
+- `getPublicUrl()`: 공개 URL 생성
 
 ### CloudFront (CDN) - 프로덕션
 
@@ -56,7 +72,34 @@ tov-homepage-resource-production/
 
 ## 📧 이메일 서비스
 
-### 1. Nodemailer (무료 - 현재 사용)
+### 1. SendGrid (현재 권장)
+
+#### 요금제
+- **Free**: 일 100건 (현재 사용 가능)
+- **Essentials**: $19.95/월 (40,000건)
+- **Pro**: $89.95/월 (100,000건)
+
+#### 설정
+```env
+SENDGRID_API_KEY=SG.xxxxx (선택)
+EMAIL_FROM=noreply@tov.or.kr
+```
+
+#### 기능 (src/lib/email/email-service.ts)
+- **템플릿 지원**: welcome, password-reset, notification, custom
+- **일괄 발송**: 최대 1000명/배치
+- **통계 분석**: 오픈율, 클릭율
+- **스팸 필터링**: 자동 관리
+- **Fallback**: SendGrid 미설정 시 console.log로 개발 모드 지원
+
+#### 이메일 템플릿
+1. `welcome` - 회원가입 환영
+2. `password-reset` - 비밀번호 재설정
+3. `account-suspended` - 계정 정지 안내
+4. `notification` - 일반 알림
+5. `custom` - 커스텀 HTML
+
+### 2. Nodemailer (대체 옵션)
 
 #### 지원 서비스
 - **Gmail**: 일 500건 무료
@@ -77,25 +120,6 @@ EMAIL_FROM=your-email@gmail.com
 2. 앱 비밀번호 생성
 3. 환경변수 설정
 4. 서비스 재시작
-
-### 2. SendGrid (유료 옵션)
-
-#### 요금제
-- Free: 일 100건
-- Essentials: $19.95/월 (40,000건)
-- Pro: $89.95/월 (100,000건)
-
-#### 설정
-```env
-SENDGRID_API_KEY=SG.xxxxx
-EMAIL_FROM=noreply@tov.or.kr
-```
-
-#### 기능
-- 템플릿 관리
-- 통계 분석
-- 스팸 필터링
-- Webhook 지원
 
 ## 🗺️ 지도 서비스
 
@@ -311,17 +335,20 @@ CMD ["npm", "start"]
 ## 📡 API 연동 현황
 
 ### 현재 사용 중
-✅ AWS S3 - 파일 스토리지
-✅ Nodemailer - 이메일 발송
-✅ Kakao Maps - 지도 서비스
-✅ MySQL - 데이터베이스
+✅ **AWS S3 / Cloudflare R2** - 파일 스토리지 (배너, 자료실, 프로필)
+✅ **SendGrid** - 이메일 발송 (템플릿 지원)
+✅ **Kakao Maps** - 지도 서비스
+✅ **MySQL 8.0** - 데이터베이스 (t2.micro 최적화)
+✅ **Sharp** - 이미지 최적화
+✅ **AWS SDK v3** - S3 클라이언트
 
 ### 구현 예정
-⏳ Google Analytics - 분석
-⏳ 결제 게이트웨이 - 후원
-⏳ Firebase - 푸시 알림
-⏳ Elasticsearch - 검색
-⏳ CloudFront - CDN
+⏳ Google Analytics 4 - 웹 분석
+⏳ 결제 게이트웨이 - 후원 (아임포트/토스페이먼츠)
+⏳ Firebase Cloud Messaging - 푸시 알림
+⏳ Elasticsearch - 고급 검색
+⏳ CloudFront - CDN 캐싱
+⏳ OAuth 2.0 - 소셜 로그인 (테이블 준비 완료)
 
 ## 🔑 API 키 관리
 
@@ -341,16 +368,61 @@ CI/CD: GitHub Secrets
 ## 📊 서비스 모니터링
 
 ### 헬스체크 엔드포인트
-- `/api/health` - 전체 시스템
-- `/api/health/db` - 데이터베이스
-- `/api/health/s3` - S3 연결
-- `/api/health/email` - 이메일 서비스
+- `/api/health` - 전체 시스템 상태
+- `/api/admin/db-monitor` - 데이터베이스 모니터링 (관리자)
+  - 커넥션 풀 상태
+  - 느린 쿼리 (>1000ms)
+  - 메모리 사용량
+
+### 성능 모니터링 (구현됨)
+- **DB 커넥션 풀**: t2.micro 최적화 (5 connections, 2 max idle)
+- **Keep-alive**: 5분마다 핑
+- **Slow Query Detection**: 1초 이상 쿼리 자동 로깅
+- **Memory Tracking**: Heap, RSS, External 메모리 추적
+- **Query Performance**: 실행 시간 통계
 
 ### 알림 설정
 - 서비스 다운: 즉시 알림
 - 응답 지연: 5초 이상
 - 에러율: 1% 이상
+- 느린 쿼리: 1초 이상
+
+## 🆕 최근 추가/개선된 외부 서비스 (2025년 1월)
+
+### 추가된 서비스
+1. **SendGrid 이메일 서비스**
+   - 템플릿 기반 이메일 시스템
+   - 일괄 발송 지원 (1000명/배치)
+   - 개발 모드 fallback
+
+2. **S3 서비스 강화**
+   - 배너 이미지 전용 버킷 구조
+   - 자료실 파일 관리
+   - Presigned URL (1시간 유효)
+   - STANDARD_IA 스토리지 클래스
+
+3. **Sharp 이미지 처리**
+   - 썸네일 자동 생성
+   - WebP 변환
+   - 이미지 최적화
+
+### 개선된 모니터링
+1. **DB 성능 모니터링**
+   - 커넥션 풀 실시간 추적
+   - 느린 쿼리 자동 감지
+   - 메모리 사용량 추적
+
+2. **Health Check**
+   - `/api/health` 엔드포인트
+   - DB 연결 상태 체크
+   - 응답 시간 측정
+
+### 준비된 인프라
+- **소셜 로그인 테이블**: social_accounts, social_login_configs
+- **2FA 테이블**: two_factor_auth, verification_codes
+- **캐시 시스템**: cache_entries, image_optimizations
+- **SEO 메타데이터**: page_metadata
 
 ---
 
-*최종 업데이트: 2024년 10월 14일*
+*최종 업데이트: 2025년 1월 29일*
