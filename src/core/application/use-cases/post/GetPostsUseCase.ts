@@ -1,10 +1,13 @@
 import type { IPostRepository } from '@/core/domain/repositories/IPostRepository';
 import { PostDto } from '../../dtos/PostDto';
+import { PostStatus } from '@/core/domain/entities/Post';
+
 interface GetPostsRequest {
   categoryId?: number;
   page?: number;
   limit?: number;
   includeNotices?: boolean;
+  status?: PostStatus;
 }
 interface GetPostsResponse {
   posts: PostDto[];
@@ -19,10 +22,11 @@ export class GetPostsUseCase {
   async execute(request: GetPostsRequest): Promise<GetPostsResponse> {
     const page = request.page || 1;
     const limit = request.limit || 10;
-    
+
     const result = await this.postRepository.findAll({
       categoryId: request.categoryId,
-      includeNotices: request.includeNotices
+      includeNotices: request.includeNotices,
+      status: request.status
     }, {
       page,
       limit

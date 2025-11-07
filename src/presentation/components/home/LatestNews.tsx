@@ -70,15 +70,17 @@ export function LatestNews({ notices, news, latestNews }: LatestNewsProps) {
 
   // Always use latestNews if provided
   const displayItems = (latestNews && latestNews.length > 0)
-    ? latestNews.map((item) => ({
-        id: item.id,
-        title: item.title,
-        date: item.publishedAt ? new Date(item.publishedAt).toLocaleDateString('ko-KR') : new Date(item.createdAt).toLocaleDateString('ko-KR'),
-        category: item.category,
-        categoryName: getCategoryName(item.category),
-        excerpt: item.summary || '',
-        icon: getCategoryIcon(item.category)
-      }))
+    ? latestNews
+        .filter((item) => item.status === 'published')
+        .map((item) => ({
+          id: item.id,
+          title: item.title,
+          date: item.publishedAt ? new Date(item.publishedAt).toLocaleDateString('ko-KR') : new Date(item.createdAt).toLocaleDateString('ko-KR'),
+          category: item.category,
+          categoryName: getCategoryName(item.category),
+          excerpt: item.summary || '',
+          icon: getCategoryIcon(item.category)
+        }))
     : defaultNewsItems;
 
   console.log("CLIENT displayItems:", displayItems);

@@ -94,6 +94,7 @@ export default async function Home() {
       const allPostsResult = await getPostsUseCase.execute({
         limit: 3,
         page: 1,
+        status: 'published',
       });
       latestNews = allPostsResult?.posts
         ? allPostsResult.posts.map((post: any) => ({
@@ -105,6 +106,7 @@ export default async function Home() {
             imageUrl: post.imageUrl || null,
             author: post.author?.username || "관리자",
             views: post.views || 0,
+            status: post.status,
             isPublished: post.isPublished,
             createdAt: post.createdAt?.toISOString() || null,
             updatedAt: post.updatedAt?.toISOString() || null,
