@@ -139,9 +139,10 @@ export function MainBanner({ banners }: MainBannerProps) {
   return (
     <section className="relative h-[500px] bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
       {displayBanners.map((banner, index) => (
-        <div
+        <Link
           key={banner.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
+          href={banner.linkUrl}
+          className={`absolute inset-0 transition-opacity duration-1000 cursor-pointer ${
             index === currentSlide ? "opacity-100" : "opacity-0"
           }`}
         >
@@ -167,25 +168,25 @@ export function MainBanner({ banners }: MainBannerProps) {
           <div className="relative z-20 h-full flex items-center">
             <div className="container mx-auto px-4">
               <div className="max-w-2xl text-gray-800">
-                <h2 className="text-5xl font-bold mb-4 animate-fadeInUp">
-                  {banner.title}
-                </h2>
-                <h3 className="text-2xl mb-4 animate-fadeInUp animation-delay-200">
-                  {banner.subtitle}
-                </h3>
-                <p className="text-lg mb-8 animate-fadeInUp animation-delay-400">
-                  {banner.description}
-                </p>
-                <Link
-                  href={banner.linkUrl}
-                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-md shadow-lg transition-all hover:shadow-xl animate-fadeInUp animation-delay-600"
-                >
-                  {banner.linkText}
-                </Link>
+                {banner.title && (
+                  <h2 className="text-5xl font-bold mb-4 animate-fadeInUp">
+                    {banner.title}
+                  </h2>
+                )}
+                {banner.subtitle && (
+                  <h3 className="text-2xl mb-4 animate-fadeInUp animation-delay-200">
+                    {banner.subtitle}
+                  </h3>
+                )}
+                {banner.description && (
+                  <p className="text-lg animate-fadeInUp animation-delay-400">
+                    {banner.description}
+                  </p>
+                )}
               </div>
             </div>
           </div>
-        </div>
+        </Link>
       ))}
 
       {/* Slide Indicators */}

@@ -3,7 +3,7 @@ export type LinkTarget = '_self' | '_blank';
 export class MainBanner {
   constructor(
     public readonly id: number,
-    public title: string,
+    public title: string | null,
     public subtitle: string | null,
     public description: string | null,
     public imagePath: string,
@@ -19,7 +19,7 @@ export class MainBanner {
   ) {}
 
   static create(data: {
-    title: string;
+    title?: string | null;
     subtitle?: string | null;
     description?: string | null;
     imagePath: string;
@@ -33,7 +33,7 @@ export class MainBanner {
   }): MainBanner {
     return new MainBanner(
       0,
-      data.title,
+      data.title || null,
       data.subtitle || null,
       data.description || null,
       data.imagePath,
@@ -50,7 +50,7 @@ export class MainBanner {
   }
 
   updateContent(data: {
-    title?: string;
+    title?: string | null;
     subtitle?: string | null;
     description?: string | null;
     imagePath?: string;

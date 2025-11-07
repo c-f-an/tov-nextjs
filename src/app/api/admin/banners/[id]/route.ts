@@ -100,9 +100,9 @@ export async function PUT(
     });
 
     // Validate required fields
-    if (!title || !imagePath) {
+    if (!imagePath) {
       return NextResponse.json(
-        { error: 'Title and image path are required' },
+        { error: 'Image path is required' },
         { status: 400 }
       );
     }
@@ -132,12 +132,12 @@ export async function PUT(
         updated_at = NOW()
        WHERE id = ?`,
       [
-        title,
-        subtitle || null,
-        description || null,
+        title || '',
+        subtitle || '',
+        description || '',
         imagePath,
-        imageOption || null,
-        linkUrl || null,
+        imageOption || '',
+        linkUrl || '',
         linkTarget || '_self',
         sortOrder || 0,
         isActive ? 1 : 0,

@@ -111,11 +111,6 @@ export default function EditBannerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title.trim()) {
-      alert('제목을 입력해주세요.');
-      return;
-    }
-
     if (!formData.imagePath.trim()) {
       alert('이미지를 업로드해주세요.');
       return;
@@ -231,7 +226,7 @@ export default function EditBannerPage() {
               {/* 제목 */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  제목 *
+                  제목
                 </label>
                 <input
                   type="text"
