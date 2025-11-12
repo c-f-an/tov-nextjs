@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { AdminLayout } from '@/presentation/components/admin/AdminLayout';
 import { useAuth } from '@/presentation/contexts/AuthContext';
 import { ReportFileUpload } from '@/presentation/components/common/ReportFileUpload';
 
@@ -107,19 +106,16 @@ export default function EditReportPage() {
 
   if (isLoading) {
     return (
-      <AdminLayout>
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         </div>
-      </AdminLayout>
     );
   }
 
   return (
-    <AdminLayout>
       <div>
         <div className="mb-6">
           <h1 className="text-2xl font-bold">보고서 수정</h1>
@@ -303,6 +299,5 @@ export default function EditReportPage() {
           </div>
         </form>
       </div>
-    </AdminLayout>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Edit2, Trash2, Eye, EyeOff, GripVertical } from 'lucide-react'
-import { AdminLayout } from '@/presentation/components/admin/AdminLayout'
 
 interface QuickLink {
   id: number
@@ -156,258 +155,254 @@ export default function AdminQuickLinksPage() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </AdminLayout>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
     )
   }
 
   return (
-    <AdminLayout>
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">주요 서비스 관리</h1>
-          <button
-            onClick={() => handleOpenModal()}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <Plus className="h-4 w-4" />
-            새 퀵링크 추가
-          </button>
-        </div>
+    <div className="p-6">
+    <div className="flex justify-between items-center mb-6">
+      <h1 className="text-2xl font-bold">주요 서비스 관리</h1>
+      <button
+        onClick={() => handleOpenModal()}
+        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      >
+        <Plus className="h-4 w-4" />
+        새 퀵링크 추가
+      </button>
+    </div>
 
-        {/* 통계 카드 */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <p className="text-sm text-gray-600">전체 퀵링크</p>
-            <p className="text-2xl font-bold">{quickLinks.length}개</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <p className="text-sm text-gray-600">활성 퀵링크</p>
-            <p className="text-2xl font-bold">
-              {quickLinks.filter(l => l.isActive).length}개
-            </p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <p className="text-sm text-gray-600">비활성 퀵링크</p>
-            <p className="text-2xl font-bold">
-              {quickLinks.filter(l => !l.isActive).length}개
-            </p>
-          </div>
-        </div>
-
-        {/* 퀵링크 테이블 */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left py-3 px-4 w-12">순서</th>
-                <th className="text-left py-3 px-4">아이콘</th>
-                <th className="text-left py-3 px-4">제목</th>
-                <th className="text-left py-3 px-4">URL</th>
-                <th className="text-left py-3 px-4">설명</th>
-                <th className="text-center py-3 px-4">상태</th>
-                <th className="text-center py-3 px-4">관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {quickLinks.map((link) => (
-                <tr key={link.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <GripVertical className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm font-medium">{link.sortOrder}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    {link.icon ? (
-                      <span className="text-2xl">{link.icon}</span>
-                    ) : (
-                      <span className="text-gray-400 text-sm">없음</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    <p className="font-medium">{link.title}</p>
-                  </td>
-                  <td className="py-3 px-4">
-                    <a
-                      href={link.linkUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline text-sm"
-                    >
-                      {link.linkUrl}
-                    </a>
-                  </td>
-                  <td className="py-3 px-4">
-                    <p className="text-sm text-gray-600 truncate max-w-xs">
-                      {link.description || '-'}
-                    </p>
-                  </td>
-                  <td className="text-center py-3 px-4">
-                    <button
-                      onClick={() => handleToggleActive(link)}
-                      className={`px-3 py-1 text-xs rounded-full font-medium ${
-                        link.isActive
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {link.isActive ? (
-                        <span className="flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          활성
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1">
-                          <EyeOff className="h-3 w-3" />
-                          비활성
-                        </span>
-                      )}
-                    </button>
-                  </td>
-                  <td className="text-center py-3 px-4">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => handleOpenModal(link)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                        title="수정"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(link.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded"
-                        title="삭제"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {quickLinks.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="text-center py-8 text-gray-500">
-                    등록된 퀵링크가 없습니다.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+    {/* 통계 카드 */}
+    <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="bg-white p-4 rounded-lg shadow">
+        <p className="text-sm text-gray-600">전체 퀵링크</p>
+        <p className="text-2xl font-bold">{quickLinks.length}개</p>
       </div>
+      <div className="bg-white p-4 rounded-lg shadow">
+        <p className="text-sm text-gray-600">활성 퀵링크</p>
+        <p className="text-2xl font-bold">
+          {quickLinks.filter(l => l.isActive).length}개
+        </p>
+      </div>
+      <div className="bg-white p-4 rounded-lg shadow">
+        <p className="text-sm text-gray-600">비활성 퀵링크</p>
+        <p className="text-2xl font-bold">
+          {quickLinks.filter(l => !l.isActive).length}개
+        </p>
+      </div>
+    </div>
 
-      {/* 모달 */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">
-              {editingLink ? '퀵링크 수정' : '새 퀵링크 추가'}
-            </h2>
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    제목 <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-3 py-2 border rounded"
-                    required
-                  />
+    {/* 퀵링크 테이블 */}
+    <div className="bg-white rounded-lg shadow overflow-hidden">
+      <table className="w-full">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="text-left py-3 px-4 w-12">순서</th>
+            <th className="text-left py-3 px-4">아이콘</th>
+            <th className="text-left py-3 px-4">제목</th>
+            <th className="text-left py-3 px-4">URL</th>
+            <th className="text-left py-3 px-4">설명</th>
+            <th className="text-center py-3 px-4">상태</th>
+            <th className="text-center py-3 px-4">관리</th>
+          </tr>
+        </thead>
+        <tbody>
+          {quickLinks.map((link) => (
+            <tr key={link.id} className="border-b hover:bg-gray-50">
+              <td className="py-3 px-4">
+                <div className="flex items-center gap-2">
+                  <GripVertical className="h-4 w-4 text-gray-400" />
+                  <span className="text-sm font-medium">{link.sortOrder}</span>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    아이콘 (이모지)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    className="w-full px-3 py-2 border rounded"
-                    placeholder="예: 📚"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    링크 URL <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.linkUrl}
-                    onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
-                    className="w-full px-3 py-2 border rounded"
-                    placeholder="예: /resources"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    설명
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3 py-2 border rounded"
-                    rows={3}
-                    placeholder="퀵링크에 대한 간단한 설명"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    정렬 순서
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.sortOrder}
-                    onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 border rounded"
-                    min="0"
-                  />
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="isActive"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    className="mr-2"
-                  />
-                  <label htmlFor="isActive" className="text-sm font-medium">
-                    활성화
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 mt-6">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
+              </td>
+              <td className="py-3 px-4">
+                {link.icon ? (
+                  <span className="text-2xl">{link.icon}</span>
+                ) : (
+                  <span className="text-gray-400 text-sm">없음</span>
+                )}
+              </td>
+              <td className="py-3 px-4">
+                <p className="font-medium">{link.title}</p>
+              </td>
+              <td className="py-3 px-4">
+                <a
+                  href={link.linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline text-sm"
                 >
-                  취소
-                </button>
+                  {link.linkUrl}
+                </a>
+              </td>
+              <td className="py-3 px-4">
+                <p className="text-sm text-gray-600 truncate max-w-xs">
+                  {link.description || '-'}
+                </p>
+              </td>
+              <td className="text-center py-3 px-4">
                 <button
-                  type="submit"
-                  className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+                  onClick={() => handleToggleActive(link)}
+                  className={`px-3 py-1 text-xs rounded-full font-medium ${
+                    link.isActive
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-gray-100 text-gray-700'
+                  }`}
                 >
-                  {editingLink ? '수정' : '추가'}
+                  {link.isActive ? (
+                    <span className="flex items-center gap-1">
+                      <Eye className="h-3 w-3" />
+                      활성
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1">
+                      <EyeOff className="h-3 w-3" />
+                      비활성
+                    </span>
+                  )}
                 </button>
-              </div>
-            </form>
+              </td>
+              <td className="text-center py-3 px-4">
+                <div className="flex justify-center gap-2">
+                  <button
+                    onClick={() => handleOpenModal(link)}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                    title="수정"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(link.id)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded"
+                    title="삭제"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+          {quickLinks.length === 0 && (
+            <tr>
+              <td colSpan={7} className="text-center py-8 text-gray-500">
+                등록된 퀵링크가 없습니다.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    {/* 모달 */}
+    {showModal && (
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">
+          {editingLink ? '퀵링크 수정' : '새 퀵링크 추가'}
+        </h2>
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                제목 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full px-3 py-2 border rounded"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                아이콘 (이모지)
+              </label>
+              <input
+                type="text"
+                value={formData.icon}
+                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                className="w-full px-3 py-2 border rounded"
+                placeholder="예: 📚"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                링크 URL <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.linkUrl}
+                onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
+                className="w-full px-3 py-2 border rounded"
+                placeholder="예: /resources"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                설명
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full px-3 py-2 border rounded"
+                rows={3}
+                placeholder="퀵링크에 대한 간단한 설명"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                정렬 순서
+              </label>
+              <input
+                type="number"
+                value={formData.sortOrder}
+                onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) })}
+                className="w-full px-3 py-2 border rounded"
+                min="0"
+              />
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="isActive"
+                checked={formData.isActive}
+                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                className="mr-2"
+              />
+              <label htmlFor="isActive" className="text-sm font-medium">
+                활성화
+              </label>
+            </div>
           </div>
-        </div>
-      )}
-    </AdminLayout>
+
+          <div className="flex justify-end gap-2 mt-6">
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+            >
+              {editingLink ? '수정' : '추가'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    )}
+    </div>
   )
 }

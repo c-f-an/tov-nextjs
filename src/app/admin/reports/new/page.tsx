@@ -2,7 +2,6 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { AdminLayout } from '@/presentation/components/admin/AdminLayout';
 import { useAuth } from '@/presentation/contexts/AuthContext';
 import { ReportFileUpload } from '@/presentation/components/common/ReportFileUpload';
 
@@ -62,7 +61,6 @@ function NewReportForm() {
   };
 
   return (
-    <AdminLayout>
       <div>
         <div className="mb-6">
           <h1 className="text-2xl font-bold">새 보고서 작성</h1>
@@ -245,21 +243,18 @@ function NewReportForm() {
           </div>
         </form>
       </div>
-    </AdminLayout>
   );
 }
 
 export default function NewReportPage() {
   return (
     <Suspense fallback={
-      <AdminLayout>
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         </div>
-      </AdminLayout>
     }>
       <NewReportForm />
     </Suspense>

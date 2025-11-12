@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { AdminLayout } from '@/presentation/components/admin/AdminLayout';
 import { Editor } from '@/presentation/components/admin/Editor';
 import { S3ThumbnailUpload } from '@/presentation/components/common/S3ThumbnailUpload';
 
@@ -233,16 +232,13 @@ export default function EditPostPage() {
 
   if (isLoading) {
     return (
-      <AdminLayout>
         <div className="flex justify-center items-center min-h-screen">
           <p className="text-gray-500">로딩 중...</p>
         </div>
-      </AdminLayout>
     );
   }
 
   return (
-    <AdminLayout>
       <div className="max-w-6xl">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -504,6 +500,5 @@ export default function EditPostPage() {
           </div>
         </form>
       </div>
-    </AdminLayout>
   );
 }

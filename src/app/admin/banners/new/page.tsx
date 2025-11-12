@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { AdminLayout } from '@/presentation/components/admin/AdminLayout';
 import { S3BannerUpload } from '@/presentation/components/common/S3BannerUpload';
 import { imageOptionToTailwind, ImageOptionData } from '@/lib/utils/imageOptionConverter';
 
@@ -92,7 +91,6 @@ export default function NewBannerPage() {
   };
 
   return (
-    <AdminLayout>
       <div className="max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -497,6 +495,5 @@ export default function NewBannerPage() {
           </div>
         </form>
       </div>
-    </AdminLayout>
   );
 }

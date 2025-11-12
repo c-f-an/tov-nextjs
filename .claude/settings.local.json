@@ -29,7 +29,11 @@
       "Bash(cmd.exe //c \"taskkill /IM node.exe /F\")",
       "Bash(echo $env:DATABASE_URL)",
       "Bash(Get-Process -Name node -ErrorAction SilentlyContinue)",
-      "Bash(Select-Object Id, ProcessName)"
+      "Bash(Select-Object Id, ProcessName)",
+      "Bash(npx prettier:*)",
+      "Bash(npx next lint:*)",
+      "Bash(done)",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []

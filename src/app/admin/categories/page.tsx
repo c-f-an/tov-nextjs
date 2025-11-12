@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Edit2, Trash2, Save, X } from 'lucide-react'
-import { AdminLayout } from '@/presentation/components/admin/AdminLayout'
 
 interface Category {
   id: number
@@ -114,156 +113,152 @@ export default function AdminCategoriesPage() {
 
   if (loading) {
     return (
-      <AdminLayout>
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
-      </AdminLayout>
     )
   }
 
   return (
-    <AdminLayout>
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">카테고리 관리</h1>
-          <button
-            onClick={() => setIsAdding(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <Plus className="h-4 w-4" />
-            새 카테고리
-          </button>
-        </div>
-
-        <div className="bg-white rounded-lg shadow">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left p-4">카테고리명</th>
-                <th className="text-left p-4">슬러그</th>
-                <th className="text-left p-4">설명</th>
-                <th className="text-center p-4">게시물 수</th>
-                <th className="text-center p-4">상태</th>
-                <th className="text-center p-4">관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isAdding && (
-                <tr className="border-b">
-                  <td className="p-4">
-                    <input
-                      type="text"
-                      value={newCategory.name}
-                      onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
-                      placeholder="카테고리명"
-                      className="w-full px-2 py-1 border rounded"
-                    />
-                  </td>
-                  <td className="p-4">
-                    <input
-                      type="text"
-                      value={newCategory.slug}
-                      onChange={(e) => setNewCategory({...newCategory, slug: e.target.value})}
-                      placeholder="slug"
-                      className="w-full px-2 py-1 border rounded"
-                    />
-                  </td>
-                  <td className="p-4">
-                    <input
-                      type="text"
-                      value={newCategory.description}
-                      onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
-                      placeholder="설명"
-                      className="w-full px-2 py-1 border rounded"
-                    />
-                  </td>
-                  <td className="text-center p-4">0</td>
-                  <td className="text-center p-4">
-                    <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">활성</span>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex justify-center gap-2">
-                      <button onClick={handleAdd} className="text-green-600 hover:bg-green-50 p-1 rounded">
-                        <Save className="h-4 w-4" />
-                      </button>
-                      <button onClick={() => setIsAdding(false)} className="text-red-600 hover:bg-red-50 p-1 rounded">
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )}
-              {categories.map((category) => (
-                <tr key={category.id} className="border-b hover:bg-gray-50">
-                  <td className="p-4">
-                    {editingId === category.id ? (
-                      <input
-                        type="text"
-                        value={editForm.name}
-                        onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                        className="w-full px-2 py-1 border rounded"
-                      />
-                    ) : (
-                      category.name
-                    )}
-                  </td>
-                  <td className="p-4 text-sm text-gray-600">{category.slug}</td>
-                  <td className="p-4">
-                    {editingId === category.id ? (
-                      <input
-                        type="text"
-                        value={editForm.description}
-                        onChange={(e) => setEditForm({...editForm, description: e.target.value})}
-                        className="w-full px-2 py-1 border rounded"
-                      />
-                    ) : (
-                      <span className="text-sm text-gray-600">{category.description || '-'}</span>
-                    )}
-                  </td>
-                  <td className="text-center p-4">
-                    <span className="px-2 py-1 text-sm bg-blue-100 text-blue-700 rounded">
-                      {category.postCount}
-                    </span>
-                  </td>
-                  <td className="text-center p-4">
-                    <span className={`px-2 py-1 text-xs rounded ${
-                      category.isActive 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-gray-100 text-gray-700'
-                    }`}>
-                      {category.isActive ? '활성' : '비활성'}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex justify-center gap-2">
-                      {editingId === category.id ? (
-                        <>
-                          <button onClick={() => handleSave(category.id)} className="text-green-600 hover:bg-green-50 p-1 rounded">
-                            <Save className="h-4 w-4" />
-                          </button>
-                          <button onClick={() => setEditingId(null)} className="text-gray-600 hover:bg-gray-50 p-1 rounded">
-                            <X className="h-4 w-4" />
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button onClick={() => handleEdit(category)} className="text-blue-600 hover:bg-blue-50 p-1 rounded">
-                            <Edit2 className="h-4 w-4" />
-                          </button>
-                          <button onClick={() => handleDelete(category.id)} className="text-red-600 hover:bg-red-50 p-1 rounded">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">카테고리 관리</h1>
+        <button
+          onClick={() => setIsAdding(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          <Plus className="h-4 w-4" />
+          새 카테고리
+        </button>
       </div>
-    </AdminLayout>
+
+      <div className="bg-white rounded-lg shadow">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left p-4">카테고리명</th>
+              <th className="text-left p-4">슬러그</th>
+              <th className="text-left p-4">설명</th>
+              <th className="text-center p-4">게시물 수</th>
+              <th className="text-center p-4">상태</th>
+              <th className="text-center p-4">관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isAdding && (
+              <tr className="border-b">
+                <td className="p-4">
+                  <input
+                    type="text"
+                    value={newCategory.name}
+                    onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+                    placeholder="카테고리명"
+                    className="w-full px-2 py-1 border rounded"
+                  />
+                </td>
+                <td className="p-4">
+                  <input
+                    type="text"
+                    value={newCategory.slug}
+                    onChange={(e) => setNewCategory({...newCategory, slug: e.target.value})}
+                    placeholder="slug"
+                    className="w-full px-2 py-1 border rounded"
+                  />
+                </td>
+                <td className="p-4">
+                  <input
+                    type="text"
+                    value={newCategory.description}
+                    onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
+                    placeholder="설명"
+                    className="w-full px-2 py-1 border rounded"
+                  />
+                </td>
+                <td className="text-center p-4">0</td>
+                <td className="text-center p-4">
+                  <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">활성</span>
+                </td>
+                <td className="p-4">
+                  <div className="flex justify-center gap-2">
+                    <button onClick={handleAdd} className="text-green-600 hover:bg-green-50 p-1 rounded">
+                      <Save className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => setIsAdding(false)} className="text-red-600 hover:bg-red-50 p-1 rounded">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )}
+            {categories.map((category) => (
+              <tr key={category.id} className="border-b hover:bg-gray-50">
+                <td className="p-4">
+                  {editingId === category.id ? (
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                      className="w-full px-2 py-1 border rounded"
+                    />
+                  ) : (
+                    category.name
+                  )}
+                </td>
+                <td className="p-4 text-sm text-gray-600">{category.slug}</td>
+                <td className="p-4">
+                  {editingId === category.id ? (
+                    <input
+                      type="text"
+                      value={editForm.description}
+                      onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                      className="w-full px-2 py-1 border rounded"
+                    />
+                  ) : (
+                    <span className="text-sm text-gray-600">{category.description || '-'}</span>
+                  )}
+                </td>
+                <td className="text-center p-4">
+                  <span className="px-2 py-1 text-sm bg-blue-100 text-blue-700 rounded">
+                    {category.postCount}
+                  </span>
+                </td>
+                <td className="text-center p-4">
+                  <span className={`px-2 py-1 text-xs rounded ${
+                    category.isActive 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'bg-gray-100 text-gray-700'
+                  }`}>
+                    {category.isActive ? '활성' : '비활성'}
+                  </span>
+                </td>
+                <td className="p-4">
+                  <div className="flex justify-center gap-2">
+                    {editingId === category.id ? (
+                      <>
+                        <button onClick={() => handleSave(category.id)} className="text-green-600 hover:bg-green-50 p-1 rounded">
+                          <Save className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => setEditingId(null)} className="text-gray-600 hover:bg-gray-50 p-1 rounded">
+                          <X className="h-4 w-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => handleEdit(category)} className="text-blue-600 hover:bg-blue-50 p-1 rounded">
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => handleDelete(category.id)} className="text-red-600 hover:bg-red-50 p-1 rounded">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   )
 }

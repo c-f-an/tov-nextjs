@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { AdminLayout } from '@/presentation/components/admin/AdminLayout';
 import { useAuth } from '@/presentation/contexts/AuthContext';
 import Link from 'next/link';
 
@@ -134,7 +133,6 @@ export default function NewResourcePage() {
   }
 
   return (
-    <AdminLayout>
       <div className="max-w-4xl">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">새 자료 추가</h1>
@@ -300,6 +298,5 @@ export default function NewResourcePage() {
           </div>
         </form>
       </div>
-    </AdminLayout>
   );
 }

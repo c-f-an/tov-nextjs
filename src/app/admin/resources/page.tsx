@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { AdminLayout } from '@/presentation/components/admin/AdminLayout';
 import { useAuth } from '@/presentation/contexts/AuthContext';
 import Link from 'next/link';
 
@@ -171,14 +170,12 @@ export default function AdminResourcesPage() {
   // 인증 로딩 중일 때 로딩 표시
   if (authLoading) {
     return (
-      <AdminLayout>
         <div className="flex items-center justify-center h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">인증 확인 중...</p>
           </div>
         </div>
-      </AdminLayout>
     );
   }
 
@@ -188,202 +185,200 @@ export default function AdminResourcesPage() {
   }
 
   return (
-    <AdminLayout>
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">자료실 관리</h1>
-          <Link
-            href="/admin/resources/new"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">자료실 관리</h1>
+        <Link
+          href="/admin/resources/new"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          새 자료 추가
+        </Link>
+      </div>
+  
+      {/* 검색 필터 */}
+      <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <form onSubmit={handleSearch} className="flex gap-4">
+          <select
+            value={selectedCategory}
+            onChange={(e) => {
+              setSelectedCategory(e.target.value);
+              setPage(1);
+            }}
+            className="border rounded px-3 py-2"
           >
-            새 자료 추가
-          </Link>
-        </div>
-
-        {/* 검색 필터 */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <form onSubmit={handleSearch} className="flex gap-4">
-            <select
-              value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                setPage(1);
-              }}
-              className="border rounded px-3 py-2"
-            >
-              <option value="">모든 카테고리</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="text"
-              placeholder="제목으로 검색..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 border rounded px-3 py-2"
-            />
-
-            <button
-              type="submit"
-              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
-            >
-              검색
-            </button>
-          </form>
-        </div>
-
-        {/* 자료 목록 */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-600">로딩중...</p>
-            </div>
-          ) : resources.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              등록된 자료가 없습니다.
-            </div>
-          ) : (
-            <table className="min-w-full">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    제목
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    카테고리
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    유형
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    파일
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    다운로드
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    상태
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    작성일
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    관리
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {resources.map((resource) => (
-                  <tr key={resource.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {resource.title}
-                          {resource.isFeatured && (
-                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                              주요
-                            </span>
-                          )}
-                        </div>
-                        {resource.description && (
-                          <div className="text-sm text-gray-500 truncate max-w-xs">
-                            {resource.description}
-                          </div>
+            <option value="">모든 카테고리</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+  
+          <input
+            type="text"
+            placeholder="제목으로 검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 border rounded px-3 py-2"
+          />
+  
+          <button
+            type="submit"
+            className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+          >
+            검색
+          </button>
+        </form>
+      </div>
+  
+      {/* 자료 목록 */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">로딩중...</p>
+          </div>
+        ) : resources.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            등록된 자료가 없습니다.
+          </div>
+        ) : (
+          <table className="min-w-full">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  제목
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  카테고리
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  유형
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  파일
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  다운로드
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  상태
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  작성일
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  관리
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {resources.map((resource) => (
+                <tr key={resource.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {resource.title}
+                        {resource.isFeatured && (
+                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                            주요
+                          </span>
                         )}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {resource.category?.name || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {getResourceTypeLabel(resource.resourceType)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {resource.fileType ? (
-                        <div>
-                          <div className="font-medium">{resource.fileType}</div>
-                          <div className="text-gray-500">
-                            {formatFileSize(resource.fileSize)}
-                          </div>
+                      {resource.description && (
+                        <div className="text-sm text-gray-500 truncate max-w-xs">
+                          {resource.description}
                         </div>
-                      ) : (
-                        <span className="text-gray-400">외부링크</span>
                       )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {resource.downloadCount}회
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                        resource.isActive
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {resource.isActive ? '공개' : '비공개'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(resource.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Link
-                        href={`/admin/resources/${resource.id}/edit`}
-                        className="text-indigo-600 hover:text-indigo-900 mr-4"
-                      >
-                        수정
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(resource.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        삭제
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* 페이지네이션 */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex justify-center">
-            <nav className="flex space-x-2">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-3 py-1 border rounded disabled:opacity-50"
-              >
-                이전
-              </button>
-              {[...Array(totalPages)].map((_, i) => (
-                <button
-                  key={i + 1}
-                  onClick={() => setPage(i + 1)}
-                  className={`px-3 py-1 border rounded ${
-                    page === i + 1 ? 'bg-blue-600 text-white' : ''
-                  }`}
-                >
-                  {i + 1}
-                </button>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {resource.category?.name || '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {getResourceTypeLabel(resource.resourceType)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {resource.fileType ? (
+                      <div>
+                        <div className="font-medium">{resource.fileType}</div>
+                        <div className="text-gray-500">
+                          {formatFileSize(resource.fileSize)}
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">외부링크</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {resource.downloadCount}회
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                      resource.isActive
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {resource.isActive ? '공개' : '비공개'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(resource.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <Link
+                      href={`/admin/resources/${resource.id}/edit`}
+                      className="text-indigo-600 hover:text-indigo-900 mr-4"
+                    >
+                      수정
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(resource.id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      삭제
+                    </button>
+                  </td>
+                </tr>
               ))}
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-3 py-1 border rounded disabled:opacity-50"
-              >
-                다음
-              </button>
-            </nav>
-          </div>
+            </tbody>
+          </table>
         )}
       </div>
-    </AdminLayout>
-  );
+  
+      {/* 페이지네이션 */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <nav className="flex space-x-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              이전
+            </button>
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setPage(i + 1)}
+                className={`px-3 py-1 border rounded ${
+                  page === i + 1 ? 'bg-blue-600 text-white' : ''
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              다음
+            </button>
+          </nav>
+        </div>
+      )}
+      </div>
+    );
 }

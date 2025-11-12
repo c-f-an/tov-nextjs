@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { AdminLayout } from '@/presentation/components/admin/AdminLayout';
 import { Editor } from '@/presentation/components/admin/Editor';
 import { S3ThumbnailUpload } from '@/presentation/components/common/S3ThumbnailUpload';
 
@@ -162,7 +161,6 @@ export default function NewPostPage() {
   };
 
   return (
-    <AdminLayout>
       <div className="max-w-6xl">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -410,6 +408,5 @@ export default function NewPostPage() {
           </div>
         </form>
       </div>
-    </AdminLayout>
   );
 }
