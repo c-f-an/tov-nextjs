@@ -4,67 +4,25 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeft, DollarSign } from "lucide-react";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
-import ReportCard, { Report } from "@/presentation/components/report/ReportCard";
+import ReportCard, {
+  Report,
+} from "@/presentation/components/report/ReportCard";
 import SearchBar from "@/presentation/components/news/SearchBar";
-import PageHeader from '@/presentation/components/common/PageHeader';
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 // 임시 데이터 - 더 많은 연도별 데이터
-const mockAllFinanceReports: Report[] = [
-  {
-    id: 4,
-    title: "2024년 토브협회 재정보고서",
-    date: "2024-03-15",
-    year: "2024",
-    type: "finance",
-    summary: "2024년도 토브협회의 재정 현황과 예산 집행 내역을 투명하게 공개한 보고서입니다. 수입과 지출 내역, 재무상태표 등을 확인하실 수 있습니다.",
-    views: 987
-  },
-  {
-    id: 5,
-    title: "2023년 토브협회 재정보고서",
-    date: "2023-03-20",
-    year: "2023",
-    type: "finance",
-    summary: "2023년도 토브협회의 재정 운영 결과를 정리한 보고서입니다. 전년 대비 재정 변화와 주요 사업별 예산 집행 현황을 상세히 담고 있습니다.",
-    views: 1543
-  },
-  {
-    id: 6,
-    title: "2022년 토브협회 재정보고서",
-    date: "2022-03-25",
-    year: "2022",
-    type: "finance",
-    summary: "2022년도 토브협회의 재정 상태와 예산 운영 실적을 담은 보고서입니다. 효율적인 재정 운영을 위한 노력과 그 결과를 확인하실 수 있습니다.",
-    views: 1234
-  },
-  {
-    id: 10,
-    title: "2021년 토브협회 재정보고서",
-    date: "2021-03-30",
-    year: "2021",
-    type: "finance",
-    summary: "2021년도 토브협회의 재정 운영 보고서입니다. 코로나19 상황에서의 재정 안정화 노력과 예산 절감 성과를 확인하실 수 있습니다.",
-    views: 1123
-  },
-  {
-    id: 11,
-    title: "2020년 토브협회 재정보고서",
-    date: "2020-04-05",
-    year: "2020",
-    type: "finance",
-    summary: "2020년도 토브협회의 재정 현황 보고서입니다. 비상 상황에서의 재정 운영과 긴급 지원 사업 집행 내역을 담고 있습니다.",
-    views: 1087
-  },
-  {
-    id: 12,
-    title: "2019년 토브협회 재정보고서",
-    date: "2019-03-28",
-    year: "2019",
-    type: "finance",
-    summary: "2019년도 토브협회의 재정 운영 결과 보고서입니다. 안정적인 재정 기반 구축과 투명한 회계 처리 내용을 포함하고 있습니다.",
-    views: 956
-  }
-];
+const mockAllFinanceReports: Report[] = [];
+// [
+//   {
+//     id: 4,
+//     title: "2024년 토브협회 재정보고서",
+//     date: "2024-03-15",
+//     year: "2024",
+//     type: "finance",
+//     summary: "2024년도 토브협회의 재정 현황과 예산 집행 내역을 투명하게 공개한 보고서입니다. 수입과 지출 내역, 재무상태표 등을 확인하실 수 있습니다.",
+//     views: 987
+//   }
+// ];
 
 export default function FinanceReportListPage() {
   const [reports, setReports] = useState<Report[]>([]);
@@ -83,21 +41,24 @@ export default function FinanceReportListPage() {
 
     // 연도 필터
     if (selectedYear !== "all") {
-      filtered = filtered.filter(report => report.year === selectedYear);
+      filtered = filtered.filter((report) => report.year === selectedYear);
     }
 
     // 검색 필터
     if (searchQuery) {
-      filtered = filtered.filter(report =>
-        report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        report.summary.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        (report) =>
+          report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          report.summary.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     setFilteredReports(filtered);
   }, [searchQuery, selectedYear, reports]);
 
-  const years = Array.from(new Set(reports.map(r => r.year))).sort((a, b) => b.localeCompare(a));
+  const years = Array.from(new Set(reports.map((r) => r.year))).sort((a, b) =>
+    b.localeCompare(a)
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -108,11 +69,11 @@ export default function FinanceReportListPage() {
             items={[
               { label: "About Us", href: "/about" },
               { label: "사업보고", href: "/about/business" },
-              { label: "재정보고서" }
+              { label: "재정보고서" },
             ]}
             className="text-white/80 mb-4"
           />
-          <PageHeader 
+          <PageHeader
             title="재정보고서"
             description="토브협회의 투명한 재정 운영 현황을 확인하세요"
           />
@@ -145,8 +106,10 @@ export default function FinanceReportListPage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="all">전체 연도</option>
-                {years.map(year => (
-                  <option key={year} value={year}>{year}년</option>
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}년
+                  </option>
                 ))}
               </select>
             </div>
