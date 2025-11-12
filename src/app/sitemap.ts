@@ -81,17 +81,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const consultationUrls: MetadataRoute.Sitemap = []
 
 
-    // 비즈니스 보고서 가져오기
-    const businessReports = await query<{id: number, report_type: string, updated_at: Date}[]>(`
-      SELECT id, report_type, updated_at
-      FROM financial_reports
-      WHERE is_published = 1
+    // 비즈니스 보고서 가져오기 (reports 테이블 사용)
+    const businessReports = await query<{id: number, type: string, updated_at: Date}[]>(`
+      SELECT id, type, updated_at
+      FROM reports
+      WHERE is_active = 1
       ORDER BY updated_at DESC
       LIMIT 200
     `)
 
     const reportUrls: MetadataRoute.Sitemap = businessReports.map((report) => ({
-      url: `${baseUrl}/about/business/${report.report_type}/${report.id}`,
+      url: `${baseUrl}/about/business/${report.type}/${report.id}`,
       lastModified: new Date(report.updated_at),
       changeFrequency: 'yearly',
       priority: 0.5,
