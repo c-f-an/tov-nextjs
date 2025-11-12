@@ -10,30 +10,35 @@ import ReportCard, {
 import SearchBar from "@/presentation/components/news/SearchBar";
 import PageHeader from "@/presentation/components/common/PageHeader";
 
-// 임시 데이터 - 더 많은 연도별 데이터
-const mockAllFinanceReports: Report[] = [];
-// [
-//   {
-//     id: 4,
-//     title: "2024년 토브협회 재정보고서",
-//     date: "2024-03-15",
-//     year: "2024",
-//     type: "finance",
-//     summary: "2024년도 토브협회의 재정 현황과 예산 집행 내역을 투명하게 공개한 보고서입니다. 수입과 지출 내역, 재무상태표 등을 확인하실 수 있습니다.",
-//     views: 987
-//   }
-// ];
 
 export default function FinanceReportListPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [filteredReports, setFilteredReports] = useState<Report[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedYear, setSelectedYear] = useState<string>("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: API에서 데이터 가져오기
-    setReports(mockAllFinanceReports);
-    setFilteredReports(mockAllFinanceReports);
+    const fetchReports = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/reports?type=finance");
+        const data = await response.json();
+
+        if (data.success) {
+          setReports(data.data);
+          setFilteredReports(data.data);
+        } else {
+          console.error("Failed to fetch finance reports:", data.error);
+        }
+      } catch (error) {
+        console.error("Error fetching finance reports:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
   }, []);
 
   useEffect(() => {
@@ -128,7 +133,14 @@ export default function FinanceReportListPage() {
         )}
 
         {/* 보고서 목록 */}
-        {filteredReports.length > 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">보고서를 불러오는 중...</p>
+            </div>
+          </div>
+        ) : filteredReports.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredReports.map((report) => (
               <ReportCard key={report.id} report={report} />
@@ -137,7 +149,11 @@ export default function FinanceReportListPage() {
         ) : (
           <div className="text-center py-12">
             <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">검색 결과가 없습니다.</p>
+            <p className="text-gray-500">
+              {searchQuery || selectedYear !== "all"
+                ? "검색 결과가 없습니다."
+                : "등록된 재정보고서가 없습니다."}
+            </p>
           </div>
         )}
 

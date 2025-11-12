@@ -10,31 +10,35 @@ import ReportCard, {
 import SearchBar from "@/presentation/components/news/SearchBar";
 import PageHeader from "@/presentation/components/common/PageHeader";
 
-// 임시 데이터 - 더 많은 연도별 데이터
-const mockAllBusinessReports: Report[] = [];
-// [
-//   {
-//     id: 1,
-//     title: "2024년 토브협회 사업보고서",
-//     date: "2024-03-15",
-//     year: "2024",
-//     type: "business",
-//     summary:
-//       "2024년도 토브협회의 주요 사업 성과와 활동 내역을 담은 종합 보고서입니다. 세무 상담, 교육 프로그램, 자료 제공 서비스 등의 성과를 확인하실 수 있습니다.",
-//     views: 1234,
-//   },
-// ];
 
 export default function BusinessReportListPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [filteredReports, setFilteredReports] = useState<Report[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedYear, setSelectedYear] = useState<string>("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: API에서 데이터 가져오기
-    setReports(mockAllBusinessReports);
-    setFilteredReports(mockAllBusinessReports);
+    const fetchReports = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/reports?type=business");
+        const data = await response.json();
+
+        if (data.success) {
+          setReports(data.data);
+          setFilteredReports(data.data);
+        } else {
+          console.error("Failed to fetch business reports:", data.error);
+        }
+      } catch (error) {
+        console.error("Error fetching business reports:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
   }, []);
 
   useEffect(() => {
@@ -129,7 +133,14 @@ export default function BusinessReportListPage() {
         )}
 
         {/* 보고서 목록 */}
-        {filteredReports.length > 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">보고서를 불러오는 중...</p>
+            </div>
+          </div>
+        ) : filteredReports.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredReports.map((report) => (
               <ReportCard key={report.id} report={report} />
@@ -138,7 +149,11 @@ export default function BusinessReportListPage() {
         ) : (
           <div className="text-center py-12">
             <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">검색 결과가 없습니다.</p>
+            <p className="text-gray-500">
+              {searchQuery || selectedYear !== "all"
+                ? "검색 결과가 없습니다."
+                : "등록된 사업보고서가 없습니다."}
+            </p>
           </div>
         )}
       </div>
