@@ -37,7 +37,7 @@ export default function AdminCategoriesPage() {
           const postsData = await postsResponse.json()
           return {
             ...cat,
-            postCount: postsData.pagination?.total || 0
+            postCount: postsData.total || 0
           }
         }))
         setCategories(categoriesWithCount)
