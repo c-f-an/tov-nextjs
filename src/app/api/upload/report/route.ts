@@ -6,6 +6,9 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    const type = formData.get('type') as string; // 'business' or 'finance'
+    const year = formData.get('year') as string;
+    const reportId = formData.get('reportId') as string; // optional, for existing reports
 
     if (!file) {
       return NextResponse.json(
@@ -14,32 +17,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type
-    const allowedMimeTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'application/x-hwp',
-      'application/haansoft-hwp',
-      'application/zip',
-      'application/x-zip-compressed',
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-      'image/svg+xml'
-    ];
+    if (!type || !['business', 'finance'].includes(type)) {
+      return NextResponse.json(
+        { error: 'Invalid type. Must be "business" or "finance"' },
+        { status: 400 }
+      );
+    }
 
-    const fileType = file.type || 'application/octet-stream';
+    if (!year) {
+      return NextResponse.json(
+        { error: 'Year is required' },
+        { status: 400 }
+      );
+    }
 
     // Get file extension
     const fileExt = path.extname(file.name).toLowerCase();
-    const allowedExtensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.hwp', '.zip', '.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    const allowedExtensions = [
+      '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+      '.hwp', '.zip', '.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'
+    ];
 
     if (!allowedExtensions.includes(fileExt)) {
       return NextResponse.json(
@@ -48,18 +45,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Initialize S3 service with 'data-archive' base path
-    const s3Service = new S3Service('data-archive');
+    // Initialize S3 service with 'reports' base path
+    const s3Service = new S3Service('reports');
 
-    // Generate unique key for S3 (year/month subdirectory for organization)
-    const year = new Date().getFullYear();
-    const month = String(new Date().getMonth() + 1).padStart(2, '0');
-    const directory = `${year}/${month}`;
-    const fileKey = s3Service.generateFileKey(file.name, directory);
+    // Generate directory path: type/year
+    const directory = `${type}/${year}`;
+
+    // Generate file key: timestamp_uniqueId_reportId.ext
+    const timestamp = Date.now();
+    const uniqueId = Math.random().toString(36).substring(2, 10);
+    const reportIdSuffix = reportId ? `_${reportId}` : '_new';
+    const fileKey = `${directory}/${timestamp}_${uniqueId}${reportIdSuffix}${fileExt}`;
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+
+    const fileType = file.type || 'application/octet-stream';
 
     // Upload to S3
     const uploadResult = await s3Service.uploadFile(
@@ -68,6 +70,8 @@ export async function POST(request: NextRequest) {
       fileType,
       {
         originalName: file.name,
+        reportType: type,
+        reportYear: year,
         uploadedAt: new Date().toISOString()
       }
     );
