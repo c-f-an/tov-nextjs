@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
 
     const category = searchParams.get('category');
+    const categoryId = searchParams.get('categoryId');
     const searchTerm = searchParams.get('search');
     const sortBy = searchParams.get('sort') || 'latest';
     const page = parseInt(searchParams.get('page') || '1');
@@ -28,8 +29,13 @@ export async function GET(request: NextRequest) {
     let whereConditions = ['p.status = ?'];
     let queryParams: any[] = ['published'];
 
+    // 카테고리 ID 필터
+    if (categoryId) {
+      whereConditions.push('p.category_id = ?');
+      queryParams.push(parseInt(categoryId));
+    }
     // 카테고리 필터 - slug 또는 type으로 검색
-    if (category) {
+    else if (category) {
       whereConditions.push('(c.type = ? OR c.slug = ?)');
       queryParams.push(category, category);
     }
