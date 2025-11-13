@@ -11,6 +11,7 @@ interface Post {
   categoryName: string;
   categorySlug: string;
   author: { name: string; email: string };
+  status: 'draft' | 'published' | 'archived';
   isPublished: boolean;
   views: number;
   isNotice: boolean;
@@ -55,7 +56,7 @@ export default function AdminPostsPage() {
         params.append('category', selectedCategory);
       }
 
-      const response = await fetch(`/api/posts?${params}`);
+      const response = await fetch(`/api/admin/posts?${params}`);
       if (!response.ok) throw new Error('Failed to fetch posts');
 
       const data = await response.json();
@@ -247,8 +248,8 @@ export default function AdminPostsPage() {
                     {post.author?.name || '관리자'}
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${post.isPublished ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {post.isPublished ? '공개' : '비공개'}
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusLabels[post.status]?.color || 'bg-gray-100 text-gray-800'}`}>
+                      {statusLabels[post.status]?.label || post.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-center text-sm text-gray-500">

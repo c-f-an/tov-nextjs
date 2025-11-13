@@ -119,6 +119,7 @@ export async function GET(request: NextRequest) {
       categoryName: item.category_name,
       categorySlug: item.category_slug,
       views: item.views || item.view_count || 0,
+      status: item.status,
       isPublished: item.is_published,
       isNotice: item.is_notice,
       isFeatured: item.is_featured,
