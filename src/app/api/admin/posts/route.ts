@@ -122,9 +122,9 @@ export async function GET(request: NextRequest) {
       categorySlug: item.category_slug,
       views: item.views || item.view_count || 0,
       status: item.status,
-      isPublished: item.is_published,
-      isNotice: item.is_notice,
-      isFeatured: item.is_featured,
+      isPublished: Boolean(item.is_published),
+      isNotice: Boolean(item.is_notice),
+      isFeatured: Boolean(item.is_featured),
       author: {
         name: item.author_name || '관리자',
         email: item.author_email

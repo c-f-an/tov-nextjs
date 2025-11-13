@@ -120,9 +120,9 @@ export async function GET(request: NextRequest) {
       categorySlug: item.category_slug,
       views: item.views || item.view_count || 0,
       status: item.status,
-      isPublished: item.is_published,
-      isNotice: item.is_notice,
-      isFeatured: item.is_featured,
+      isPublished: Boolean(item.is_published),
+      isNotice: Boolean(item.is_notice),
+      isFeatured: Boolean(item.is_featured),
       author: {
         name: item.author_name || '관리자',
         email: item.author_email
@@ -236,8 +236,8 @@ export async function POST(request: NextRequest) {
       categorySlug: created.category_slug,
       views: 0,
       isPublished: created.status === 'published',
-      isNotice: created.is_notice,
-      isFeatured: created.is_featured,
+      isNotice: Boolean(created.is_notice),
+      isFeatured: Boolean(created.is_featured),
       createdAt: created.created_at,
       updatedAt: created.updated_at,
       publishedAt: created.published_at
