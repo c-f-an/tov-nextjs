@@ -62,10 +62,10 @@ export async function GET(request: NextRequest) {
     const [countResult] = await query(countQuery, queryParams) as any;
     const total = countResult.total;
 
-    // 정렬 설정
-    let orderBy = 'p.created_at DESC';
+    // 정렬 설정 - 공지사항을 최상단에 고정
+    let orderBy = 'p.is_notice DESC, p.created_at DESC';
     if (sortBy === 'popular') {
-      orderBy = 'p.view_count DESC, p.created_at DESC';
+      orderBy = 'p.is_notice DESC, p.view_count DESC, p.created_at DESC';
     }
 
     // 페이지네이션 계산

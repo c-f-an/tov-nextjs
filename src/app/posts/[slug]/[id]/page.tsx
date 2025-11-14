@@ -28,10 +28,10 @@ interface Post {
 }
 
 function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  return new Date(date).toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 
@@ -55,13 +55,13 @@ export default function PostDetailPage() {
     try {
       const response = await fetch(`/api/posts/${postId}`);
       if (!response.ok) {
-        throw new Error('Post not found');
+        throw new Error("Post not found");
       }
       const data = await response.json();
       setPost(data);
     } catch (error) {
-      console.error('Failed to load post:', error);
-      router.push('/posts');
+      console.error("Failed to load post:", error);
+      router.push("/posts");
     } finally {
       setLoading(false);
     }
@@ -85,20 +85,24 @@ export default function PostDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <PageHeader
-        title={post.categoryName}
-        subtitle=""
-      />
+      <PageHeader title={post.categoryName} subtitle="" />
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* 브레드크럼 */}
           <div className="flex items-center space-x-2 text-sm text-gray-500 mb-6">
-            <Link href="/" className="hover:text-gray-700">홈</Link>
+            <Link href="/" className="hover:text-gray-700">
+              홈
+            </Link>
             <span>/</span>
-            <Link href="/posts" className="hover:text-gray-700">토브 소식</Link>
+            <Link href="/posts" className="hover:text-gray-700">
+              토브 소식
+            </Link>
             <span>/</span>
-            <Link href={`/posts/${post.categorySlug}`} className="hover:text-gray-700">
+            <Link
+              href={`/posts/${post.categorySlug}`}
+              className="hover:text-gray-700"
+            >
               {post.categoryName}
             </Link>
           </div>
@@ -129,7 +133,9 @@ export default function PostDetailPage() {
 
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                 <span>작성자: {post.author.name}</span>
-                <span>작성일: {formatDate(post.publishedAt || post.createdAt)}</span>
+                <span>
+                  작성일: {formatDate(post.publishedAt || post.createdAt)}
+                </span>
                 <span>조회수: {post.views}</span>
               </div>
             </div>
