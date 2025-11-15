@@ -100,7 +100,7 @@ export default async function ResourceDetailPage({ params }: PageProps) {
               <div className="prose max-w-none">
                 <h3 className="text-lg font-semibold mb-4">자료 설명</h3>
                 {resource.description ? (
-                  <p className="text-gray-700 leading-relaxed">{resource.description}</p>
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">{resource.description}</p>
                 ) : (
                   <p className="text-gray-500">상세 설명이 없습니다.</p>
                 )}
