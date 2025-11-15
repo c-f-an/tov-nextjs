@@ -18,9 +18,9 @@ const resourceTypeGroups = {
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 // Generate static params for all active categories
@@ -45,7 +45,7 @@ export async function generateStaticParams() {
 }
 
 export default async function ResourceCategoryPage({ params }: PageProps) {
-  const { slug } = params;
+  const { slug } = await params;
 
   const container = getContainer();
   const categoryRepo = container.getResourceCategoryRepository();
@@ -160,7 +160,9 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
                             <div className="flex items-start gap-3 mb-3">
                               <FileText className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
                               <div className="flex-1">
+                                <Link href={`/resources/item/${resource.id}`} className="hover:text-primary transition-colors">
                                 <h3 className="font-bold text-lg mb-2">{resource.title}</h3>
+                              </Link>
                                 {resource.description && (
                                   <p className="text-sm text-gray-600 mb-3">{resource.description}</p>
                                 )}
