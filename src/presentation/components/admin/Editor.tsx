@@ -15,9 +15,47 @@ export function Editor({ value, onChange, placeholder = '내용을 입력하세�
   const isComposing = useRef(false);
   const lastValue = useRef(value);
 
-  // 텍스트 포맷팅 함수들
+  // 텍스트 포맷팅 함수들 - 개선된 버전
   const formatText = (command: string, value?: string) => {
+    editorRef.current?.focus();
     document.execCommand(command, false, value);
+    editorRef.current?.focus();
+    handleContentChange();
+  };
+
+  // 링크 추가 함수 - 메타정보 포함
+  const insertLink = async () => {
+    const url = prompt('링크 URL을 입력하세요:');
+    if (!url) return;
+
+    editorRef.current?.focus();
+
+    const selection = window.getSelection();
+    const selectedText = selection?.toString() || url;
+
+    // URL에서 호스트명 추출 (안전하게)
+    let hostname = url;
+    try {
+      const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+      hostname = urlObj.hostname;
+    } catch {
+      hostname = url.replace(/^https?:\/\//, '').split('/')[0];
+    }
+
+    // 링크 카드 스타일로 삽입 - data 속성으로 타입 지정
+    const linkHtml = `<div data-link-card="true" contenteditable="false" style="display: inline-block; margin: 8px 0;">
+      <a href="${url.startsWith('http') ? url : `https://${url}`}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; padding: 10px 16px; border: 1px solid #d1d5db; border-radius: 8px; text-decoration: none; color: #2563eb; background-color: #f9fafb; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+        <span style="display: inline-flex; margin-right: 8px; color: #6b7280;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
+        </span>
+        <span style="font-weight: 500;">${selectedText}</span>
+        <span style="margin-left: 8px; font-size: 12px; color: #9ca3af; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${hostname}</span>
+      </a>
+    </div>&nbsp;`;
+
+    document.execCommand('insertHTML', false, linkHtml);
     handleContentChange();
   };
 
@@ -60,11 +98,40 @@ export function Editor({ value, onChange, placeholder = '내용을 입력하세�
     handleContentChange();
   };
 
-  // 초기 값 설정 - 컴포넌트 마운트시에만
+  // 키보드 이벤트 처리 - Enter 키로 블록 포맷 적용
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      // Enter 키 기본 동작 유지 (새 줄/블록 생성)
+      // formatBlock이 자동으로 적용되도록 함
+    }
+  };
+
+  // 초기 값 설정 및 외부 value 변경 감지
   useEffect(() => {
-    if (editorRef.current && !editorRef.current.innerHTML) {
-      editorRef.current.innerHTML = value;
-      lastValue.current = value;
+    if (editorRef.current && value !== lastValue.current) {
+      // 포커스가 없을 때만 업데이트하거나, 에디터가 비어있을 때 업데이트
+      const editorIsEmpty = !editorRef.current.innerHTML || editorRef.current.innerHTML === '<br>';
+      const editorNotFocused = document.activeElement !== editorRef.current;
+
+      if (editorIsEmpty || editorNotFocused) {
+        editorRef.current.innerHTML = value;
+        lastValue.current = value;
+      }
+    }
+  }, [value]);
+
+  // contentEditable 설정 강화
+  useEffect(() => {
+    if (editorRef.current) {
+      // 리스트 스타일 적용을 위한 CSS 추가
+      editorRef.current.style.cssText += `
+        line-height: 1.6;
+      `;
+      // 초기값이 있으면 설정
+      if (value && !editorRef.current.innerHTML) {
+        editorRef.current.innerHTML = value;
+        lastValue.current = value;
+      }
     }
   }, []);
 
@@ -188,10 +255,7 @@ export function Editor({ value, onChange, placeholder = '내용을 입력하세�
         <div className="flex items-center gap-1 border-r pr-2 mr-2">
           <button
             type="button"
-            onClick={() => {
-              const url = prompt('링크 URL을 입력하세요:');
-              if (url) formatText('createLink', url);
-            }}
+            onClick={insertLink}
             className="p-2 hover:bg-gray-200 rounded transition-colors"
             title="링크"
           >
@@ -239,12 +303,13 @@ export function Editor({ value, onChange, placeholder = '내용을 입력하세�
       <div
         ref={editorRef}
         contentEditable
-        className="p-4 focus:outline-none"
+        className="p-4 focus:outline-none prose prose-slate max-w-none"
         style={{ minHeight }}
         onInput={handleContentChange}
         onCompositionStart={handleCompositionStart}
         onCompositionEnd={handleCompositionEnd}
         onPaste={handlePaste}
+        onKeyDown={handleKeyDown}
         data-placeholder={placeholder}
         suppressContentEditableWarning
       />
@@ -254,6 +319,69 @@ export function Editor({ value, onChange, placeholder = '내용을 입력하세�
           content: attr(data-placeholder);
           color: #9ca3af;
           cursor: text;
+        }
+
+        [contenteditable] {
+          outline: none;
+        }
+
+        [contenteditable] h1 {
+          font-size: 2em;
+          font-weight: bold;
+          margin: 0.67em 0;
+          line-height: 1.2;
+        }
+
+        [contenteditable] h2 {
+          font-size: 1.5em;
+          font-weight: bold;
+          margin: 0.75em 0;
+          line-height: 1.3;
+        }
+
+        [contenteditable] h3 {
+          font-size: 1.17em;
+          font-weight: bold;
+          margin: 0.83em 0;
+          line-height: 1.4;
+        }
+
+        [contenteditable] p {
+          margin: 0.5em 0;
+          line-height: 1.6;
+        }
+
+        [contenteditable] ul {
+          list-style-type: disc;
+          margin: 1em 0;
+          padding-left: 2em;
+        }
+
+        [contenteditable] ol {
+          list-style-type: decimal;
+          margin: 1em 0;
+          padding-left: 2em;
+        }
+
+        [contenteditable] li {
+          margin: 0.5em 0;
+          line-height: 1.6;
+        }
+
+        [contenteditable] a {
+          color: #3b82f6;
+          text-decoration: underline;
+        }
+
+        [contenteditable] a:hover {
+          color: #2563eb;
+        }
+
+        [contenteditable] img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 4px;
+          margin: 1em 0;
         }
       `}</style>
     </div>
