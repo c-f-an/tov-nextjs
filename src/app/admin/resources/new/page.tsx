@@ -70,39 +70,11 @@ export default function NewResourcePage() {
     setLoading(true);
 
     try {
-      let fileData = null;
-
-      // Upload file if provided
-      if (file) {
-        const uploadFormData = new FormData();
-        uploadFormData.append('file', file);
-
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          },
-          body: uploadFormData
-        });
-
-        if (uploadResponse.ok) {
-          fileData = await uploadResponse.json();
-        } else {
-          throw new Error('파일 업로드에 실패했습니다.');
-        }
-      }
-
-      // Create resource
+      // Step 1: Create resource first (without file info)
       const resourceData = {
         ...formData,
         categoryId: parseInt(formData.categoryId),
-        createdBy: user?.id,
-        ...(fileData && {
-          filePath: fileData.path,
-          originalFilename: fileData.originalName,
-          fileType: fileData.type,
-          fileSize: fileData.size
-        })
+        createdBy: user?.id
       };
 
       const response = await fetch('/api/resources', {
@@ -114,12 +86,34 @@ export default function NewResourcePage() {
         body: JSON.stringify(resourceData)
       });
 
-      if (response.ok) {
-        alert('자료가 등록되었습니다.');
-        router.push('/admin/resources');
-      } else {
+      if (!response.ok) {
         throw new Error('자료 등록에 실패했습니다.');
       }
+
+      const createdResource = await response.json();
+
+      // Step 2: Upload file if provided (with resource ID in filename)
+      if (file) {
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+        uploadFormData.append('resourceId', createdResource.id.toString());
+
+        const uploadResponse = await fetch('/api/resources/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: uploadFormData
+        });
+
+        if (!uploadResponse.ok) {
+          const errorData = await uploadResponse.json().catch(() => ({}));
+          throw new Error(errorData.error || '파일 업로드에 실패했습니다.');
+        }
+      }
+
+      alert('자료가 등록되었습니다.');
+      router.push('/admin/resources');
     } catch (error) {
       console.error('Failed to create resource:', error);
       alert(error instanceof Error ? error.message : '등록 중 오류가 발생했습니다.');

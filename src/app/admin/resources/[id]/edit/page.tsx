@@ -162,38 +162,10 @@ export default function EditResourcePage() {
     setLoading(true);
 
     try {
-      let fileData = null;
-
-      // Upload new file if provided
-      if (file) {
-        const uploadFormData = new FormData();
-        uploadFormData.append('file', file);
-
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          },
-          body: uploadFormData
-        });
-
-        if (uploadResponse.ok) {
-          fileData = await uploadResponse.json();
-        } else {
-          throw new Error('파일 업로드에 실패했습니다.');
-        }
-      }
-
-      // Update resource
+      // Step 1: Update resource info first
       const resourceData = {
         ...formData,
-        categoryId: parseInt(formData.categoryId),
-        ...(fileData && {
-          filePath: fileData.path,
-          originalFilename: fileData.originalName,
-          fileType: fileData.type,
-          fileSize: fileData.size
-        })
+        categoryId: parseInt(formData.categoryId)
       };
 
       const response = await fetch(`/api/resources/${resourceId}`, {
@@ -205,12 +177,32 @@ export default function EditResourcePage() {
         body: JSON.stringify(resourceData)
       });
 
-      if (response.ok) {
-        alert('자료가 수정되었습니다.');
-        router.push('/admin/resources');
-      } else {
+      if (!response.ok) {
         throw new Error('자료 수정에 실패했습니다.');
       }
+
+      // Step 2: Upload new file if provided (with resource ID in filename)
+      if (file) {
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+        uploadFormData.append('resourceId', resourceId);
+
+        const uploadResponse = await fetch('/api/resources/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: uploadFormData
+        });
+
+        if (!uploadResponse.ok) {
+          const errorData = await uploadResponse.json().catch(() => ({}));
+          throw new Error(errorData.error || '파일 업로드에 실패했습니다.');
+        }
+      }
+
+      alert('자료가 수정되었습니다.');
+      router.push('/admin/resources');
     } catch (error) {
       console.error('Failed to update resource:', error);
       alert(error instanceof Error ? error.message : '수정 중 오류가 발생했습니다.');

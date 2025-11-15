@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize S3 service with 'data-archive' base path
-    const s3Service = new S3Service('data-archive');
+    const s3Service = new S3Service('resources');
 
     // Generate unique key for S3 (year/month subdirectory for organization)
     const year = new Date().getFullYear();
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       buffer,
       fileType,
       {
-        originalName: file.name,
+        originalName: encodeURIComponent(file.name),
         uploadedAt: new Date().toISOString()
       }
     );
