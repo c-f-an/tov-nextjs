@@ -51,15 +51,15 @@ export default function FinancialDisclosurePage() {
             <h2 className="text-2xl font-bold mb-4">참여 현황</h2>
             <div className="grid md:grid-cols-3 gap-6 text-center">
               <div>
-                <p className="text-4xl font-bold text-purple-600">127</p>
+                <p className="text-4xl font-bold text-purple-600">0</p>
                 <p className="text-gray-700">참여 교회</p>
               </div>
               <div>
-                <p className="text-4xl font-bold text-purple-600">89</p>
+                <p className="text-4xl font-bold text-purple-600">0</p>
                 <p className="text-gray-700">참여 단체</p>
               </div>
               <div>
-                <p className="text-4xl font-bold text-purple-600">216</p>
+                <p className="text-4xl font-bold text-purple-600">0</p>
                 <p className="text-gray-700">전체 참여기관</p>
               </div>
             </div>
@@ -69,6 +69,10 @@ export default function FinancialDisclosurePage() {
             <h2 className="text-2xl font-bold mb-4">결산서 공개 우수사례</h2>
             <div className="space-y-4">
               <div className="border-b pb-4">
+                <h3 className="font-semibold text-lg">사례 없음.</h3>
+              </div>
+
+              {/* <div className="border-b pb-4">
                 <h3 className="font-semibold text-lg">○○교회</h3>
                 <p className="text-gray-600">
                   매년 정기총회에서 상세한 결산서를 공개하고, 홈페이지를 통해
@@ -88,7 +92,7 @@ export default function FinancialDisclosurePage() {
                   외부 회계감사를 받은 결산서를 매년 공개. 투명한 재정운영으로
                   기업 후원 유치 성공.
                 </p>
-              </div>
+              </div> */}
             </div>
           </div>
 
