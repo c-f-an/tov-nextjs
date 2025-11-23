@@ -118,12 +118,6 @@ export default function FinancialDisclosurePage() {
               >
                 참여 신청하기
               </a>
-              <a
-                href="/resources/settlement"
-                className="inline-block bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                결산서 작성 가이드
-              </a>
             </div>
           </div>
         </div>
