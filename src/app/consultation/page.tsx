@@ -29,13 +29,15 @@ const consultationTypes = [
       "02-6951-1391",
     ],
     action: "전화하기",
+    link: "tel:02-6951-1391",
   },
   {
     title: "온라인 상담",
-    description: "상세한 상담이 필요한 경우",
+    description: "상세한 상담이 필요한 경우1",
     icon: MessageCircle,
     details: ["24시간 접수 가능", "답변 소요: 1-2일", "첨부파일 업로드 가능"],
     action: "상담 신청",
+    link: "/consultation/apply",
   },
   {
     title: "방문 상담",
@@ -47,6 +49,7 @@ const consultationTypes = [
       "서울 강남구 소재",
     ],
     action: "예약하기",
+    link: "#",
   },
   {
     title: "이메일 상담",
@@ -54,6 +57,7 @@ const consultationTypes = [
     icon: Mail,
     details: ["tov.npo@gmail.com", "답변 소요: 2-3일", "복잡한 사안 적합"],
     action: "메일 보내기",
+    link: "mailto:tov.npo@gmail.com",
   },
 ];
 
@@ -79,28 +83,27 @@ export default function ConsultationPage() {
         {consultationTypes.map((type) => {
           const Icon = type.icon;
           return (
-            <Card
-              key={type.title}
-              className="hover:shadow-lg transition-shadow"
-            >
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
-                  <Icon className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="text-lg">{type.title}</CardTitle>
-                <CardDescription>{type.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="text-sm text-gray-600 space-y-1 mb-4">
-                  {type.details.map((detail, index) => (
-                    <li key={index}>• {detail}</li>
-                  ))}
-                </ul>
-                <button className="w-full px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-colors">
-                  {type.action}
-                </button>
-              </CardContent>
-            </Card>
+            <Link href={type.link}>
+              <Card
+                key={type.title}
+                className="hover:shadow-lg transition-shadow"
+              >
+                <CardHeader>
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
+                    <Icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg">{type.title}</CardTitle>
+                  <CardDescription>{type.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="text-sm text-gray-600 space-y-1 mb-4">
+                    {type.details.map((detail, index) => (
+                      <li key={index}>• {detail}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </Link>
           );
         })}
       </div>
