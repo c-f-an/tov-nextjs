@@ -53,40 +53,34 @@ export default function CooperationPage() {
               <h2 className="text-2xl font-bold mb-4">주요 협력기관</h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">종교계</h3>
-                  <ul className="list-disc list-inside space-y-1 text-gray-700">
-                    <li>한국교회총연합</li>
-                    <li>한국기독교교회협의회</li>
-                    <li>각 교단 본부</li>
-                    <li>기독교윤리실천운동</li>
-                  </ul>
+                  <h3 className="text-lg font-semibold mb-2">종교단체</h3>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">시민사회</h3>
-                  <ul className="list-disc list-inside space-y-1 text-gray-700">
+                  <h3 className="text-lg font-semibold mb-2">시민단체</h3>
+                  {/* <ul className="list-disc list-inside space-y-1 text-gray-700">
                     <li>한국가이드스타</li>
                     <li>아름다운재단</li>
                     <li>한국NPO공동회의</li>
                     <li>시민사회단체연대회의</li>
-                  </ul>
+                  </ul> */}
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold mb-2">전문기관</h3>
-                  <ul className="list-disc list-inside space-y-1 text-gray-700">
+                  {/* <ul className="list-disc list-inside space-y-1 text-gray-700">
                     <li>한국공인회계사회</li>
                     <li>한국세무사회</li>
                     <li>사회복지공동모금회</li>
                     <li>한국사회복지협의회</li>
-                  </ul>
+                  </ul> */}
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold mb-2">교육기관</h3>
-                  <ul className="list-disc list-inside space-y-1 text-gray-700">
+                  {/* <ul className="list-disc list-inside space-y-1 text-gray-700">
                     <li>각 신학대학교</li>
                     <li>NPO스쿨</li>
                     <li>사회적경제 교육기관</li>
                     <li>평생교육원</li>
-                  </ul>
+                  </ul> */}
                 </div>
               </div>
             </div>
