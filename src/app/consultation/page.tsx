@@ -216,21 +216,21 @@ export default function ConsultationPage() {
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-white rounded-lg p-6 text-center">
             <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4"></div>
-            <h3 className="font-semibold mb-1">세무사 김OO</h3>
-            <p className="text-sm text-gray-600">종교인 소득세 전문</p>
-            <p className="text-xs text-gray-500 mt-2">경력 15년</p>
+            <h3 className="font-semibold mb-1">최호윤 회계사</h3>
+            <p className="text-sm text-gray-600">
+              사단법인 토브협회 이사장
+              <br /> 회계법인 더함 대표
+            </p>
           </div>
           <div className="bg-white rounded-lg p-6 text-center">
             <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4"></div>
-            <h3 className="font-semibold mb-1">회계사 이OO</h3>
-            <p className="text-sm text-gray-600">비영리법인 회계 전문</p>
-            <p className="text-xs text-gray-500 mt-2">경력 12년</p>
+            <h3 className="font-semibold mb-1">김석희 회계사</h3>
+            <p className="text-sm text-gray-600">회계법인 더함 회계사</p>
           </div>
           <div className="bg-white rounded-lg p-6 text-center">
             <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4"></div>
-            <h3 className="font-semibold mb-1">세무사 박OO</h3>
-            <p className="text-sm text-gray-600">법인세/부가세 전문</p>
-            <p className="text-xs text-gray-500 mt-2">경력 10년</p>
+            <h3 className="font-semibold mb-1">장성일 세무사</h3>
+            {/* <p className="text-sm text-gray-600">법인세/부가세 전문</p> */}
           </div>
         </div>
       </div>
