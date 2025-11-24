@@ -108,13 +108,26 @@ export default function LocationPage() {
             <CardContent className="space-y-4">
               <div className="flex items-start gap-3">
                 <Train className="h-5 w-5 text-primary mt-1" />
-                <div>
-                  <p className="font-semibold">지하철</p>
-                  <p className="text-gray-600">
-                    2호선 강남역 5번 출구 도보 5분
-                    <br />
-                    신분당선 강남역 5번 출구 도보 5분
-                  </p>
+                <div className="w-full">
+                  <p className="font-semibold mb-2">지하철</p>
+                  <div className="space-y-3 text-gray-600">
+                    <div>
+                      <p className="font-medium text-gray-700">
+                        • 1호선 종로3가역
+                      </p>
+                      <p className="ml-4 text-sm">
+                        1번 출구 → 탑골공원 방면 300m → 사동 방면 200m
+                      </p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-700">
+                        • 5호선 종로3가역
+                      </p>
+                      <p className="ml-4 text-sm">
+                        5번 출구 → 신한은행 ATM 낙원지점 방향 80m
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -122,27 +135,27 @@ export default function LocationPage() {
                 <Bus className="h-5 w-5 text-primary mt-1" />
                 <div>
                   <p className="font-semibold">버스</p>
-                  <p className="text-gray-600">
-                    간선버스: 140, 144, 145, 471
-                    <br />
-                    지선버스: 4211, 4421, 4318
-                    <br />
-                    광역버스: 9404, 9408, 9409
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Car className="h-5 w-5 text-primary mt-1" />
-                <div>
-                  <p className="font-semibold">자가용</p>
-                  <p className="text-gray-600">
-                    건물 지하 주차장 이용 가능
-                    <br />
-                    방문객 2시간 무료 주차
-                    <br />
-                    (주차권은 사무실에서 발급)
-                  </p>
+                  <div className="space-y-3 text-gray-600">
+                    <div>
+                      <p className="font-medium text-gray-700">• 간선버스</p>
+                      <p className="ml-4 text-sm">
+                        100, 103, 143, 150, 160, 161, 201, 260, 262, 270, 271,
+                        273, 370, 601, 720, 721
+                      </p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-700">• 지선버스</p>
+                      <p className="ml-4 text-sm">7212</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-700">• 광역버스</p>
+                      <p className="ml-4 text-sm">1000, 9205, 9301</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-700">• 공항버스</p>
+                      <p className="ml-4 text-sm">6002</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
