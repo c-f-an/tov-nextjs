@@ -26,7 +26,7 @@ export default function LocationPage() {
           items={[{ label: "About Us", href: "/about" }, { label: "오시는길" }]}
         />
         <PageHeader
-          title="오시는길"
+          title="오시는 길"
           description="토브협회를 방문하시려는 분들을 위한 안내입니다."
         />
 
@@ -41,7 +41,7 @@ export default function LocationPage() {
                 process.env.NEXT_PUBLIC_COMPANY_ADDRESS ||
                 "서울 종로구 삼일대로 428 낙원상가 5층 500호"
               }
-              markerTitle="TOV(주)"
+              markerTitle="사단법인 토브협회"
               level={3}
             />
           </div>
@@ -71,8 +71,9 @@ export default function LocationPage() {
                 <Phone className="h-5 w-5 text-primary mt-1" />
                 <div>
                   <p className="font-semibold">전화</p>
-                  <p className="text-gray-600">02-6951-1391</p>
-                  <p className="text-gray-600">팩스: 0505-231-2481</p>
+                  <p className="text-gray-600">
+                    02-6951-1391(FAX: 0505-231-2481)
+                  </p>
                 </div>
               </div>
 
@@ -167,7 +168,7 @@ export default function LocationPage() {
           <h2 className="text-lg font-bold mb-3">방문 안내사항</h2>
           <ul className="space-y-2 text-gray-700">
             <li>• 방문 전 전화 예약을 하시면 더욱 원활한 상담이 가능합니다.</li>
-            <li>• 주차장이 혼잡할 수 있으니 대중교통 이용을 권장합니다.</li>
+            <li>• 주차가 어려우니 대중교통 이용을 권장합니다.</li>
             <li>• 휠체어 이용자를 위한 엘리베이터가 설치되어 있습니다.</li>
             <li>• 코로나19 예방을 위해 마스크 착용을 부탁드립니다.</li>
           </ul>
