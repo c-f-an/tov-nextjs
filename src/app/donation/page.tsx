@@ -75,6 +75,25 @@ const donationMethods = [
   },
 ];
 
+const fundUsagePlans = [
+  {
+    category: "교육 프로그램 운영",
+    percentage: 0,
+  },
+  {
+    category: "무료 상담 서비스",
+    percentage: 0,
+  },
+  {
+    category: "자료 개발 및 연구",
+    percentage: 0,
+  },
+  {
+    category: "운영비",
+    percentage: 0,
+  },
+];
+
 export default function DonationPage() {
   return (
     <div className="container mx-auto px-4 py-8">
@@ -169,54 +188,20 @@ export default function DonationPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="font-medium">교육 프로그램 운영</span>
-                <span>40%</span>
+            {fundUsagePlans.map((plan) => (
+              <div key={plan.category}>
+                <div className="flex justify-between mb-1">
+                  <span className="font-medium">{plan.category}</span>
+                  <span>{plan.percentage}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-primary h-2 rounded-full"
+                    style={{ width: `${plan.percentage}%` }}
+                  ></div>
+                </div>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-primary h-2 rounded-full"
-                  style={{ width: "40%" }}
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="font-medium">무료 상담 서비스</span>
-                <span>30%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-primary h-2 rounded-full"
-                  style={{ width: "30%" }}
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="font-medium">자료 개발 및 연구</span>
-                <span>20%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-primary h-2 rounded-full"
-                  style={{ width: "20%" }}
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="font-medium">운영비</span>
-                <span>10%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-primary h-2 rounded-full"
-                  style={{ width: "10%" }}
-                ></div>
-              </div>
-            </div>
+            ))}
           </div>
           <div className="mt-6 text-center">
             <Link
@@ -258,23 +243,40 @@ export default function DonationPage() {
       {/* 기부금 영수증 안내 */}
       <div className="bg-blue-50 rounded-lg p-8">
         <h3 className="text-lg font-bold mb-4">기부금 영수증 안내</h3>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
+        <div className="grid md:grid-cols-5 gap-6">
+          <div className="md:col-span-2">
             <h4 className="font-semibold mb-2">발급 대상</h4>
             <p className="text-sm text-gray-700">
-              한국교회세무정보봉사단은 기획재정부 지정 공익법인으로, 후원금에
-              대해 세액공제 혜택을 받으실 수 있는 기부금 영수증을 발급해
-              드립니다.
+              기도와 후원으로 사단법인 토브협회의 재정건강운동에 동참해 주셔서
+              감사합니다.
+              <br />
+              연말정산을 위한 기부금 영수증 발급 안내는 매년 12월 공지사항으로
+              안내 드리며,
+              <br />
+              회원님의 개인정보를 요청드리게 됩니다.
             </p>
           </div>
-          <div>
+          <div className="md:col-span-3">
+            <h4 className="font-semibold mb-2">
+              ※ 주민등록번호 및 주소 수집 근거 법률
+            </h4>
+
+            <p className="text-sm text-gray-700">
+              [개인정보보호법 제24조의2] 주민등록번호의 처리의 제한 : 1항의 1.
+              법령에서 구체적으로 주민등록번호의 처리를 요구하거나 허용한 경우
+              <br />
+              [소득세법시행령 제208조의3] 기부금영수증발급명세의 작성.보관의무 :
+              제1항의1. 기부자의 성명, 주민등록번호 및 주소
+            </p>
+          </div>
+          {/* <div>
             <h4 className="font-semibold mb-2">세액공제 혜택</h4>
             <ul className="text-sm text-gray-700 space-y-1">
               <li>• 1천만원 이하: 15% 세액공제</li>
               <li>• 1천만원 초과: 30% 세액공제</li>
               <li>• 국세청 연말정산 간소화 서비스 등록</li>
             </ul>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
