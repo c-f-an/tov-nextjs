@@ -5,11 +5,12 @@ import Link from "next/link";
 import {
   Building,
   Heart,
-  Shield,
   TrendingUp,
-  Users,
-  CheckCircle,
   ExternalLink,
+  FileText,
+  Calculator,
+  UserCheck,
+  Handshake,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
@@ -49,21 +50,46 @@ export default function ReligiousIncomeReportPage() {
     },
   ];
 
-  const benefits = [
+  const ptaxFeatures = [
     {
-      icon: Shield,
-      title: "사회 보장",
-      items: ["국민연금 가입", "건강보험 혜택", "고용보험 보호"],
+      icon: FileText,
+      title: "온라인 소득신고 시스템",
+      description:
+        "P-Tax(피택스, ptax.kr)는 사례비·활동비 등 종교인 소득을 정확하게 신고하고, 세금을 납부할 수 있도록 돕는 '목회자 전용 온라인 소득신고 시스템'입니다.",
+      color: "indigo",
+      iconBg: "bg-indigo-100",
+      iconColor: "text-indigo-600",
+      cardBg: "bg-gradient-to-br from-indigo-50 to-indigo-100",
     },
     {
-      icon: Users,
-      title: "교회 신뢰",
-      items: ["투명한 재정 운영", "교인들의 신뢰 증대", "사회적 책임 이행"],
+      icon: Calculator,
+      title: "자동 세액 계산",
+      description:
+        "목회자가 매월 받는 사례비, 목회활동비, 비과세 항목 등을 입력하면, 공제할 세액을 자동으로 계산하고, 급여·사례비 대장과 국세청 신고용 전자 파일까지 한 번에 생성하여 종교인소득신고를 돕습니다.",
+      color: "emerald",
+      iconBg: "bg-emerald-100",
+      iconColor: "text-emerald-600",
+      cardBg: "bg-gradient-to-br from-emerald-50 to-emerald-100",
     },
     {
-      icon: CheckCircle,
-      title: "정직한 신앙",
-      items: ["믿음의 실천", "다음 세대 본보기", "거룩한 순종"],
+      icon: UserCheck,
+      title: "무료 신고 지원",
+      description:
+        "세무신고가 익숙하지 않은 작은교회 목회자도 '무료'로 소득세 신고를 지원받을 수 있으며, 필요한 경우 P-Tax와 연계된 전문가의 도움을 받을 수 있습니다.",
+      color: "amber",
+      iconBg: "bg-amber-100",
+      iconColor: "text-amber-600",
+      cardBg: "bg-gradient-to-br from-amber-50 to-amber-100",
+    },
+    {
+      icon: Handshake,
+      title: "함께하는 동반자",
+      description:
+        "목회자들의 종교인소득신고를 혼자 고민하지 않도록, P-Tax는 목회자의 종교인소득신고 여정을 처음부터 끝까지 함께하는 동반자입니다.",
+      color: "rose",
+      iconBg: "bg-rose-100",
+      iconColor: "text-rose-600",
+      cardBg: "bg-gradient-to-br from-rose-50 to-rose-100",
     },
   ];
 
@@ -132,13 +158,55 @@ export default function ReligiousIncomeReportPage() {
           })}
         </div>
 
+        {/* P-Tax Introduction Section */}
+        <div className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              P-Tax 소개
+            </h2>
+            <p className="text-lg text-gray-600">
+              목회자를 위한 전용 온라인 소득신고 시스템
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {ptaxFeatures.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <Card
+                  key={index}
+                  className={`${feature.cardBg} border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4 pt-6">
+                      <div
+                        className={`w-16 h-16 ${feature.iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}
+                      >
+                        <Icon className={`w-8 h-8 ${feature.iconColor}`} />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                          {feature.title}
+                        </h3>
+                        <p className="text-gray-700 leading-relaxed">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
         {/* CTA Section */}
-        <div className="text-center p-12">
+        <div className="text-center px-12 mb-10">
           <Link
             href="https://ptax.kr"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-white text-primary font-bold text-lg rounded-full hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-black font-bold text-lg rounded-full hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
             P-TAX 서비스로 이동
             <ExternalLink className="w-5 h-5" />
