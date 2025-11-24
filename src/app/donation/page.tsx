@@ -66,7 +66,7 @@ const donationMethods = [
   {
     method: "계좌이체",
     icon: Building,
-    details: ["국민은행 123-456-789012", "예금주: (사)한국교회세무정보봉사단"],
+    details: ["KB국민 006001-04-353709", "예금주: 사단법인 토브협회"],
   },
   {
     method: "신용카드",

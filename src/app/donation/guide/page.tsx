@@ -228,10 +228,10 @@ export default function DonationGuidePage() {
           <div className="mx-auto">
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <p className="text-sm text-gray-600 mb-2">은행명</p>
-              <p className="font-semibold mb-4">국민은행</p>
+              <p className="font-semibold mb-4">KB국민</p>
               <p className="text-sm text-gray-600 mb-2">계좌번호</p>
               <p className="text-xl font-bold text-blue-600 mb-4">
-                123-456-789012
+                006001-04-353709
               </p>
               <p className="text-sm text-gray-600 mb-2">예금주</p>
               <p className="font-semibold">사단법인 토브협회</p>
