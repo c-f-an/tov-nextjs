@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/presentation/contexts/AuthContext';
@@ -30,7 +30,7 @@ interface DonationFormData {
 
 const donationAmounts = [10000, 30000, 50000, 100000];
 
-export default function DonationApplyPage() {
+function DonationForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
@@ -55,17 +55,15 @@ export default function DonationApplyPage() {
     const type = searchParams.get('type');
     const amount = searchParams.get('amount');
 
-    if (type) {
-      // Convert "정기후원" to "regular", "일시후원" to "one_time"
-      const donationType = type === '정기후원' ? 'regular' : 'one_time';
-      setFormData(prev => ({ ...prev, donationType }));
+    if (type && (type === 'regular' || type === 'one_time')) {
+      setFormData(prev => ({ ...prev, donationType: type }));
     }
 
-    if (amount && amount !== '직접입력') {
-      // Remove "만원" and convert to number (e.g., "1만원" -> "10000")
-      const numericAmount = amount.replace('만원', '');
-      const amountValue = parseInt(numericAmount) * 10000;
-      setFormData(prev => ({ ...prev, amount: amountValue.toString() }));
+    if (amount && amount !== 'custom') {
+      const amountValue = parseInt(amount);
+      if (!isNaN(amountValue) && amountValue > 0) {
+        setFormData(prev => ({ ...prev, amount: amountValue.toString() }));
+      }
     }
   }, [searchParams]);
 
@@ -395,5 +393,19 @@ export default function DonationApplyPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function DonationApplyPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      </div>
+    }>
+      <DonationForm />
+    </Suspense>
   );
 }

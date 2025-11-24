@@ -21,6 +21,7 @@ import PageHeader from "@/presentation/components/common/PageHeader";
 const donationTypes = [
   {
     title: "정기후원",
+    type: "regular",
     description: "매월 일정 금액을 후원합니다",
     icon: Heart,
     benefits: [
@@ -28,14 +29,25 @@ const donationTypes = [
       "정기 소식지 발송",
       "연말정산 자동 처리",
     ],
-    amounts: ["1만원", "3만원", "5만원", "직접입력"],
+    amounts: [
+      { label: "1만원", value: "10000" },
+      { label: "3만원", value: "30000" },
+      { label: "5만원", value: "50000" },
+      { label: "직접입력", value: "custom" },
+    ],
   },
   {
     title: "일시후원",
+    type: "one_time",
     description: "원하실 때 자유롭게 후원합니다",
     icon: Gift,
     benefits: ["자유로운 후원 참여", "기부금 영수증 발급", "후원 내역 확인"],
-    amounts: ["5만원", "10만원", "30만원", "직접입력"],
+    amounts: [
+      { label: "5만원", value: "50000" },
+      { label: "10만원", value: "100000" },
+      { label: "30만원", value: "300000" },
+      { label: "직접입력", value: "custom" },
+    ],
   },
 ];
 
@@ -164,13 +176,11 @@ export default function DonationPage() {
                   <div className="grid grid-cols-2 gap-2">
                     {type.amounts.map((amount) => (
                       <Link
-                        key={amount}
-                        href={`/donation/apply?type=${encodeURIComponent(
-                          type.title
-                        )}&amount=${encodeURIComponent(amount)}`}
+                        key={amount.value}
+                        href={`/donation/apply?type=${type.type}&amount=${amount.value}`}
                         className="px-3 py-2 text-sm border rounded hover:bg-gray-50 transition-colors text-center"
                       >
-                        {amount}
+                        {amount.label}
                       </Link>
                     ))}
                   </div>
