@@ -32,7 +32,7 @@ jobs:
           NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_KAKAO_MAP_API_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }}
-          NEXT_PUBLIC_COMPANY_ADDRESS: ${{ secrets.NEXT_PUBLIC_COMPANY_ADDRESS }}
+          NEXT_PUBLIC_COMPANY_ADDRESS: ${{ vars.NEXT_PUBLIC_COMPANY_ADDRESS }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SKIP_DB_QUERIES: "true"
 
@@ -200,7 +200,7 @@ jobs:
           JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}
           JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
           NEXT_PUBLIC_KAKAO_MAP_API_KEY=${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }}
-          NEXT_PUBLIC_COMPANY_ADDRESS=${{ secrets.NEXT_PUBLIC_COMPANY_ADDRESS }}
+          NEXT_PUBLIC_COMPANY_ADDRESS=${{ vars.NEXT_PUBLIC_COMPANY_ADDRESS }}
           NEXT_PUBLIC_APP_URL=https://tov.or.kr
           NEXT_PUBLIC_API_URL=https://tov.or.kr/api
 
