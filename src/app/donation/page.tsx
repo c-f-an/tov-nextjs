@@ -163,12 +163,15 @@ export default function DonationPage() {
                   <p className="font-semibold mb-2">후원 금액</p>
                   <div className="grid grid-cols-2 gap-2">
                     {type.amounts.map((amount) => (
-                      <button
+                      <Link
                         key={amount}
-                        className="px-3 py-2 text-sm border rounded hover:bg-gray-50 transition-colors"
+                        href={`/donation/apply?type=${encodeURIComponent(
+                          type.title
+                        )}&amount=${encodeURIComponent(amount)}`}
+                        className="px-3 py-2 text-sm border rounded hover:bg-gray-50 transition-colors text-center"
                       >
                         {amount}
-                      </button>
+                      </Link>
                     ))}
                   </div>
                 </div>

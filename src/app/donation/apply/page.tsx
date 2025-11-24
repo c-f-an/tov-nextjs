@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/presentation/contexts/AuthContext';
 import PageHeader from '@/presentation/components/common/PageHeader';
@@ -32,6 +32,7 @@ const donationAmounts = [10000, 30000, 50000, 100000];
 
 export default function DonationApplyPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<DonationFormData>({
@@ -48,6 +49,25 @@ export default function DonationApplyPage() {
     receiptRequired: false,
     privacyAgree: false
   });
+
+  // Handle URL parameters
+  useEffect(() => {
+    const type = searchParams.get('type');
+    const amount = searchParams.get('amount');
+
+    if (type) {
+      // Convert "정기후원" to "regular", "일시후원" to "one_time"
+      const donationType = type === '정기후원' ? 'regular' : 'one_time';
+      setFormData(prev => ({ ...prev, donationType }));
+    }
+
+    if (amount && amount !== '직접입력') {
+      // Remove "만원" and convert to number (e.g., "1만원" -> "10000")
+      const numericAmount = amount.replace('만원', '');
+      const amountValue = parseInt(numericAmount) * 10000;
+      setFormData(prev => ({ ...prev, amount: amountValue.toString() }));
+    }
+  }, [searchParams]);
 
   const handleAmountClick = (amount: number) => {
     setFormData({ ...formData, amount: amount.toString() });
