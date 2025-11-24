@@ -87,7 +87,7 @@ export default function CooperationPage() {
 
             <div className="bg-yellow-50 p-8 rounded-lg">
               <h2 className="text-2xl font-bold mb-4">협력 성과</h2>
-              <div className="space-y-4">
+              {/* <div className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-lg">
                     재정투명성 공동선언문 발표
@@ -121,7 +121,7 @@ export default function CooperationPage() {
                     우수사례 공유
                   </p>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
