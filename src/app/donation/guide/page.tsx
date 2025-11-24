@@ -1,80 +1,110 @@
-import Link from 'next/link';
-import PageHeader from '@/presentation/components/common/PageHeader';
+import Link from "next/link";
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 const donationBenefits = [
   {
-    title: '기부금 영수증 발급',
-    description: '연말정산시 세액공제 혜택을 받으실 수 있습니다.',
+    title: "기부금 영수증 발급",
+    description: "연말정산시 세액공제 혜택을 받으실 수 있습니다.",
     icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      <svg
+        className="w-8 h-8"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
       </svg>
-    )
+    ),
   },
   {
-    title: '정기 소식지 발송',
-    description: '토브협회의 활동 소식을 정기적으로 전해드립니다.',
+    title: "정기 소식지 발송",
+    description: "토브협회의 활동 소식을 정기적으로 전해드립니다.",
     icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      <svg
+        className="w-8 h-8"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+        />
       </svg>
-    )
+    ),
   },
   {
-    title: '투명한 재정 공개',
-    description: '후원금 사용 내역을 투명하게 공개합니다.',
+    title: "투명한 재정 공개",
+    description: "후원금 사용 내역을 투명하게 공개합니다.",
     icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      <svg
+        className="w-8 h-8"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+        />
       </svg>
-    )
-  }
+    ),
+  },
 ];
 
 const donationTypes = [
   {
-    type: '정기후원',
-    description: '매월 일정 금액을 후원해주시는 방법입니다.',
+    type: "정기후원",
+    description: "매월 일정 금액을 후원해주시는 방법입니다.",
     features: [
-      '매월 자동 결제',
-      '안정적인 사업 운영 지원',
-      '언제든지 변경/해지 가능',
-      '소액부터 가능'
-    ]
+      "매월 자동 결제",
+      "안정적인 사업 운영 지원",
+      "언제든지 변경/해지 가능",
+      "소액부터 가능",
+    ],
   },
   {
-    type: '일시후원',
-    description: '원하실 때 자유롭게 후원해주시는 방법입니다.',
+    type: "일시후원",
+    description: "원하실 때 자유롭게 후원해주시는 방법입니다.",
     features: [
-      '1회성 후원',
-      '원하는 금액 자유 선택',
-      '특별 프로젝트 지원',
-      '즉시 후원 가능'
-    ]
-  }
+      "1회성 후원",
+      "원하는 금액 자유 선택",
+      "특별 프로젝트 지원",
+      "즉시 후원 가능",
+    ],
+  },
 ];
 
 const howToUse = [
   {
-    title: '교육 프로그램 운영',
-    description: '비영리단체 실무자 교육',
-    percentage: 40
+    title: "교육 프로그램 운영",
+    description: "비영리단체 실무자 교육",
+    percentage: 0,
   },
   {
-    title: '상담 서비스 제공',
-    description: '무료 전문가 상담',
-    percentage: 30
+    title: "상담 서비스 제공",
+    description: "무료 전문가 상담",
+    percentage: 0,
   },
   {
-    title: '자료 개발 및 배포',
-    description: '실무 가이드북 제작',
-    percentage: 20
+    title: "자료 개발 및 배포",
+    description: "실무 가이드북 제작",
+    percentage: 0,
   },
   {
-    title: '운영비',
-    description: '사무실 운영 및 인건비',
-    percentage: 10
-  }
+    title: "운영비",
+    description: "사무실 운영 및 인건비",
+    percentage: 0,
+  },
 ];
 
 export default function DonationGuidePage() {
@@ -84,13 +114,17 @@ export default function DonationGuidePage() {
       <nav className="mb-8">
         <ol className="flex items-center space-x-2 text-sm text-gray-600">
           <li>
-            <Link href="/" className="hover:text-blue-600">홈</Link>
+            <Link href="/" className="hover:text-blue-600">
+              홈
+            </Link>
           </li>
           <li>
             <span className="mx-2">/</span>
           </li>
           <li>
-            <Link href="/donation" className="hover:text-blue-600">후원하기</Link>
+            <Link href="/donation" className="hover:text-blue-600">
+              후원하기
+            </Link>
           </li>
           <li>
             <span className="mx-2">/</span>
@@ -99,7 +133,7 @@ export default function DonationGuidePage() {
         </ol>
       </nav>
 
-      <PageHeader 
+      <PageHeader
         title="함께 만드는 투명한 비영리"
         description="여러분의 후원이 건강한 비영리 생태계를 만듭니다"
       />
@@ -139,8 +173,18 @@ export default function DonationGuidePage() {
               <ul className="space-y-2">
                 {item.features.map((feature, index) => (
                   <li key={index} className="flex items-start">
-                    <svg className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <svg
+                      className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                     <span className="text-sm">{feature}</span>
                   </li>
@@ -162,7 +206,9 @@ export default function DonationGuidePage() {
                   <h4 className="font-semibold">{item.title}</h4>
                   <p className="text-sm text-gray-600">{item.description}</p>
                 </div>
-                <span className="text-lg font-bold text-blue-600">{item.percentage}%</span>
+                <span className="text-lg font-bold text-blue-600">
+                  {item.percentage}%
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
@@ -184,7 +230,9 @@ export default function DonationGuidePage() {
               <p className="text-sm text-gray-600 mb-2">은행명</p>
               <p className="font-semibold mb-4">국민은행</p>
               <p className="text-sm text-gray-600 mb-2">계좌번호</p>
-              <p className="text-xl font-bold text-blue-600 mb-4">123-456-789012</p>
+              <p className="text-xl font-bold text-blue-600 mb-4">
+                123-456-789012
+              </p>
               <p className="text-sm text-gray-600 mb-2">예금주</p>
               <p className="font-semibold">사단법인 토브협회</p>
             </div>
@@ -194,7 +242,9 @@ export default function DonationGuidePage() {
 
       {/* CTA */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-4">지금 바로 후원에 참여해주세요</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          지금 바로 후원에 참여해주세요
+        </h2>
         <p className="text-gray-600 mb-8">
           여러분의 관심과 후원이 더 나은 비영리 문화를 만들어갑니다
         </p>
