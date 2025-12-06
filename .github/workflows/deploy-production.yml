@@ -283,7 +283,7 @@ jobs:
 
       - name: Upload deployed .env as artifact
         if: success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: deployed-env-file
           path: deployed-env.txt
