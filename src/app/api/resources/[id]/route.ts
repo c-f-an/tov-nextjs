@@ -84,6 +84,7 @@ export async function PUT(
       originalFilename: body.originalFilename,
       thumbnailPath: body.thumbnailPath,
       externalLink: body.externalLink,
+      externalLinkTitle: body.externalLinkTitle,
       isFeatured: body.isFeatured,
       isActive: body.isActive,
       publishedAt: body.publishedAt ? new Date(body.publishedAt) : null

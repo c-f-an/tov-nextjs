@@ -128,9 +128,9 @@ export default async function ResourceDetailPage({ params }: PageProps) {
                 )}
               </div>
 
-              {/* 다운로드 버튼 */}
+              {/* 다운로드/외부링크 버튼 */}
               <div className="mt-8 pt-6 border-t">
-                {resource.filePath || resource.externalLink ? (
+                {resource.filePath ? (
                   <div className="p-4 bg-gray-50 rounded">
                     <div className="flex justify-between items-start mb-2">
                       <label className="block text-sm font-medium text-gray-700">
@@ -150,6 +150,17 @@ export default async function ResourceDetailPage({ params }: PageProps) {
                       <p>파일 타입: {resource.fileType || "N/A"}</p>
                       <p>파일 크기: {formatFileSize(resource.fileSize)}</p>
                     </div>
+                  </div>
+                ) : resource.externalLink ? (
+                  <div className="p-4 bg-gray-50 rounded">
+                    <Link
+                      href={resource.externalLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                    >
+                      {resource.externalLinkTitle || "외부 링크 이동"}
+                    </Link>
                   </div>
                 ) : (
                   <div className="p-4 bg-gray-50 rounded">

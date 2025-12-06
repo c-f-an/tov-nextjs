@@ -13,6 +13,7 @@ export class Resource {
     public originalFilename: string | null,
     public thumbnailPath: string | null,
     public externalLink: string | null,
+    public externalLinkTitle: string | null,
     public downloadCount: number,
     public viewCount: number,
     public isFeatured: boolean,
@@ -47,6 +48,7 @@ export class Resource {
       null, // originalFilename
       null, // thumbnailPath
       null, // externalLink
+      null, // externalLinkTitle
       0, // downloadCount
       0, // viewCount
       false, // isFeatured
@@ -70,6 +72,7 @@ export class Resource {
     originalFilename: string | null;
     thumbnailPath: string | null;
     externalLink: string | null;
+    externalLinkTitle: string | null;
     isFeatured: boolean;
     isActive: boolean;
     publishedAt: Date | null;
@@ -84,6 +87,7 @@ export class Resource {
     if (data.originalFilename !== undefined) this.originalFilename = data.originalFilename;
     if (data.thumbnailPath !== undefined) this.thumbnailPath = data.thumbnailPath;
     if (data.externalLink !== undefined) this.externalLink = data.externalLink;
+    if (data.externalLinkTitle !== undefined) this.externalLinkTitle = data.externalLinkTitle;
     if (data.isFeatured !== undefined) this.isFeatured = data.isFeatured;
     if (data.isActive !== undefined) this.isActive = data.isActive;
     if (data.publishedAt !== undefined) this.publishedAt = data.publishedAt;

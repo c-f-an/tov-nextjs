@@ -86,6 +86,10 @@ export async function POST(request: NextRequest) {
       resource.externalLink = body.externalLink;
     }
 
+    if (body.externalLinkTitle) {
+      resource.externalLinkTitle = body.externalLinkTitle;
+    }
+
     if (body.isFeatured) {
       resource.isFeatured = body.isFeatured;
     }

@@ -125,9 +125,9 @@ export class MySQLResourceRepository implements IResourceRepository {
     const [result] = await pool.execute(
       `INSERT INTO resources
        (category_id, title, description, resource_type, file_type, file_path, file_size,
-        original_filename, thumbnail_path, external_link, download_count, view_count,
+        original_filename, thumbnail_path, external_link, external_link_title, download_count, view_count,
         is_featured, is_active, published_at, created_by, updated_by, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         resource.categoryId,
         resource.title,
@@ -139,6 +139,7 @@ export class MySQLResourceRepository implements IResourceRepository {
         resource.originalFilename,
         resource.thumbnailPath,
         resource.externalLink,
+        resource.externalLinkTitle,
         resource.downloadCount,
         resource.viewCount,
         resource.isFeatured ? 1 : 0,
@@ -159,7 +160,7 @@ export class MySQLResourceRepository implements IResourceRepository {
       `UPDATE resources
        SET category_id = ?, title = ?, description = ?, resource_type = ?,
            file_type = ?, file_path = ?, file_size = ?, original_filename = ?,
-           thumbnail_path = ?, external_link = ?, is_featured = ?, is_active = ?,
+           thumbnail_path = ?, external_link = ?, external_link_title = ?, is_featured = ?, is_active = ?,
            published_at = ?, updated_by = ?, updated_at = NOW()
        WHERE id = ?`,
       [
@@ -173,6 +174,7 @@ export class MySQLResourceRepository implements IResourceRepository {
         resource.originalFilename,
         resource.thumbnailPath,
         resource.externalLink,
+        resource.externalLinkTitle,
         resource.isFeatured ? 1 : 0,
         resource.isActive ? 1 : 0,
         resource.publishedAt,
@@ -225,6 +227,7 @@ export class MySQLResourceRepository implements IResourceRepository {
       row.original_filename,
       row.thumbnail_path,
       row.external_link,
+      row.external_link_title,
       row.download_count,
       row.view_count,
       Boolean(row.is_featured),

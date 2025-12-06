@@ -22,6 +22,7 @@ interface Resource {
   filePath: string | null;
   fileSize: number | null;
   externalLink: string | null;
+  externalLinkTitle: string | null;
   downloadCount: number;
   viewCount: number;
   isFeatured: boolean;
@@ -46,6 +47,7 @@ export default function EditResourcePage() {
     description: '',
     resourceType: 'etc',
     externalLink: '',
+    externalLinkTitle: '',
     isFeatured: false,
     isActive: true,
     publishedAt: new Date().toISOString().split('T')[0]
@@ -93,6 +95,7 @@ export default function EditResourcePage() {
           description: data.description || '',
           resourceType: data.resourceType,
           externalLink: data.externalLink || '',
+          externalLinkTitle: data.externalLinkTitle || '',
           isFeatured: data.isFeatured,
           isActive: data.isActive,
           publishedAt: data.publishedAt ? new Date(data.publishedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
@@ -357,6 +360,23 @@ export default function EditResourcePage() {
               className="w-full border rounded px-3 py-2"
               placeholder="https://..."
             />
+          </div>
+
+          {/* 외부 링크 버튼 제목 */}
+          <div className="mt-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              외부 링크 버튼 제목
+            </label>
+            <input
+              type="text"
+              value={formData.externalLinkTitle}
+              onChange={(e) => setFormData({ ...formData, externalLinkTitle: e.target.value })}
+              className="w-full border rounded px-3 py-2"
+              placeholder="예: 사이트 바로가기, 온라인 신청하기"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              외부 링크가 있을 때 버튼에 표시될 텍스트입니다.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-6 mt-6">
