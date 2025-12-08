@@ -109,16 +109,19 @@ jobs:
           fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
           "
 
+      - name: Install production dependencies
+        run: npm ci --omit=dev
+
       - name: Create deployment package
         run: |
           mkdir -p deploy-package
           cp -r .next deploy-package/
           cp -r public deploy-package/ 2>/dev/null || echo "No public directory"
-          # Prisma removed - using mysql2 package instead
+          cp -r node_modules deploy-package/
           cp package.json deploy-package/
           cp package-lock.json deploy-package/
           cp server.js deploy-package/
-          cp next.config.js deploy-package/ 2>/dev/null || echo "No next.config.js"
+          cp next.config.ts deploy-package/
           tar -czf deploy-package.tar.gz deploy-package/
 
       - name: Upload to S3
@@ -166,8 +169,8 @@ jobs:
           # S3에서 다운로드
           aws s3 cp s3://${S3_BUCKET_NAME}/latest.tar.gz ./
 
-          # PM2로 기존 서비스 중지 (배포 전)
-          pm2 stop $SERVICE_NAME || true
+          # systemd 서비스 중지 (배포 전)
+          sudo systemctl stop $SERVICE_NAME || true
 
           # 디스크 공간 확보 - 3일 이상 된 백업 삭제
           find /apps/tov-homepage -name "backup-*" -type d -mtime +3 -exec rm -rf {} + 2>/dev/null || true
@@ -224,33 +227,13 @@ jobs:
 
           ENVFILE
 
-          # Install build dependencies for native modules
-          sudo apt-get update
-          sudo apt-get install -y build-essential python3 libvips-dev
-
-          # npm 설치
-          npm ci --omit=dev
-
-          # Prisma removed - using mysql2 package instead
-
-          # PM2로 기존 프로세스 중지 및 삭제
-          pm2 stop $SERVICE_NAME || true
-          pm2 delete $SERVICE_NAME || true
-
-          # PM2로 애플리케이션 시작
-          cd $APP_DIR/current
-          pm2 start npm --name "$SERVICE_NAME" -- start
-
-          # PM2 설정 저장
-          pm2 save
-
-          # PM2 startup 설정 (부팅 시 자동 시작)
-          pm2 startup systemd -u $USER --hp $HOME | tail -n 1 | sudo bash || true
+          # systemd로 서비스 시작 및 활성화
+          sudo systemctl enable $SERVICE_NAME
+          sudo systemctl start $SERVICE_NAME
 
           # 상태 확인
           sleep 5
-          pm2 status
-          pm2 logs $SERVICE_NAME --lines 20 --nostream
+          sudo systemctl status $SERVICE_NAME --no-pager || true
 
           # 헬스체크
           sleep 2
