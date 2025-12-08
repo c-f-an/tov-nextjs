@@ -121,7 +121,7 @@ jobs:
           cp package.json deploy-package/
           cp package-lock.json deploy-package/
           cp server.js deploy-package/
-          cp next.config.ts deploy-package/
+          cp next.config.js deploy-package/
           tar -czf deploy-package.tar.gz deploy-package/
 
       - name: Upload to S3
