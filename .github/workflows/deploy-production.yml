@@ -43,71 +43,27 @@ jobs:
           aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.DEPLOY_AWS_REGION }}
 
-      - name: Create server.js file
+      - name: Create ecosystem.config.js file
         run: |
-          cat > server.js << 'SERVERJS'
-          const { createServer } = require('http')
-          const { parse } = require('url')
-          const next = require('next')
-
-          const dev = process.env.NODE_ENV !== 'production'
-          const hostname = '0.0.0.0'
-          const port = process.env.PORT || 3000
-
-          const app = next({ dev, hostname, port })
-          const handle = app.getRequestHandler()
-
-          app.prepare().then(() => {
-            const server = createServer(async (req, res) => {
-              try {
-                if (req.url === '/health') {
-                  res.writeHead(200, { 'Content-Type': 'text/plain' });
-                  res.end('OK');
-                  return;
-                }
-                
-                const parsedUrl = parse(req.url, true)
-                await handle(req, res, parsedUrl)
-              } catch (err) {
-                console.error('Error occurred handling', req.url, err)
-                res.statusCode = 500
-                res.end('internal server error')
+          cat > ecosystem.config.js << 'ECOSYSTEM'
+          module.exports = {
+            apps: [{
+              name: 'tov-app',
+              script: 'npm',
+              args: 'start',
+              instances: 1,
+              autorestart: true,
+              watch: false,
+              max_memory_restart: '800M',
+              min_uptime: '10s',
+              max_restarts: 10,
+              env: {
+                NODE_ENV: 'production',
+                PORT: 3000
               }
-            })
-
-            server.keepAliveTimeout = 65000
-            server.headersTimeout = 66000
-
-            console.log('Keep-Alive settings applied:')
-            console.log('   - keepAliveTimeout: ' + server.keepAliveTimeout + 'ms')
-            console.log('   - headersTimeout: ' + server.headersTimeout + 'ms')
-
-            server.listen(port, hostname, (err) => {
-              if (err) throw err
-              console.log('> Ready on http://' + hostname + ':' + port)
-              console.log('> Keep-Alive enabled for better HTTPS performance')
-            })
-          })
-
-          process.on('SIGTERM', () => {
-            console.log('SIGTERM received, shutting down gracefully')
-            process.exit(0)
-          })
-
-          process.on('SIGINT', () => {
-            console.log('SIGINT received, shutting down gracefully')
-            process.exit(0)
-          })
-          SERVERJS
-
-      - name: Update package.json
-        run: |
-          node -e "
-          const fs = require('fs');
-          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          pkg.scripts.start = 'NODE_ENV=production node server.js';
-          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
-          "
+            }]
+          };
+          ECOSYSTEM
 
       - name: Install production dependencies
         run: npm ci --omit=dev
@@ -120,7 +76,7 @@ jobs:
           cp -r node_modules deploy-package/
           cp package.json deploy-package/
           cp package-lock.json deploy-package/
-          cp server.js deploy-package/
+          cp ecosystem.config.js deploy-package/
           cp next.config.js deploy-package/
           tar -czf deploy-package.tar.gz deploy-package/
 
@@ -154,13 +110,19 @@ jobs:
           # 환경 변수
           S3_BUCKET_NAME="${{ secrets.DEPLOY_S3_BUCKET_NAME }}/production"
           APP_DIR="/apps/tov-homepage"
-          SERVICE_NAME="tov-homepage"
+          PM2_APP_NAME="tov-app"
 
           echo "Starting deployment from S3..."
 
           # Node.js 경로 확인
           NODE_PATH=$(which node)
           echo "Node.js path: $NODE_PATH"
+
+          # PM2 설치 확인
+          if ! command -v pm2 &> /dev/null; then
+            echo "PM2 not found, installing..."
+            npm install -g pm2
+          fi
 
           # 디렉토리 생성
           sudo mkdir -p $APP_DIR
@@ -169,8 +131,8 @@ jobs:
           # S3에서 다운로드
           aws s3 cp s3://${S3_BUCKET_NAME}/latest.tar.gz ./
 
-          # systemd 서비스 중지 (배포 전)
-          sudo systemctl stop $SERVICE_NAME || true
+          # PM2 앱 중지 및 삭제 (배포 전)
+          pm2 delete $PM2_APP_NAME || true
 
           # 디스크 공간 확보 - 3일 이상 된 백업 삭제
           find /apps/tov-homepage -name "backup-*" -type d -mtime +3 -exec rm -rf {} + 2>/dev/null || true
@@ -227,17 +189,20 @@ jobs:
 
           ENVFILE
 
-          # systemd로 서비스 시작 및 활성화
-          sudo systemctl enable $SERVICE_NAME
-          sudo systemctl start $SERVICE_NAME
+          # PM2로 앱 시작
+          pm2 start ecosystem.config.js
+
+          # PM2 startup 설정 (서버 재시작 시 자동 실행)
+          pm2 save
+          sudo env PATH=$PATH:$(which node | xargs dirname) pm2 startup systemd -u $USER --hp /home/$USER || true
 
           # 상태 확인
           sleep 5
-          sudo systemctl status $SERVICE_NAME --no-pager || true
+          pm2 status
 
           # 헬스체크
           sleep 2
-          curl -f http://localhost:3000/health || echo "Health check endpoint not ready yet"
+          curl -f http://localhost:3000/health || curl -f http://localhost:3000 || echo "Health check not ready yet"
 
           echo "Deployment completed!"
 
