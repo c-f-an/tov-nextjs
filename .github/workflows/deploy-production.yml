@@ -52,6 +52,7 @@ jobs:
               script: 'npm',
               args: 'start',
               instances: 1,
+              exec_mode: 'fork',
               autorestart: true,
               watch: false,
               max_memory_restart: '800M',
@@ -133,6 +134,8 @@ jobs:
 
           # PM2 앱 중지 및 삭제 (배포 전)
           pm2 delete $PM2_APP_NAME || true
+          pm2 delete all || true
+          pm2 kill
 
           # 디스크 공간 확보 - 3일 이상 된 백업 삭제
           find /apps/tov-homepage -name "backup-*" -type d -mtime +3 -exec rm -rf {} + 2>/dev/null || true
