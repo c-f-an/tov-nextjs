@@ -44,6 +44,19 @@ export default async function ResourceDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  let youtubeId = null;
+  if (
+    resource.externalLink &&
+    resource.externalLink.startsWith("https://www.youtube.com/")
+  ) {
+    try {
+      const urlObj = new URL(resource.externalLink);
+      youtubeId = urlObj.searchParams.get("v");
+    } catch (e) {
+      console.error("Invalid YouTube URL:", e);
+    }
+  }
+
   const formatFileSize = (bytes: number | null) => {
     if (!bytes) return "N/A";
     const units = ["B", "KB", "MB", "GB"];
@@ -153,14 +166,37 @@ export default async function ResourceDetailPage({ params }: PageProps) {
                   </div>
                 ) : resource.externalLink ? (
                   <div className="p-4 bg-gray-50 rounded">
-                    <Link
-                      href={resource.externalLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                    >
-                      {resource.externalLinkTitle || "외부 링크 이동"}
-                    </Link>
+                    {youtubeId ? (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          관련 영상
+                        </label>
+                        <Link
+                          href={resource.externalLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-full max-w-md"
+                        >
+                          <img
+                            src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
+                            alt="YouTube Thumbnail"
+                            className="w-full rounded-lg shadow-sm hover:opacity-90 transition-opacity"
+                          />
+                          <p className="mt-2 text-sm text-blue-600 hover:underline">
+                            {resource.externalLinkTitle || "YouTube에서 보기"}
+                          </p>
+                        </Link>
+                      </div>
+                    ) : (
+                      <Link
+                        href={resource.externalLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                      >
+                        {resource.externalLinkTitle || "외부 링크 이동"}
+                      </Link>
+                    )}
                   </div>
                 ) : (
                   <div className="p-4 bg-gray-50 rounded">
