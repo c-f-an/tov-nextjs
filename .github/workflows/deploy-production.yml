@@ -99,8 +99,8 @@ jobs:
           S3_BUCKET_NAME: ${{ secrets.DEPLOY_S3_BUCKET_NAME }}
           EC2_USER: ${{ secrets.EC2_USER }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
-          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          JWT_ACCESS_SECRET: ${{ vars.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET: ${{ vars.JWT_REFRESH_SECRET }}
         run: |
           SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30"
 
@@ -165,12 +165,12 @@ jobs:
           DATABASE_USER=${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
           DATABASE_NAME=${{ secrets.DATABASE_NAME }}
-          JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}
-          JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+          JWT_ACCESS_SECRET=${{ vars.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET=${{ vars.JWT_REFRESH_SECRET }}
           NEXT_PUBLIC_KAKAO_MAP_API_KEY=${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }}
           NEXT_PUBLIC_COMPANY_ADDRESS=${{ vars.NEXT_PUBLIC_COMPANY_ADDRESS }}
-          NEXT_PUBLIC_APP_URL=https://tov.or.kr
-          NEXT_PUBLIC_API_URL=https://tov.or.kr/api
+          NEXT_PUBLIC_APP_URL=${{ vars.NEXT_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
 
           # AWS S3 Configuration
           AWS_REGION=${{ secrets.AWS_REGION }}
