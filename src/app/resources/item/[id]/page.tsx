@@ -171,21 +171,23 @@ export default async function ResourceDetailPage({ params }: PageProps) {
                         <label className="block text-sm font-medium text-gray-700">
                           관련 영상
                         </label>
-                        <Link
-                          href={resource.externalLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block w-full max-w-md"
-                        >
-                          <img
-                            src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
-                            alt="YouTube Thumbnail"
-                            className="w-full rounded-lg shadow-sm hover:opacity-90 transition-opacity"
-                          />
-                          <p className="mt-2 text-sm text-blue-600 hover:underline">
-                            {resource.externalLinkTitle || "YouTube에서 보기"}
-                          </p>
-                        </Link>
+                        <div className="aspect-video max-w-2xl">
+                          <iframe
+                            className="w-full h-full rounded-lg shadow-sm"
+                            src={`https://www.youtube.com/embed/${youtubeId}`}
+                            title={
+                              resource.externalLinkTitle ||
+                              "YouTube video player"
+                            }
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          {resource.externalLinkTitle || "YouTube 영상"}
+                        </p>
                       </div>
                     ) : (
                       <Link
