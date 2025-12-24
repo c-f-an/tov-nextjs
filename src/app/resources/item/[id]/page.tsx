@@ -164,7 +164,10 @@ export default async function ResourceDetailPage({ params }: PageProps) {
                       <p>파일 크기: {formatFileSize(resource.fileSize)}</p>
                     </div>
                   </div>
-                ) : resource.externalLink ? (
+                ) : (
+                  <></>
+                )}
+                {resource.externalLink ? (
                   <div className="p-4 bg-gray-50 rounded">
                     {youtubeId ? (
                       <div className="space-y-2">
@@ -201,6 +204,10 @@ export default async function ResourceDetailPage({ params }: PageProps) {
                     )}
                   </div>
                 ) : (
+                  <></>
+                )}
+
+                {!resource.filePath && !resource.externalLink ? (
                   <div className="p-4 bg-gray-50 rounded">
                     <div className="flex justify-between items-start mb-2">
                       <label className="block text-sm font-medium text-gray-700">
@@ -214,6 +221,8 @@ export default async function ResourceDetailPage({ params }: PageProps) {
                       <p>파일이 아직 업로드되지 않았습니다.</p>
                     </div>
                   </div>
+                ) : (
+                  <></>
                 )}
               </div>
             </CardContent>
