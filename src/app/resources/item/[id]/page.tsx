@@ -45,15 +45,21 @@ export default async function ResourceDetailPage({ params }: PageProps) {
   }
 
   let youtubeId = null;
-  if (
-    resource.externalLink &&
-    resource.externalLink.startsWith("https://www.youtube.com/")
-  ) {
-    try {
-      const urlObj = new URL(resource.externalLink);
-      youtubeId = urlObj.searchParams.get("v");
-    } catch (e) {
-      console.error("Invalid YouTube URL:", e);
+  if (resource.externalLink) {
+    if (resource.externalLink.startsWith("https://www.youtube.com/")) {
+      try {
+        const urlObj = new URL(resource.externalLink);
+        youtubeId = urlObj.searchParams.get("v");
+      } catch (e) {
+        console.error("Invalid YouTube URL:", e);
+      }
+    } else if (resource.externalLink.startsWith("https://youtu.be/")) {
+      try {
+        const urlObj = new URL(resource.externalLink);
+        youtubeId = urlObj.searchParams.get("v");
+      } catch (e) {
+        console.error("Invalid YouTube URL:", e);
+      }
     }
   }
 
