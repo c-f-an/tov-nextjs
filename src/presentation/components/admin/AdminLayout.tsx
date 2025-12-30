@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 
@@ -242,6 +242,10 @@ const menuItems: AdminMenuItem[] = [
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentFullUrl = `${pathname}${
+    searchParams.toString() ? "?" + searchParams.toString() : ""
+  }`;
   const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
@@ -254,13 +258,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const isActive = (href: string) => {
-    // 대시보드(/admin)는 정확히 일치하는 경우에만 활성화
-    if (href === "/admin") {
-      return pathname === "/admin";
+  const isActive = (href: string, isChildren: boolean) => {
+    if (isChildren) {
+      // 다른 메뉴들은 prefix 매칭
+      return currentFullUrl === href;
+    } else {
+      // 대시보드(/admin)는 정확히 일치하는 경우에만 활성화
+      if (href === "/admin") {
+        return pathname === "/admin";
+      }
+      // 다른 메뉴들은 prefix 매칭
+      return pathname === href || pathname.startsWith(href + "/");
     }
-    // 다른 메뉴들은 prefix 매칭
-    return pathname === href || pathname.startsWith(href + "/");
   };
 
   return (
@@ -353,7 +362,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                   <Link
                     href={item.href}
                     className={`flex items-center justify-between px-4 py-2 rounded-md transition-colors ${
-                      isActive(item.href)
+                      isActive(item.href, false)
                         ? "bg-blue-50 text-blue-700 border-l-4 border-blue-700"
                         : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                     }`}
@@ -396,7 +405,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                           key={child.href}
                           href={child.href}
                           className={`block px-4 py-2 text-sm rounded-md transition-colors ${
-                            isActive(child.href)
+                            isActive(child.href, true)
                               ? "bg-blue-50 text-blue-600"
                               : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                           }`}
