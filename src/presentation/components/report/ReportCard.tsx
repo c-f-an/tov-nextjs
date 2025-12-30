@@ -9,7 +9,7 @@ export interface Report {
   title: string;
   date: string | Date;
   year: string;
-  type: 'business' | 'finance';
+  type: "business" | "finance";
   summary?: string | null;
   views: number;
 }
@@ -20,7 +20,7 @@ interface ReportCardProps {
 
 export default function ReportCard({ report }: ReportCardProps) {
   const href = `/about/business/${report.type}/${report.id}`;
-  
+
   return (
     <Link href={href}>
       <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
@@ -32,12 +32,14 @@ export default function ReportCard({ report }: ReportCardProps) {
                 {report.year}년도
               </span>
             </div>
-            <span className={`text-xs px-2 py-1 rounded-full ${
-              report.type === 'business' 
-                ? 'bg-blue-100 text-blue-700' 
-                : 'bg-green-100 text-green-700'
-            }`}>
-              {report.type === 'business' ? '사업보고' : '재정보고'}
+            <span
+              className={`text-xs px-2 py-1 rounded-full ${
+                report.type === "business"
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-green-100 text-green-700"
+              }`}
+            >
+              {report.type === "business" ? "사업보고" : "재정보고"}
             </span>
           </div>
           <h3 className="font-bold text-lg line-clamp-2 group-hover:text-blue-600">
@@ -53,7 +55,16 @@ export default function ReportCard({ report }: ReportCardProps) {
           <div className="flex items-center justify-between text-sm text-gray-500">
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              <span>{typeof report.date === 'string' ? report.date : new Date(report.date).toLocaleDateString('ko-KR')}</span>
+              <span>
+                {new Date(report.date)
+                  .toLocaleDateString("ko-KR", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })
+                  .replace(/\. /g, "-")
+                  .replace(/\./g, "")}
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <Eye className="h-4 w-4" />

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ChevronRight, FileText, DollarSign, AlertCircle } from "lucide-react";
+import { ChevronRight, FileText, AlertCircle } from "lucide-react";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 import ReportCard, {
   Report,
@@ -11,7 +11,6 @@ import PageHeader from "@/presentation/components/common/PageHeader";
 
 export default function BusinessPage() {
   const [businessReports, setBusinessReports] = useState<Report[]>([]);
-  const [financeReports, setFinanceReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,16 +31,6 @@ export default function BusinessPage() {
             "Failed to fetch business reports:",
             businessData.error
           );
-        }
-
-        // Fetch finance reports
-        const financeRes = await fetch("/api/reports?type=finance");
-        const financeData = await financeRes.json();
-
-        if (financeData.success) {
-          setFinanceReports(financeData.data.slice(0, 3)); // Show latest 3
-        } else {
-          console.error("Failed to fetch finance reports:", financeData.error);
         }
       } catch (err) {
         console.error("Error fetching reports:", err);
@@ -112,61 +101,6 @@ export default function BusinessPage() {
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 mb-2">
                 등록된 사업보고서가 없습니다.
-              </p>
-              <p className="text-sm text-gray-500">
-                새로운 보고서가 등록되면 이곳에 표시됩니다.
-              </p>
-            </div>
-          )}
-        </section>
-
-        {/* 재정보고 섹션 */}
-        <section>
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <DollarSign className="h-8 w-8 text-green-600" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold">재정보고</h2>
-                <p className="text-gray-600">
-                  투명한 재정 운영 현황을 공개합니다
-                </p>
-              </div>
-            </div>
-            <Link
-              href="/about/business/finance-report"
-              className="flex items-center gap-1 text-green-600 hover:text-green-700 font-medium"
-            >
-              더보기 <ChevronRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">보고서를 불러오는 중...</p>
-              </div>
-            </div>
-          ) : error ? (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <div className="flex items-center gap-3">
-                <AlertCircle className="h-6 w-6 text-red-600 flex-shrink-0" />
-                <p className="text-red-800">{error}</p>
-              </div>
-            </div>
-          ) : financeReports.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {financeReports.map((report) => (
-                <ReportCard key={report.id} report={report} />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-gray-50 rounded-lg p-12 text-center">
-              <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 mb-2">
-                등록된 재정보고서가 없습니다.
               </p>
               <p className="text-sm text-gray-500">
                 새로운 보고서가 등록되면 이곳에 표시됩니다.
