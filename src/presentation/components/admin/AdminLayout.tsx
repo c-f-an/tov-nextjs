@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 
 interface AdminMenuItem {
@@ -240,15 +240,14 @@ const menuItems: AdminMenuItem[] = [
   },
 ];
 
-export function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminSidebarNavigation() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
   const currentFullUrl = `${pathname}${
     searchParams.toString() ? "?" + searchParams.toString() : ""
   }`;
-  const { user, logout } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   const toggleExpanded = (href: string) => {
     setExpandedItems((prev) =>
@@ -271,6 +270,78 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       return pathname === href || pathname.startsWith(href + "/");
     }
   };
+
+  return (
+    <nav className="mt-8 px-4">
+      {menuItems.map((item) => (
+        <div key={item.href} className="mb-2">
+          <div className="relative">
+            <Link
+              href={item.href}
+              className={`flex items-center justify-between px-4 py-2 rounded-md transition-colors ${
+                isActive(item.href, false)
+                  ? "bg-blue-50 text-blue-700 border-l-4 border-blue-700"
+                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                {item.icon}
+                <span>{item.title}</span>
+              </div>
+              {item.children && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleExpanded(item.href);
+                  }}
+                  className="p-1"
+                >
+                  <svg
+                    className={`w-4 h-4 transition-transform ${
+                      expandedItems.includes(item.href) ? "rotate-90" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              )}
+            </Link>
+
+            {item.children && expandedItems.includes(item.href) && (
+              <div className="mt-2 ml-4 space-y-1">
+                {item.children.map((child) => (
+                  <Link
+                    key={child.href}
+                    href={child.href}
+                    className={`block px-4 py-2 text-sm rounded-md transition-colors ${
+                      isActive(child.href, true)
+                        ? "bg-blue-50 text-blue-600"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    }`}
+                  >
+                    {child.title}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+export function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { user, logout } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -355,70 +426,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             isSidebarOpen ? "w-64" : "w-0"
           } bg-white border-r border-gray-200 min-h-screen transition-all duration-300 overflow-hidden`}
         >
-          <nav className="mt-8 px-4">
-            {menuItems.map((item) => (
-              <div key={item.href} className="mb-2">
-                <div className="relative">
-                  <Link
-                    href={item.href}
-                    className={`flex items-center justify-between px-4 py-2 rounded-md transition-colors ${
-                      isActive(item.href, false)
-                        ? "bg-blue-50 text-blue-700 border-l-4 border-blue-700"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      {item.icon}
-                      <span>{item.title}</span>
-                    </div>
-                    {item.children && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleExpanded(item.href);
-                        }}
-                        className="p-1"
-                      >
-                        <svg
-                          className={`w-4 h-4 transition-transform ${
-                            expandedItems.includes(item.href) ? "rotate-90" : ""
-                          }`}
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </button>
-                    )}
-                  </Link>
-
-                  {item.children && expandedItems.includes(item.href) && (
-                    <div className="mt-2 ml-4 space-y-1">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className={`block px-4 py-2 text-sm rounded-md transition-colors ${
-                            isActive(child.href, true)
-                              ? "bg-blue-50 text-blue-600"
-                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                          }`}
-                        >
-                          {child.title}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </nav>
+          <Suspense fallback={<div className="mt-8 px-4"></div>}>
+            <AdminSidebarNavigation />
+          </Suspense>
         </aside>
 
         {/* Main Content */}
