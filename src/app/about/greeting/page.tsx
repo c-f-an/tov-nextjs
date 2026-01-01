@@ -15,31 +15,6 @@ export default function GreetingPage() {
           description="Mission과 Fund가 만나는 곳"
         />
 
-        {/* 법인 정보 섹션 */}
-        <div className="mb-12 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-6 border border-primary/20">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">
-              사단법인 토브협회
-            </h2>
-            <div className="space-y-2 text-gray-700">
-              <p className="text-lg">
-                <span className="font-semibold">정식 명칭:</span> 사단법인 토브협회
-              </p>
-              <p className="text-lg">
-                <span className="font-semibold">영문명:</span> Tov Association
-              </p>
-              <p className="text-lg">
-                <span className="font-semibold">약칭:</span> 토브협회, 토브
-              </p>
-            </div>
-            <div className="mt-4 pt-4 border-t border-primary/20">
-              <p className="text-base text-gray-700 leading-relaxed">
-                <span className="font-bold text-primary">토브협회</span>(Tov Association)는 비영리단체의 재정 투명성을 위해 설립된 <span className="font-semibold">사단법인</span>입니다.
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* 토브 소개 섹션 */}
         <div className="mb-16">
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
@@ -51,16 +26,21 @@ export default function GreetingPage() {
                 &apos;토브(Tov)&apos;의 의미
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                우리말로 <span className="font-semibold text-primary">&apos;좋음&apos;, &apos;선함&apos;, &apos;유익함&apos;</span>의 의미를 가진 히브리어입니다.
+                우리말로{" "}
+                <span className="font-semibold text-primary">
+                  &apos;좋음&apos;, &apos;선함&apos;, &apos;유익함&apos;
+                </span>
+                의 의미를 가진 히브리어입니다.
               </p>
               <p className="text-base text-gray-600 leading-relaxed mb-6">
-                &apos;토브&apos;는 단순히 좋다는 감정적 표현을 넘어서<br/>
+                &apos;토브&apos;는 단순히 좋다는 감정적 표현을 넘어서
+                <br />
                 도덕적이고 실제적인 &apos;선(善)&apos;의 가치를 담은 단어입니다.
               </p>
               <div className="border-t border-gray-200 pt-6">
                 <p className="text-xl font-bold text-primary">
-                  세상을 더 정의롭게 만드는 힘,<br/>
-                  그 &apos;좋음&apos;을 우리는 &apos;Tov&apos;라 부릅니다.
+                  세상을 더 정의롭게 만드는 힘,
+                  <br />그 &apos;좋음&apos;을 우리는 &apos;Tov&apos;라 부릅니다.
                 </p>
               </div>
             </div>
@@ -87,8 +67,9 @@ export default function GreetingPage() {
                     Ethical Goodness
                   </p>
                   <p className="text-gray-700 leading-relaxed">
-                    Tov는 투명성과 책임을 핵심 가치로 삼습니다.
-                    우리는 Fund가 공정하고 정직하게 운영될 때, 진짜 선함이 만들어진다고 믿습니다.
+                    Tov는 투명성과 책임을 핵심 가치로 삼습니다. 우리는 Fund가
+                    공정하고 정직하게 운영될 때, 진짜 선함이 만들어진다고
+                    믿습니다.
                   </p>
                 </div>
               </div>
@@ -107,9 +88,9 @@ export default function GreetingPage() {
                     Impactful Goodness
                   </p>
                   <p className="text-gray-700 leading-relaxed">
-                    Tov는 단순히 &apos;좋은 뜻&apos;을 넘어서, 모두에게 유익한 결과를
-                    만들어내는 걸 목표로 합니다. Mission과 Fund를 연결해, 비영리
-                    단체가 구체적인 변화를 만들도록 돕습니다.
+                    Tov는 단순히 &apos;좋은 뜻&apos;을 넘어서, 모두에게 유익한
+                    결과를 만들어내는 걸 목표로 합니다. Mission과 Fund를 연결해,
+                    비영리 단체가 구체적인 변화를 만들도록 돕습니다.
                   </p>
                 </div>
               </div>
@@ -128,8 +109,8 @@ export default function GreetingPage() {
                     Purposeful Goodness
                   </p>
                   <p className="text-gray-700 leading-relaxed">
-                    Fund를 의미 없이 사용해서는 안 됩니다.
-                    Tov는 Fund가 제 자리를 찾고, 제 역할을 하도록 안내합니다.
+                    Fund를 의미 없이 사용해서는 안 됩니다. Tov는 Fund가 제
+                    자리를 찾고, 제 역할을 하도록 안내합니다.
                   </p>
                 </div>
               </div>
@@ -146,8 +127,9 @@ export default function GreetingPage() {
                 <h2 className="text-2xl font-bold text-gray-800">Vision</h2>
               </div>
               <p className="text-lg font-semibold text-gray-800 mb-3">
-                &ldquo;Tov는 Mission과 Fund가 만나 비영리의 가치를 키워가는 세상,<br/>
-                그 연결의 중심에 있습니다.&rdquo;
+                &ldquo;Tov는 Mission과 Fund가 만나 비영리의 가치를 키워가는
+                세상,
+                <br />그 연결의 중심에 있습니다.&rdquo;
               </p>
               <p className="text-gray-600 italic mb-4">
                 Tov exists at the center where funds meet mission—to amplify the
@@ -155,7 +137,8 @@ export default function GreetingPage() {
               </p>
               <div className="border-t border-gray-200 pt-4">
                 <p className="text-sm text-gray-700 leading-relaxed">
-                  <span className="text-primary font-semibold">*</span> 토브는 사명(Mission)의 방향성과 기금(Fund)의 힘이 제대로 만날 수
+                  <span className="text-primary font-semibold">*</span> 토브는
+                  사명(Mission)의 방향성과 기금(Fund)의 힘이 제대로 만날 수
                   있도록 설계하고 연결하는, 전략적 중심축입니다.
                 </p>
               </div>
@@ -167,8 +150,9 @@ export default function GreetingPage() {
                 <h2 className="text-2xl font-bold text-gray-800">Mission</h2>
               </div>
               <p className="text-lg font-semibold text-gray-800 mb-4">
-                &ldquo;토브는 비영리단체가 재정의 투명성을 높이고, 자금 운영 역량을
-                키우며, 혁신적인 솔루션을 통해 지속 가능한 변화를 만들어<br/>
+                &ldquo;토브는 비영리단체가 재정의 투명성을 높이고, 자금 운영
+                역량을 키우며, 혁신적인 솔루션을 통해 지속 가능한 변화를 만들어
+                <br />
                 고유한 사명을 이루도록 지원합니다.&rdquo;
               </p>
             </div>
