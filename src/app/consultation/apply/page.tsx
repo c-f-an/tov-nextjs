@@ -1,17 +1,16 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useAuth } from '@/presentation/contexts/AuthContext';
-import PageHeader from '@/presentation/components/common/PageHeader';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/presentation/contexts/AuthContext";
+import PageHeader from "@/presentation/components/common/PageHeader";
 
 const consultationTypes = [
-  { value: 'religious-income', label: '종교인 소득세' },
-  { value: 'nonprofit-accounting', label: '비영리 회계' },
-  { value: 'settlement-disclosure', label: '결산 공시' },
-  { value: 'general', label: '일반 상담' },
-  { value: 'other', label: '기타' }
+  { value: "dispute-consultation", label: "재정분쟁 상담" },
+  { value: "financial-management", label: "재정운영의 실제" },
+  { value: "articles-of-incorporation", label: "정관과 규칙" },
+  { value: "other", label: "기타" },
 ];
 
 export default function ConsultationApplyPage() {
@@ -19,48 +18,48 @@ export default function ConsultationApplyPage() {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    phone: '',
-    email: user?.email || '',
-    churchName: '',
-    position: '',
-    consultationType: '',
-    preferredDate: '',
-    preferredTime: '',
-    title: '',
-    content: '',
-    privacyAgree: false
+    name: user?.name || "",
+    phone: "",
+    email: user?.email || "",
+    churchName: "",
+    position: "",
+    consultationType: "",
+    preferredDate: "",
+    preferredTime: "",
+    title: "",
+    content: "",
+    privacyAgree: false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.privacyAgree) {
-      alert('개인정보 수집 및 이용에 동의해주세요.');
+      alert("개인정보 수집 및 이용에 동의해주세요.");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/consultations', {
-        method: 'POST',
+      const response = await fetch("/api/consultations", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to submit consultation');
+        throw new Error(error.error || "Failed to submit consultation");
       }
 
-      alert('상담 신청이 완료되었습니다. 담당자가 곧 연락드리겠습니다.');
-      router.push('/consultation/list');
+      alert("상담 신청이 완료되었습니다. 담당자가 곧 연락드리겠습니다.");
+      router.push("/consultation/list");
     } catch (error: any) {
-      console.error('Error submitting consultation:', error);
-      alert(error.message || '상담 신청에 실패했습니다.');
+      console.error("Error submitting consultation:", error);
+      alert(error.message || "상담 신청에 실패했습니다.");
     } finally {
       setIsSubmitting(false);
     }
@@ -72,13 +71,17 @@ export default function ConsultationApplyPage() {
       <nav className="mb-8">
         <ol className="flex items-center space-x-2 text-sm text-gray-600">
           <li>
-            <Link href="/" className="hover:text-blue-600">홈</Link>
+            <Link href="/" className="hover:text-blue-600">
+              홈
+            </Link>
           </li>
           <li>
             <span className="mx-2">/</span>
           </li>
           <li>
-            <Link href="/consultation" className="hover:text-blue-600">상담센터</Link>
+            <Link href="/consultation" className="hover:text-blue-600">
+              상담센터
+            </Link>
           </li>
           <li>
             <span className="mx-2">/</span>
@@ -87,42 +90,55 @@ export default function ConsultationApplyPage() {
         </ol>
       </nav>
 
-      <PageHeader 
+      <PageHeader
         title="상담 신청"
         description="전문가가 직접 상담해드립니다. 궁금하신 사항을 자유롭게 문의해주세요."
       />
 
       {/* Consultation Form */}
       <div className="mx-auto">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-8">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-lg shadow-sm p-8"
+        >
           {/* Personal Information */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold mb-4">신청자 정보</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   이름 *
                 </label>
                 <input
                   type="text"
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   연락처 *
                 </label>
                 <input
                   type="tel"
                   id="phone"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="010-0000-0000"
                   required
@@ -130,40 +146,55 @@ export default function ConsultationApplyPage() {
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   이메일
                 </label>
                 <input
                   type="email"
                   id="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="churchName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="churchName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   교회/단체명
                 </label>
                 <input
                   type="text"
                   id="churchName"
                   value={formData.churchName}
-                  onChange={(e) => setFormData({ ...formData, churchName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, churchName: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="position"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   직책
                 </label>
                 <input
                   type="text"
                   id="position"
                   value={formData.position}
-                  onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, position: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -176,13 +207,21 @@ export default function ConsultationApplyPage() {
 
             <div className="space-y-6">
               <div>
-                <label htmlFor="consultationType" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="consultationType"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   상담 분야 *
                 </label>
                 <select
                   id="consultationType"
                   value={formData.consultationType}
-                  onChange={(e) => setFormData({ ...formData, consultationType: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      consultationType: e.target.value,
+                    })
+                  }
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
@@ -197,27 +236,43 @@ export default function ConsultationApplyPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="preferredDate" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="preferredDate"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     희망 상담일
                   </label>
                   <input
                     type="date"
                     id="preferredDate"
                     value={formData.preferredDate}
-                    onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        preferredDate: e.target.value,
+                      })
+                    }
                     className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    min={new Date().toISOString().split('T')[0]}
+                    min={new Date().toISOString().split("T")[0]}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="preferredTime" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="preferredTime"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     희망 시간대
                   </label>
                   <select
                     id="preferredTime"
                     value={formData.preferredTime}
-                    onChange={(e) => setFormData({ ...formData, preferredTime: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        preferredTime: e.target.value,
+                      })
+                    }
                     className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">선택해주세요</option>
@@ -229,14 +284,19 @@ export default function ConsultationApplyPage() {
               </div>
 
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   상담 제목 *
                 </label>
                 <input
                   type="text"
                   id="title"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="상담하실 내용의 제목을 입력해주세요"
                   required
@@ -244,13 +304,18 @@ export default function ConsultationApplyPage() {
               </div>
 
               <div>
-                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="content"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   상담 내용 *
                 </label>
                 <textarea
                   id="content"
                   value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, content: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={8}
                   placeholder="상담하실 내용을 자세히 입력해주세요"
@@ -265,7 +330,8 @@ export default function ConsultationApplyPage() {
             <div className="bg-gray-50 p-4 rounded-md mb-4">
               <h4 className="font-medium mb-2">개인정보 수집 및 이용 동의</h4>
               <p className="text-sm text-gray-600">
-                토브협회는 상담 서비스 제공을 위해 아래와 같이 개인정보를 수집·이용합니다.
+                토브협회는 상담 서비스 제공을 위해 아래와 같이 개인정보를
+                수집·이용합니다.
               </p>
               <ul className="text-sm text-gray-600 mt-2 space-y-1">
                 <li>• 수집항목: 이름, 연락처, 이메일, 교회/단체명, 직책</li>
@@ -277,7 +343,9 @@ export default function ConsultationApplyPage() {
               <input
                 type="checkbox"
                 checked={formData.privacyAgree}
-                onChange={(e) => setFormData({ ...formData, privacyAgree: e.target.checked })}
+                onChange={(e) =>
+                  setFormData({ ...formData, privacyAgree: e.target.checked })
+                }
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 required
               />
@@ -294,7 +362,7 @@ export default function ConsultationApplyPage() {
               disabled={isSubmitting}
               className="px-8 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400"
             >
-              {isSubmitting ? '신청 중...' : '상담 신청'}
+              {isSubmitting ? "신청 중..." : "상담 신청"}
             </button>
           </div>
         </form>
