@@ -31,16 +31,20 @@ export function Header() {
   const fetchMenuItems = async () => {
     try {
       // 게시판 카테고리 가져오기
-      const postsResponse = await fetch('/api/categories');
+      const postsResponse = await fetch("/api/categories");
       const postsCategories: Category[] = await postsResponse.json();
 
       // 자료실 카테고리 가져오기 (활성화된 것만)
-      const resourcesResponse = await fetch('/api/resources/categories?active=true');
+      const resourcesResponse = await fetch(
+        "/api/resources/categories?active=true"
+      );
       const resourceCategories = await resourcesResponse.json();
 
       // 카테고리를 타입별로 그룹화
-      const filteredPostsCategories = postsCategories.filter(cat =>
-        ['notice', 'news', 'activity', 'media', 'publication', 'laws'].includes(cat.type)
+      const filteredPostsCategories = postsCategories.filter((cat) =>
+        ["notice", "news", "activity", "media", "publication", "laws"].includes(
+          cat.type
+        )
       );
 
       // 정적 메뉴 아이템 구성
@@ -49,39 +53,48 @@ export function Header() {
           title: "About Us",
           href: "/about",
           submenu: [
-            { title: "우리는", href: "/about/greeting" },
-            { title: "함께하는이들", href: "/about/organization" },
-            { title: "사업보고", href: "/about/business" },
-            { title: "오시는길", href: "/about/location" },
+            { title: "토브협회(소개/토브)", href: "/about/greeting" },
+            { title: "함께하는 이들", href: "/about/organization" },
+            { title: "사업 보고", href: "/about/business" },
+            { title: "오시는 길", href: "/about/location" },
             { title: "FAQ", href: "/about/faq" },
           ],
         },
         {
-          title: "토브운동",
+          title: "토브 운동",
           href: "/movement",
           submenu: [
-            { title: "건강한 재정관리", href: "/movement/financial-management" },
+            {
+              title: "건강한 재정관리",
+              href: "/movement/financial-management",
+            },
             { title: "건강한 재정교육", href: "/movement/financial-education" },
-            { title: "결산서 공개 운동", href: "/movement/financial-disclosure" },
-            { title: "종교인 소득신고", href: "/movement/religious-income-report" },
-            { title: "연대협력", href: "/movement/cooperation" },
+            {
+              title: "결산서 공개 운동",
+              href: "/movement/financial-disclosure",
+            },
+            {
+              title: "종교인 소득신고",
+              href: "/movement/religious-income-report",
+            },
+            { title: "연대 협력", href: "/movement/cooperation" },
           ],
         },
         {
           title: "토브 소식",
           href: "/posts",
-          submenu: filteredPostsCategories.map(cat => ({
+          submenu: filteredPostsCategories.map((cat) => ({
             title: cat.name,
-            href: `/posts/${cat.slug}`
-          }))
+            href: `/posts/${cat.slug}`,
+          })),
         },
         {
           title: "자료실",
           href: "/resources",
           submenu: resourceCategories.map((cat: any) => ({
             title: cat.name,
-            href: `/resources/${cat.slug}`
-          }))
+            href: `/resources/${cat.slug}`,
+          })),
         },
         {
           title: "상담센터",
@@ -104,7 +117,7 @@ export function Header() {
 
       setMenuItems(staticMenuItems);
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
+      console.error("Failed to fetch categories:", error);
 
       // 에러 시 기본 메뉴 사용
       const fallbackMenuItems: MenuItem[] = [
@@ -123,10 +136,19 @@ export function Header() {
           title: "토브운동",
           href: "/movement",
           submenu: [
-            { title: "건강한 재정관리", href: "/movement/financial-management" },
+            {
+              title: "건강한 재정관리",
+              href: "/movement/financial-management",
+            },
             { title: "건강한 재정교육", href: "/movement/financial-education" },
-            { title: "결산서 공개 운동", href: "/movement/financial-disclosure" },
-            { title: "종교인 소득신고", href: "/movement/religious-income-report" },
+            {
+              title: "결산서 공개 운동",
+              href: "/movement/financial-disclosure",
+            },
+            {
+              title: "종교인 소득신고",
+              href: "/movement/religious-income-report",
+            },
             { title: "연대협력", href: "/movement/cooperation" },
           ],
         },
@@ -200,7 +222,7 @@ export function Header() {
                   >
                     마이페이지
                   </Link>
-                  {user.role === 'ADMIN' && (
+                  {user.role === "ADMIN" && (
                     <Link
                       href="/admin"
                       className="text-gray-600 hover:text-gray-800"
