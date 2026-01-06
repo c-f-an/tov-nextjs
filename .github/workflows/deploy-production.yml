@@ -130,6 +130,9 @@ jobs:
           cd $APP_DIR
 
           # S3에서 다운로드
+          AWS_ACCESS_KEY_ID="${{ secrets.DEPLOY_AWS_ACCESS_KEY_ID }}" \
+          AWS_SECRET_ACCESS_KEY="${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}" \
+          AWS_DEFAULT_REGION="${{ secrets.DEPLOY_AWS_REGION }}" \
           aws s3 cp s3://${S3_BUCKET_NAME}/latest.tar.gz ./
 
           # PM2 앱 중지 및 삭제 (배포 전)
