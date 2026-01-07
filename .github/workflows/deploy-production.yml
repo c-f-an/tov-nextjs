@@ -100,8 +100,8 @@ jobs:
       - name: Upload to S3
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          aws s3 cp deploy-package.tar.gz s3://${{ secrets.DEPLOY_S3_BUCKET_NAME }}/production/deploy-${TIMESTAMP}.tar.gz
-          aws s3 cp deploy-package.tar.gz s3://${{ secrets.DEPLOY_S3_BUCKET_NAME }}/production/latest.tar.gz
+          aws s3 cp deploy-package.tar.gz s3://${{ secrets.DEPLOY_S3_BUCKET_NAME }}/deployments/deploy-${TIMESTAMP}.tar.gz
+          aws s3 cp deploy-package.tar.gz s3://${{ secrets.DEPLOY_S3_BUCKET_NAME }}/deployments/latest.tar.gz
 
       - name: Setup SSH keys
         run: |
@@ -125,7 +125,7 @@ jobs:
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_PRIVATE_IP }} bash << 'DEPLOY_SCRIPT'
 
           # 환경 변수
-          S3_BUCKET_NAME="${{ secrets.DEPLOY_S3_BUCKET_NAME }}/production"
+          S3_BUCKET_NAME="${{ secrets.DEPLOY_S3_BUCKET_NAME }}/deployments"
           APP_DIR="/apps/tov-homepage"
           PM2_APP_NAME="tov-app"
 
