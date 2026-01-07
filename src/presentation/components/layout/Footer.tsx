@@ -76,7 +76,7 @@ export function Footer() {
                 <ul className="flex flex-wrap items-center gap-2 text-sm">
                   <li>
                     <Link
-                      href="/sitemap"
+                      href="/site-map"
                       className="text-gray-600 hover:text-gray-900"
                     >
                       사이트맵

@@ -94,7 +94,7 @@ export default async function Home() {
       const allPostsResult = await getPostsUseCase.execute({
         limit: 3,
         page: 1,
-        status: 'published',
+        status: "published",
       });
       latestNews = allPostsResult?.posts
         ? allPostsResult.posts.map((post: any) => ({
@@ -144,21 +144,19 @@ export default async function Home() {
       {/* Government Organization Links */}
       <section className="py-16 bg-white border-t border-gray-200">
         <div className="container mx-auto px-4">
-          <h2 className="text-center text-gray-600 text-sm font-medium mb-8">
-            관련 기관
-          </h2>
+          <h2 className="text-center text-3xl font-bold mb-4">주요 서비스</h2>
           <div className="flex justify-center items-center gap-12">
             <a
               href="https://www.moef.go.kr/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200"
+              className="bg-red-100 flex-1 group relative bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200"
             >
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center h-16 w-full">
                 <img
                   src="/ministry_of_strategy_and_finance_logo.jpg"
                   alt="기획재정부"
-                  className="h-14 object-contain"
+                  className="h-full w-full object-contain"
                 />
               </div>
             </a>
@@ -166,13 +164,13 @@ export default async function Home() {
               href="https://www.nts.go.kr/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200"
+              className="bg-red-100 flex-1 group relative bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200"
             >
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center h-16 w-full">
                 <img
                   src="/national_tax_service_logo.jpg"
                   alt="국세청"
-                  className="h-14 object-contain"
+                  className="h-full w-full object-contain"
                 />
               </div>
             </a>
