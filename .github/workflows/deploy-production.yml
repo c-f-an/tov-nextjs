@@ -212,41 +212,12 @@ jobs:
 
           echo "Deployment completed!"
 
-          # .env 파일을 임시로 복사하여 확인 가능하도록 함
-          cp .env /tmp/deployed.env || echo "Failed to copy .env"
-
           DEPLOY_SCRIPT
-
-      - name: Download deployed .env file for verification
-        run: |
-          SSH_COMMAND="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30"
-
-          # EC2에서 .env 파일 다운로드
-          $SSH_COMMAND -i ~/.ssh/ec2_key \
-            -o ProxyCommand="$SSH_COMMAND -i ~/.ssh/bastion_key -W %h:%p ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }}" \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_PRIVATE_IP }} \
-            "cat /tmp/deployed.env" > deployed-env.txt || echo "Failed to download .env"
-
-          echo "=== Deployed .env file content (sensitive values masked) ==="
-          if [ -f deployed-env.txt ]; then
-            # 민감한 값들을 마스킹하여 출력
-            sed -E 's/(PASSWORD|SECRET|KEY|TOKEN)=.*/\1=***MASKED***/g' deployed-env.txt
-          else
-            echo "No .env file found"
-          fi
-
-      - name: Upload deployed .env as artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: deployed-env-file
-          path: deployed-env.txt
-          retention-days: 7
 
       - name: Clean up SSH keys
         if: always()
         run: |
-          rm -f ~/.ssh/bastion_key ~/.ssh/ec2_key deployed-env.txt
+          rm -f ~/.ssh/bastion_key ~/.ssh/ec2_key
 
       - name: Verify deployment
         run: |
