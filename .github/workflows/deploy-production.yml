@@ -47,6 +47,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.DEPLOY_AWS_REGION }}
 
+      - name: Get GitHub Runner IP
+        id: ip
+        run: echo "ipv4=$(curl -s https://checkip.amazonaws.com)" >> $GITHUB_OUTPUT
+
+      - name: Add GitHub IP to Bastion Security Group
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --group-id ${{ secrets.BASTION_SG_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
       - name: Create ecosystem.config.js file
         run: |
           cat > ecosystem.config.js << 'ECOSYSTEM'
@@ -217,6 +229,15 @@ jobs:
           echo "Deployment completed!"
 
           DEPLOY_SCRIPT
+
+      - name: Remove GitHub IP from Bastion Security Group
+        if: always() # 배포 성공/실패 여부와 상관없이 무조건 실행하여 보안 구멍을 막습니다.
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-id ${{ secrets.BASTION_SG_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
       - name: Clean up SSH keys
         if: always()
