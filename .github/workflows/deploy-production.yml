@@ -26,6 +26,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit dependencies
+        # 보안 취약점이 발견되면 빌드를 실패하게 하여 배포를 막습니다. (audit-level은 상황에 맞게 조절 가능: moderate, high, critical)
+        run: npm audit --audit-level=critical
+
       - name: Build Next.js application
         run: npm run build
         env:
