@@ -2,9 +2,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   compress: true, // gzip 압축 활성화
 
   // Server response optimization for search bots
