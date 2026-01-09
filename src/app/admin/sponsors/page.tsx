@@ -94,7 +94,7 @@ export default function AdminSponsorsPage() {
             <Mail className="h-4 w-4" />
             단체 메일 발송
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-blue-700">
             <Download className="h-4 w-4" />
             엑셀 다운로드
           </button>

@@ -140,7 +140,7 @@ export default function DonationGuidePage() {
       <div className="text-center mb-16">
         <Link
           href="/donation/apply"
-          className="inline-block px-8 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+          className="inline-block px-8 py-3 bg-primary text-primary-foreground font-medium rounded-md hover:bg-blue-700 transition-colors"
         >
           후원 신청하기
         </Link>
@@ -251,7 +251,7 @@ export default function DonationGuidePage() {
         <div className="flex justify-center space-x-4">
           <Link
             href="/donation/apply"
-            className="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+            className="inline-block px-6 py-3 bg-primary text-primary-foreground font-medium rounded-md hover:bg-blue-700 transition-colors"
           >
             후원 신청
           </Link>

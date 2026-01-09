@@ -113,7 +113,7 @@ export default function AdminPostsPage() {
         <h1 className="text-2xl font-bold">게시글 관리</h1>
         <Link
           href="/admin/posts/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700"
         >
           새 게시글
         </Link>
@@ -303,7 +303,7 @@ export default function AdminPostsPage() {
                 onClick={() => setCurrentPage(page)}
                 className={`px-3 py-2 text-sm font-medium rounded-md ${
                   currentPage === page
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-primary text-primary-foreground'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >

@@ -186,7 +186,7 @@ export default function AdminResourceCategoriesPage() {
           </Link>
           <button
             onClick={() => setIsCreating(!isCreating)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-blue-700"
           >
             {isCreating ? '취소' : '새 카테고리 추가'}
           </button>
@@ -276,7 +276,7 @@ export default function AdminResourceCategoriesPage() {
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-blue-700"
               >
                 생성
               </button>

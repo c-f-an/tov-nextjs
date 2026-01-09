@@ -316,7 +316,7 @@ export function CreateUserModal({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center"
               disabled={isCreating}
             >
               {isCreating ? (

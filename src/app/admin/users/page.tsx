@@ -189,7 +189,7 @@ export default function AdminUsersPage() {
       <h1 className="text-2xl font-bold">회원 관리</h1>
       <button
         onClick={() => setIsCreateModalOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-blue-700"
       >
         <UserPlus className="h-4 w-4" />
         새 회원 추가
@@ -276,7 +276,7 @@ export default function AdminUsersPage() {
             <div className="relative inline-block">
               <select
                 onChange={(e) => e.target.value && handleBulkStatusChange(e.target.value)}
-                className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 appearance-none pr-8 cursor-pointer"
+                className="px-3 py-1.5 bg-primary text-primary-foreground text-sm rounded hover:bg-blue-700 appearance-none pr-8 cursor-pointer"
                 defaultValue=""
               >
                 <option value="" disabled>상태 변경</option>

@@ -190,7 +190,7 @@ export default function AdminResourcesPage() {
         <h1 className="text-2xl font-bold">자료실 관리</h1>
         <Link
           href="/admin/resources/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-blue-700"
         >
           새 자료 추가
         </Link>
@@ -363,7 +363,7 @@ export default function AdminResourcesPage() {
                 key={i + 1}
                 onClick={() => setPage(i + 1)}
                 className={`px-3 py-1 border rounded ${
-                  page === i + 1 ? 'bg-blue-600 text-white' : ''
+                  page === i + 1 ? 'bg-primary text-primary-foreground' : ''
                 }`}
               >
                 {i + 1}

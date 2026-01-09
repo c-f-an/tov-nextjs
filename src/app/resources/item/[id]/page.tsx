@@ -203,7 +203,7 @@ export default async function ResourceDetailPage({ params }: PageProps) {
                         href={resource.externalLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                        className="text-sm bg-primary text-primary-foreground px-3 py-1 rounded hover:bg-blue-700"
                       >
                         {resource.externalLinkTitle || "외부 링크 이동"}
                       </Link>

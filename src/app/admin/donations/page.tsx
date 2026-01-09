@@ -115,7 +115,7 @@ export default function AdminDonationsPage() {
         <h1 className="text-2xl font-bold">후원 내역</h1>
         <button
           onClick={() => setIsRegistrationModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700"
         >
           후원 등록
         </button>
@@ -163,7 +163,7 @@ export default function AdminDonationsPage() {
           <div className="flex items-end space-x-2">
             <button
               onClick={fetchDonations}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700"
             >
               조회
             </button>
@@ -301,7 +301,7 @@ export default function AdminDonationsPage() {
                 onClick={() => setCurrentPage(page)}
                 className={`px-3 py-2 text-sm font-medium rounded-md ${
                   currentPage === page
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-primary text-primary-foreground'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >

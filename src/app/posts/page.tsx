@@ -85,7 +85,7 @@ export default function PostsPage() {
         <div className="flex flex-wrap gap-2 mb-8">
           <Link
             href="/posts"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700"
           >
             전체
           </Link>
@@ -170,7 +170,7 @@ export default function PostsPage() {
                       onClick={() => setCurrentPage(page)}
                       className={`px-3 py-2 rounded-md ${
                         currentPage === page
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-primary text-primary-foreground'
                           : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >

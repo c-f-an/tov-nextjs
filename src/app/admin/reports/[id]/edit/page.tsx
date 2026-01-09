@@ -292,7 +292,7 @@ export default function EditReportPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 disabled:bg-gray-400"
             >
               {isSubmitting ? '수정 중...' : '보고서 수정'}
             </button>

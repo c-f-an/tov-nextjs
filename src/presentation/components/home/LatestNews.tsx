@@ -64,9 +64,9 @@ function getCategoryIcon(category: string) {
 }
 
 export function LatestNews({ notices, news, latestNews }: LatestNewsProps) {
-  console.log("CLIENT latestNews received:", latestNews);
-  console.log("CLIENT latestNews type:", typeof latestNews);
-  console.log("CLIENT latestNews is array:", Array.isArray(latestNews));
+  // console.log("CLIENT latestNews received:", latestNews);
+  // console.log("CLIENT latestNews type:", typeof latestNews);
+  // console.log("CLIENT latestNews is array:", Array.isArray(latestNews));
 
   // Always use latestNews if provided
   const displayItems = (latestNews && latestNews.length > 0)
@@ -83,7 +83,7 @@ export function LatestNews({ notices, news, latestNews }: LatestNewsProps) {
         }))
     : defaultNewsItems;
 
-  console.log("CLIENT displayItems:", displayItems);
+  // console.log("CLIENT displayItems:", displayItems);
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-8">

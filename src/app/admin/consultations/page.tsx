@@ -258,7 +258,7 @@ export default function AdminConsultationsPage() {
                 onClick={() => setCurrentPage(page)}
                 className={`px-3 py-2 text-sm font-medium rounded-md ${
                   currentPage === page
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-primary text-primary-foreground'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >

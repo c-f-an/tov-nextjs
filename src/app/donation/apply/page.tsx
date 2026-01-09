@@ -320,7 +320,7 @@ function DonationForm() {
                     onClick={() => handleAmountClick(amount)}
                     className={`py-2 px-4 rounded-md border ${
                       formData.amount === amount.toString()
-                        ? 'bg-blue-600 text-white border-blue-600'
+                        ? 'bg-primary text-primary-foreground border-blue-600'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -385,7 +385,7 @@ function DonationForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-8 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+              className="px-8 py-3 bg-primary text-primary-foreground font-medium rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400"
             >
               {isSubmitting ? '처리 중...' : '후원 신청'}
             </button>

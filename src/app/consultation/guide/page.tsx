@@ -165,7 +165,7 @@ export default function ConsultationGuidePage() {
       <div className="text-center mb-16">
         <Link
           href="/consultation/apply"
-          className="inline-block px-8 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+          className="inline-block px-8 py-3 bg-primary text-primary-foreground font-medium rounded-md hover:bg-blue-700 transition-colors"
         >
           상담 신청하기
         </Link>
@@ -252,7 +252,7 @@ export default function ConsultationGuidePage() {
       </section>
 
       {/* CTA */}
-      <div className="text-center bg-blue-600 text-white rounded-lg p-8">
+      <div className="text-center bg-primary text-primary-foreground rounded-lg p-8">
         <h2 className="text-2xl font-bold mb-4">지금 바로 상담을 시작하세요</h2>
         <p className="mb-6">
           온라인으로 간편하게 신청하고, 전문가의 도움을 받아보세요.

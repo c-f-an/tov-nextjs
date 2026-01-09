@@ -208,7 +208,7 @@ export default function AdminProfilePage() {
         <div className="mt-6 flex justify-end">
           <button
             onClick={handleProfileSave}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-blue-700"
           >
             <Save className="h-4 w-4" />
             프로필 저장
@@ -252,7 +252,7 @@ export default function AdminProfilePage() {
           </div>
           <button
             onClick={handlePasswordChange}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-blue-700"
           >
             비밀번호 변경
           </button>

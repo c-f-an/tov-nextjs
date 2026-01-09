@@ -56,7 +56,7 @@ export function NewsCardGrid({ items, category, basePath }: NewsCardGridProps) {
             onClick={() => setSortBy("latest")}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               sortBy === "latest"
-                ? "bg-blue-600 text-white"
+                ? "bg-primary text-primary-foreground"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
@@ -66,7 +66,7 @@ export function NewsCardGrid({ items, category, basePath }: NewsCardGridProps) {
             onClick={() => setSortBy("popular")}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               sortBy === "popular"
-                ? "bg-blue-600 text-white"
+                ? "bg-primary text-primary-foreground"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
@@ -98,7 +98,7 @@ export function NewsCardGrid({ items, category, basePath }: NewsCardGridProps) {
           <button className="px-3 py-1 rounded-lg bg-gray-100 text-gray-400" disabled>
             이전
           </button>
-          <button className="px-3 py-1 rounded-lg bg-blue-600 text-white">1</button>
+          <button className="px-3 py-1 rounded-lg bg-primary text-primary-foreground">1</button>
           <button className="px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200">2</button>
           <button className="px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200">3</button>
           <button className="px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200">

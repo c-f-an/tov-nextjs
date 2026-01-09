@@ -114,7 +114,7 @@ export default function FinancialDisclosurePage() {
             <div className="flex flex-wrap gap-4">
               <a
                 href="/consultation/apply"
-                className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 참여 신청하기
               </a>

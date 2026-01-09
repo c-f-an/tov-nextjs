@@ -68,7 +68,7 @@ export function NewsletterForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {isLoading ? '구독 신청 중...' : '구독 신청하기'}
         </button>

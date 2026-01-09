@@ -274,14 +274,14 @@ export default function NewPostPage() {
                     type="button"
                     onClick={(e) => handleSubmit(e, 'draft')}
                     disabled={isSubmitting}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                    className="flex-1 px-4 py-2 border text-ghost-foreground rounded-md hover:bg-gray-50 disabled:opacity-50"
                   >
                     임시저장
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 disabled:opacity-50"
                   >
                     {isSubmitting ? '처리 중...' : '발행하기'}
                   </button>

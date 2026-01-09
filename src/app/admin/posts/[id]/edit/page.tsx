@@ -374,7 +374,7 @@ export default function EditPostPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 disabled:opacity-50"
                 >
                   {isSubmitting ? '처리 중...' : '수정하기'}
                 </button>

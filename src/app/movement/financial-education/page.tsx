@@ -148,7 +148,7 @@ export default function FinancialEducationPage() {
                   onClick={() => setSelectedCategory(category)}
                   className={`px-4 py-2 rounded-full transition-colors ${
                     selectedCategory === category
-                      ? "bg-blue-600 text-white"
+                      ? "bg-primary text-primary-foreground"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                 >
@@ -192,7 +192,7 @@ export default function FinancialEducationPage() {
             </div>
             <a
               href="/consultation/apply"
-              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
               교육 신청하기
             </a>

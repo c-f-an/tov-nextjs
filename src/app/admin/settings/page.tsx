@@ -34,7 +34,7 @@ export default function AdminSettingsPage() {
         <h1 className="text-2xl font-bold">사이트 설정</h1>
         <button
           onClick={handleSave}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-blue-700"
         >
           <Save className="h-4 w-4" />
           설정 저장

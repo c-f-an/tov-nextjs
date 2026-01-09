@@ -85,7 +85,7 @@ export default function ConsultationDetailPage({ params }: { params: { id: strin
           <p className="text-gray-600 mb-4">로그인이 필요한 서비스입니다.</p>
           <Link
             href="/login"
-            className="inline-block px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="inline-block px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700"
           >
             로그인하기
           </Link>

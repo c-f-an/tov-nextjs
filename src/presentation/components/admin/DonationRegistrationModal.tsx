@@ -310,7 +310,7 @@ export function DonationRegistrationModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 disabled:bg-blue-400"
             >
               {isSubmitting ? '등록 중...' : '등록'}
             </button>

@@ -483,7 +483,7 @@ export function UserDetailModal({
                     </button>
                     <button
                       onClick={handleSave}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700 disabled:opacity-50"
                       disabled={isSaving}
                     >
                       {isSaving ? "저장 중..." : "저장"}
@@ -517,7 +517,7 @@ export function UserDetailModal({
                     </div>
                     <button
                       onClick={() => setEditMode(true)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700"
                     >
                       정보 수정
                     </button>

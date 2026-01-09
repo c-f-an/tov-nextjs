@@ -360,7 +360,7 @@ export default function ConsultationApplyPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-8 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+              className="px-8 py-3 bg-primary text-primary-foreground font-medium rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400"
             >
               {isSubmitting ? "신청 중..." : "상담 신청"}
             </button>

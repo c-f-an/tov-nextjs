@@ -115,7 +115,7 @@ export default function CategoryPostsPage() {
               href={`/posts/${cat.slug}`}
               className={`px-4 py-2 rounded-md ${
                 cat.slug === categorySlug
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'bg-primary text-primary-foreground hover:bg-blue-700'
                   : 'bg-white text-gray-700 hover:bg-gray-100 border'
               }`}
             >
@@ -202,7 +202,7 @@ export default function CategoryPostsPage() {
                       onClick={() => setCurrentPage(page)}
                       className={`px-3 py-2 rounded-md ${
                         currentPage === page
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-primary text-primary-foreground'
                           : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
