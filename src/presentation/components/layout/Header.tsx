@@ -279,7 +279,7 @@ export function Header() {
               <div key={item.href} className="relative group">
                 <Link
                   href={item.href}
-                  className="text-gray-700 hover:text-blue-600 font-medium py-6 block"
+                  className="text-xl text-gray-700 hover:text-blue-600 font-medium py-6 block"
                 >
                   {item.title}
                 </Link>
