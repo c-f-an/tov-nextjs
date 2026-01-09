@@ -1,26 +1,67 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: 217 91% 60%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 96%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96%;
-  --muted-foreground: 0 0% 45%;
-  --accent: 0 0% 96%;
-  --accent-foreground: 0 0% 9%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 90%;
-  --input: 0 0% 90%;
-  --ring: 217 91% 60%;
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(222 47% 11%); /* 짙은 남색 계열의 검정 */
+
+  /* 로고의 Main Deep Blue (#004785) */
+  --primary: hsl(208 100% 26%); 
+  --primary-foreground: hsl(0 0% 100%); /* 흰색 */
+
+  /* 로고의 Point Teal Green (#2BB8B8) - Secondary로 활용 */
+  --secondary: hsl(180 62% 45%);
+  --secondary-foreground: hsl(0 0% 100%);
+
+  /* 보조 요소 (연한 회색 계열) */
+  --muted: hsl(210 40% 96%);
+  --muted-foreground: hsl(215 16% 47%);
+
+  /* 강조/선택 효과: 차분하고 정돈된 Slate/Indigo 계열의 연한 회색 */
+  --accent: hsl(214 25% 94%); 
+  --accent-foreground: hsl(208 50% 20%); /* 글자색은 가독성을 위해 짙은 블루 그레이 */
+
+  /* 위험/취소 (로고와 어울리는 Soft Red) */
+  --danger: hsl(0 84% 60%);
+  --danger-foreground: hsl(0 0% 98%);
+
+  --ghost-border: hsl(214 20% 85%);
+  --ghost-foreground: hsl(208 100% 26.1%);
+
+  /* 테두리 및 입력창 */
+  --light: hsl(214 20% 85%);
+  --input: hsl(214 20% 85%);
+  --ring: hsl(208 100% 26%); /* 포커스 시 메인 블루 */
+
+  --radius: 0.5rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+
+  --color-ghost-border: var(--ghost-border);
+  --color-ghost-foreground: var(--ghost-foreground);
+  
+  --color-light: var(--light);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius: var(--radius);
+
   --font-sans: var(--font-nanum-gothic);
   --font-mono: var(--font-nanum-gothic);
 }
