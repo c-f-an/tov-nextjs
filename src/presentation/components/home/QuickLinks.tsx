@@ -265,12 +265,13 @@ function getIcon(iconName?: string | null, title?: string): JSX.Element {
 // Color mapping
 function getColor(index: number): string {
   const colors = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-purple-500",
-    "bg-orange-500",
-    "bg-indigo-500",
-    "bg-red-500",
+    "bg-[#004785]",
+    "bg-[#2BB8B8]",
+    "bg-[#5E72E4]",
+    "bg-[#2DCE89]",
+    "bg-[#F5365C]",
+    "bg-[#FB6340]",
+    
   ];
   return colors[index % colors.length];
 }

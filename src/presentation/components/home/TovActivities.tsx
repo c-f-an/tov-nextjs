@@ -11,8 +11,8 @@ const activities = [
       "교회와 비영리단체의 투명하고 체계적인 재정관리를 위한 컨설팅과 교육을 제공합니다.",
     icon: DollarSign,
     link: "/movement/financial-management",
-    bgColor: "bg-blue-50",
-    iconColor: "text-blue-600",
+    bgColor: "bg-[#EBF2F9]",
+    iconColor: "text-[#004785]",
     hoverBg: "hover:bg-blue-100",
   },
   {
@@ -22,8 +22,8 @@ const activities = [
       "재정 투명성의 중요성과 실천 방법을 교육하여 건강한 재정 문화 확산에 기여합니다.",
     icon: BookOpen,
     link: "/movement/financial-education",
-    bgColor: "bg-green-50",
-    iconColor: "text-green-600",
+    bgColor: "bg-[#EAF8F8]",
+    iconColor: "text-[#2BB8B8]",
     hoverBg: "hover:bg-green-100",
   },
   {
@@ -33,8 +33,8 @@ const activities = [
       "자발적 결산서 공개를 통해 교회와 비영리단체의 재정 투명성을 향상시킵니다.",
     icon: Users,
     link: "/movement/financial-disclosure",
-    bgColor: "bg-purple-50",
-    iconColor: "text-purple-600",
+    bgColor: "bg-[#EFF2FE]",
+    iconColor: "text-[#5E72E4]",
     hoverBg: "hover:bg-purple-100",
   },
   {
@@ -44,8 +44,8 @@ const activities = [
       "투명한 재정 문화 확산을 위해 다양한 기관과 협력하여 시너지를 창출합니다.",
     icon: HandshakeIcon,
     link: "/movement/cooperation",
-    bgColor: "bg-orange-50",
-    iconColor: "text-orange-600",
+    bgColor: "bg-[#EAF9F2]",
+    iconColor: "text-[#2DCE89]",
     hoverBg: "hover:bg-orange-100",
   },
 ];
