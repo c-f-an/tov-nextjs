@@ -206,7 +206,7 @@ export default function ReligiousIncomeReportPage() {
             href="https://ptax.kr"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-black font-bold text-lg rounded-full hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-bold text-lg rounded-full hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
             P-TAX 서비스로 이동
             <ExternalLink className="w-5 h-5" />

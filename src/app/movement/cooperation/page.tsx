@@ -173,7 +173,7 @@ export default function CooperationPage() {
             </div>
             <a
               href="/consultation/apply"
-              className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/80 transition-colors"
             >
               협력 제안하기
             </a>

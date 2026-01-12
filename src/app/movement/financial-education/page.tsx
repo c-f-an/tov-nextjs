@@ -192,7 +192,7 @@ export default function FinancialEducationPage() {
             </div>
             <a
               href="/consultation/apply"
-              className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/80 transition-colors"
             >
               교육 신청하기
             </a>

@@ -98,7 +98,7 @@ export default function AdminBannersPage() {
         <h1 className="text-2xl font-bold">메인 배너 관리</h1>
         <Link
           href="/admin/banners/new"
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/80"
         >
           새 배너 추가
         </Link>

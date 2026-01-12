@@ -113,7 +113,7 @@ export default function AdminPostsPage() {
         <h1 className="text-2xl font-bold">게시글 관리</h1>
         <Link
           href="/admin/posts/new"
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-blue-700"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/80"
         >
           새 게시글
         </Link>

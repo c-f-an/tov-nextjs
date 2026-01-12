@@ -103,7 +103,7 @@ export function TovActivities() {
           <div className="flex space-x-4">
             <Link
               href="/consultation/apply"
-              className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors text-sm font-medium"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/80 hover:text-accent-foreground transition-colors text-sm font-medium"
             >
               상담 신청
             </Link>

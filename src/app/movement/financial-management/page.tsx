@@ -252,13 +252,13 @@ export default function HealthyFinancialManagementPage() {
         {/* CTA Section */}
         <div className="text-center space-y-4">
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
+            {/* <Link
               href="/financial-consulting-cases"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-black font-semibold rounded-lg hover:bg-primary/90 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
             >
               <FileText className="w-5 h-5" />
               재정관리 컨설팅 사례
-            </Link>
+            </Link> */}
             <Link
               href="/consultation/apply"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gray-800 text-white font-semibold rounded-lg hover:bg-gray-900 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
