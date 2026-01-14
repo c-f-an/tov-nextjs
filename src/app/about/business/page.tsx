@@ -44,7 +44,7 @@ export default function BusinessPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <Breadcrumb
           items={[{ label: "About Us", href: "/about" }, { label: "사업보고" }]}
