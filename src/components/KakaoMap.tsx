@@ -26,128 +26,85 @@ export default function KakaoMap({
   const mapContainer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // 환경변수 확인
     const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
     if (!apiKey) {
       console.error("카카오맵 API 키가 설정되지 않았습니다.");
       return;
     }
 
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
+    const initMap = () => {
+      if (!mapContainer.current) return;
 
-    document.head.appendChild(script);
+      const createMapWithMarker = (coords: any) => {
+        const map = new window.kakao.maps.Map(mapContainer.current, {
+          center: coords,
+          level: level,
+        });
 
-    script.onload = () => {
+        const marker = new window.kakao.maps.Marker({
+          map: map,
+          position: coords,
+        });
+
+        const infowindow = new window.kakao.maps.InfoWindow({
+          content: `<div style="padding:5px;">${markerTitle}</div>`,
+        });
+
+        const openInfoWindow = () => infowindow.open(map, marker);
+        const closeInfoWindow = () => infowindow.close();
+
+        window.kakao.maps.event.addListener(marker, "click", openInfoWindow);
+        window.kakao.maps.event.addListener(map, "click", closeInfoWindow);
+      };
+
       window.kakao.maps.load(() => {
-        if (!mapContainer.current) return;
-
         if (address) {
-          // 주소로 좌표를 검색합니다
           const geocoder = new window.kakao.maps.services.Geocoder();
-          
-          geocoder.addressSearch(address, function(result: any, status: any) {
-            // 정상적으로 검색이 완료됐으면
+          geocoder.addressSearch(address, (result: any, status: any) => {
             if (status === window.kakao.maps.services.Status.OK) {
-              const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-              
-              const options = {
-                center: coords,
-                level: level,
-              };
-
-              const map = new window.kakao.maps.Map(mapContainer.current, options);
-
-              // 결과값으로 받은 위치를 마커로 표시합니다
-              const marker = new window.kakao.maps.Marker({
-                map: map,
-                position: coords
-              });
-
-              // 인포윈도우로 장소에 대한 설명을 표시합니다
-              const iwContent = `<div style="padding:5px;">${markerTitle}</div>`;
-              const infowindow = new window.kakao.maps.InfoWindow({
-                content: iwContent
-              });
-              
-              window.kakao.maps.event.addListener(marker, "click", function () {
-                infowindow.open(map, marker);
-              });
-
-              window.kakao.maps.event.addListener(map, "click", function () {
-                infowindow.close();
-              });
+              const coords = new window.kakao.maps.LatLng(
+                result[0].y,
+                result[0].x
+              );
+              createMapWithMarker(coords);
             } else {
-              console.error('주소 검색에 실패했습니다.');
-              // 주소 검색 실패 시 위경도 사용
+              console.error(
+                "주소 검색에 실패했습니다. 위경도 좌표로 대체합니다."
+              );
               if (latitude && longitude) {
-                const options = {
-                  center: new window.kakao.maps.LatLng(latitude, longitude),
-                  level: level,
-                };
-
-                const map = new window.kakao.maps.Map(mapContainer.current, options);
-
-                const markerPosition = new window.kakao.maps.LatLng(latitude, longitude);
-                const marker = new window.kakao.maps.Marker({
-                  position: markerPosition,
-                });
-
-                marker.setMap(map);
-
-                const iwContent = `<div style="padding:5px;">${markerTitle}</div>`;
-                const infowindow = new window.kakao.maps.InfoWindow({
-                  position: markerPosition,
-                  content: iwContent,
-                });
-
-                window.kakao.maps.event.addListener(marker, "click", function () {
-                  infowindow.open(map, marker);
-                });
-
-                window.kakao.maps.event.addListener(map, "click", function () {
-                  infowindow.close();
-                });
+                const coords = new window.kakao.maps.LatLng(
+                  latitude,
+                  longitude
+                );
+                createMapWithMarker(coords);
               }
             }
           });
         } else if (latitude && longitude) {
-          // 위경도가 제공된 경우
-          const options = {
-            center: new window.kakao.maps.LatLng(latitude, longitude),
-            level: level,
-          };
-
-          const map = new window.kakao.maps.Map(mapContainer.current, options);
-
-          const markerPosition = new window.kakao.maps.LatLng(latitude, longitude);
-          const marker = new window.kakao.maps.Marker({
-            position: markerPosition,
-          });
-
-          marker.setMap(map);
-
-          const iwContent = `<div style="padding:5px;">${markerTitle}</div>`;
-          const iwPosition = new window.kakao.maps.LatLng(latitude, longitude);
-
-          const infowindow = new window.kakao.maps.InfoWindow({
-            position: iwPosition,
-            content: iwContent,
-          });
-
-          window.kakao.maps.event.addListener(marker, "click", function () {
-            infowindow.open(map, marker);
-          });
-
-          window.kakao.maps.event.addListener(map, "click", function () {
-            infowindow.close();
-          });
+          const coords = new window.kakao.maps.LatLng(latitude, longitude);
+          createMapWithMarker(coords);
         }
       });
     };
 
+    // 스크립트가 이미 로드되었는지 확인하여 중복 로드를 방지합니다.
+    if (window.kakao && window.kakao.maps) {
+      initMap();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.async = true;
+    // 1. 프로토콜 명시 및 2. 리퍼러 정책 추가
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
+    script.referrerPolicy = "no-referrer-when-downgrade";
+    script.onload = initMap;
+
+    document.head.appendChild(script);
+
     return () => {
+      // 컴포넌트 언마운트 시 스크립트 제거.
+      // 참고: 여러 개의 지도 인스턴스가 페이지에 있을 경우 다른 인스턴스에 영향을 줄 수 있습니다.
       const scripts = document.head.querySelectorAll(
         'script[src*="dapi.kakao.com/v2/maps/sdk.js"]'
       );
