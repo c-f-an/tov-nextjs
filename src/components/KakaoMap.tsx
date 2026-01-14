@@ -96,7 +96,7 @@ export default function KakaoMap({
     const script = document.createElement("script");
     script.async = true;
     // 1. 프로토콜 명시 및 2. 리퍼러 정책 추가
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false&libraries=services`;
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
     script.referrerPolicy = "origin";
     script.onload = initMap;
 
