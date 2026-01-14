@@ -27,6 +27,13 @@ export default function KakaoMap({
   const mapRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // KakaoMap 컴포넌트 내부
+  useEffect(() => {
+    // 배포된 환경의 브라우저 콘솔에서 직접 확인
+    console.log("현재 사용 중인 API KEY:", process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY);
+    console.log("현재 브라우저 Origin:", window.location.origin);
+  }, []);
+
   // 지도 초기화 함수
   const initMap = () => {
     if (!mapRef.current || !window.kakao) return;
