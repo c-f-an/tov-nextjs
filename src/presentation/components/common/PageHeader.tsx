@@ -17,7 +17,7 @@ export default function PageHeader({
         {title}
       </h1>
       {description && (
-        <p className="text-gray-100">
+        <p className="text-[#324CBB]">
           {description}
         </p>
       )}
