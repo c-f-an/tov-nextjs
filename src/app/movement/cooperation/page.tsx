@@ -1,15 +1,19 @@
 import PageHeader from "@/presentation/components/common/PageHeader";
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 
 export default function CooperationPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-16">
+        <Breadcrumb
+          items={[{ label: "토브운동", href: "/movement" }, { label: "연대협력" }]}
+        />
         <PageHeader
           title="연대협력"
           description="토브협회는 투명하고 건강한 재정문화를 확산시키기 위해 다양한 기관 및 단체와 연대하고 협력하고 있습니다."
         />
 
-        <div className="max-w-4xl mx-auto">
+        <div className="mx-auto">
           <div className="grid gap-8 mb-12">
             <div className="bg-blue-50 p-8 rounded-lg">
               <h2 className="text-2xl font-bold mb-4">협력 분야</h2>

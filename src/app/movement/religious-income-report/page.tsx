@@ -94,11 +94,10 @@ export default function ReligiousIncomeReportPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="mb-8">
-          <Breadcrumb items={[{ label: "종교인 소득신고" }]} />
-        </div>
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-16">
+        <Breadcrumb
+          items={[{ label: "토브운동", href: "/movement" }, { label: "종교인 소득신고" }]} />
 
         {/* Hero Section */}
         <div className="text-center mb-16">
@@ -213,6 +212,6 @@ export default function ReligiousIncomeReportPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

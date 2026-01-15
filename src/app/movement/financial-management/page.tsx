@@ -115,17 +115,17 @@ export default function HealthyFinancialManagementPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="mb-8">
-          <Breadcrumb items={[{ label: "건강한 재정관리" }]} />
-        </div>
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-16">
+        <Breadcrumb
+          items={[{ label: "토브운동", href: "/movement" }, { label: "건강한 재정관리" }]}
+        />
 
-        <PageHeader 
+        <PageHeader
           title="건강한 재정관리"
           description="Mission과 Fund가 만나 교회와 단체를 건강하게 세워가는 흐름을 돕습니다"
         />
-        
+
         {/* 핵심 메시지 */}
         <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 max-w-4xl mx-auto mb-16">
           <div className="flex flex-col items-center gap-6">
@@ -269,6 +269,6 @@ export default function HealthyFinancialManagementPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

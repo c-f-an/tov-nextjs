@@ -1,15 +1,20 @@
 import PageHeader from "@/presentation/components/common/PageHeader";
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 
 export default function FinancialDisclosurePage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-16">
+        <Breadcrumb
+          items={[{ label: "토브운동", href: "/movement" }, { label: "결산서 공개 운동" }]}
+        />
+
         <PageHeader
           title="결산서 공개 운동"
           description="결산서 공개 운동은 교회와 비영리단체의 재정 투명성을 높이고, 후원자와 구성원들의 신뢰를 강화하기 위한 자발적 참여 캠페인입니다."
         />
 
-        <div className="max-w-4xl mx-auto">
+        <div className="mx-auto">
           <div className="bg-blue-50 p-8 rounded-lg mb-8">
             <h2 className="text-2xl font-bold mb-4">
               왜 결산서를 공개해야 할까요?

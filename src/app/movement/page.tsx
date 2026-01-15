@@ -1,20 +1,24 @@
 import PageHeader from '@/presentation/components/common/PageHeader';
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 
 export default function MovementPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-16">
-        <PageHeader 
+        <Breadcrumb
+          items={[{ label: "토브운동", href: "/movement" }]}
+        />
+        <PageHeader
           title="토브운동"
           description="투명하고 건강한 재정 문화를 만들어가는 토브협회의 다양한 운동에 함께해주세요."
         />
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-10 max-w-8xl mx-auto">
           <div className="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow">
             <h2 className="text-2xl font-bold mb-4">건강한 재정관리</h2>
             <p className="text-gray-600 mb-6">
-              교회와 비영리단체의 투명하고 체계적인 재정관리를 위한 실무
-              가이드와 컨설팅을 제공합니다.
+              교회와 비영리단체의 투명하고 체계적인 재정관리를 위한 <br />
+              실무 가이드와 컨설팅을 제공합니다.
             </p>
             <a
               href="/movement/financial-management"
@@ -40,8 +44,8 @@ export default function MovementPage() {
           <div className="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow">
             <h2 className="text-2xl font-bold mb-4">건강한 재정교육</h2>
             <p className="text-gray-600 mb-6">
-              재정 투명성의 중요성과 실천 방법을 교육하여 건강한 재정 문화
-              확산에 기여합니다.
+              재정 투명성의 중요성과 실천 방법을 교육하여<br />
+              건강한 재정 문화 확산에 기여합니다.
             </p>
             <a
               href="/movement/financial-education"
@@ -67,8 +71,8 @@ export default function MovementPage() {
           <div className="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow">
             <h2 className="text-2xl font-bold mb-4">결산서 공개 운동</h2>
             <p className="text-gray-600 mb-6">
-              교회와 비영리단체의 재정 투명성 향상을 위한 자발적 결산서 공개
-              캠페인을 진행합니다.
+              교회와 비영리단체의 재정 투명성 향상을 위한<br />
+              자발적 결산서 공개 캠페인을 진행합니다.
             </p>
             <a
               href="/movement/financial-disclosure"
@@ -94,8 +98,8 @@ export default function MovementPage() {
           <div className="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow">
             <h2 className="text-2xl font-bold mb-4">종교인 소득신고</h2>
             <p className="text-gray-600 mb-6">
-              종교인 소득세 신고를 위한 전문적인 정보와 실무 지원을 제공하는
-              전문 사이트로 연결됩니다.
+              종교인 소득세 신고를 위한<br />
+              전문적인 정보와 실무 지원을 제공하는 전문 사이트로 연결됩니다.
             </p>
             <a
               href="https://ptax.kr"
@@ -147,6 +151,7 @@ export default function MovementPage() {
             </a>
           </div>
         </div>
+
       </div>
     </main>
   );
