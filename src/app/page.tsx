@@ -20,12 +20,39 @@ export default async function Home() {
 
   // Skip database queries during build
   if (process.env.SKIP_DB_QUERIES !== "true") {
-    // Fetch main banners from database
     const container = getContainer();
-    const getMainBannersUseCase = container.getGetMainBannersUseCase();
-    const bannersResult = await getMainBannersUseCase.execute({
-      activeOnly: true,
-    });
+
+    // Parallel execution: Fetch all independent data at once
+    const [
+      bannersResult,
+      categoriesResult,
+      quickLinksResult,
+      statsResult,
+      reportResult,
+      latestPostsResult
+    ] = await Promise.all([
+      // Fetch main banners
+      container.getGetMainBannersUseCase().execute({ activeOnly: true }),
+      // Fetch categories
+      container.getGetCategoriesUseCase().execute(),
+      // Fetch quick links
+      container.getGetQuickLinksUseCase().execute({ activeOnly: true }),
+      // Fetch consultation stats
+      container.getGetConsultationStatsUseCase().execute(),
+      // Fetch latest financial report
+      container.getGetLatestFinancialReportUseCase().execute(),
+      // Fetch latest news from posts table (최신 게시물 3개)
+      container.getGetPostsUseCase().execute({
+        limit: 3,
+        page: 1,
+        status: "published",
+      }).catch(error => {
+        console.error("Error fetching latest posts:", error);
+        return null;
+      })
+    ]);
+
+    // Process banners
     banners = bannersResult.ok
       ? bannersResult.value.map((banner) => ({
           ...banner,
@@ -36,39 +63,10 @@ export default async function Home() {
         }))
       : [];
 
-    // Fetch categories
-    const getCategoriesUseCase = container.getGetCategoriesUseCase();
-    const categoriesResult = await getCategoriesUseCase.execute();
+    // Process categories
     categories = Array.isArray(categoriesResult) ? categoriesResult : [];
 
-    // Find notice category ID
-    const noticeCategory = categories.find((cat) => cat.slug === "notice");
-
-    // Fetch latest posts
-    const getPostsUseCase = container.getGetPostsUseCase();
-
-    // Fetch latest notices
-    const noticesResult = noticeCategory
-      ? await getPostsUseCase.execute({
-          categoryId: noticeCategory.id,
-          limit: 4,
-          page: 1,
-        })
-      : null;
-    notices = noticesResult?.posts
-      ? noticesResult.posts.map((post: any) => ({
-          ...post,
-          createdAt: post.createdAt?.toISOString() || null,
-          updatedAt: post.updatedAt?.toISOString() || null,
-          publishedAt: post.publishedAt?.toISOString() || null,
-        }))
-      : [];
-
-    // Fetch quick links
-    const getQuickLinksUseCase = container.getGetQuickLinksUseCase();
-    const quickLinksResult = await getQuickLinksUseCase.execute({
-      activeOnly: true,
-    });
+    // Process quick links
     quickLinks = quickLinksResult.ok
       ? quickLinksResult.value.map((link) => ({
           ...link,
@@ -77,44 +75,47 @@ export default async function Home() {
         }))
       : [];
 
-    // Fetch consultation stats
-    const getConsultationStatsUseCase =
-      container.getGetConsultationStatsUseCase();
-    const statsResult = await getConsultationStatsUseCase.execute();
+    // Process consultation stats
     consultationStats = statsResult.ok ? statsResult.value : null;
 
-    // Fetch latest financial report
-    const getLatestFinancialReportUseCase =
-      container.getGetLatestFinancialReportUseCase();
-    const reportResult = await getLatestFinancialReportUseCase.execute();
+    // Process financial report
     financialReport = reportResult.ok ? reportResult.value : null;
 
-    // Fetch latest news from posts table (최신 게시물 3개)
-    try {
-      const allPostsResult = await getPostsUseCase.execute({
-        limit: 3,
+    // Process latest news
+    latestNews = latestPostsResult?.posts
+      ? latestPostsResult.posts.map((post: any) => ({
+          id: post.id,
+          title: post.title,
+          content: post.content,
+          summary: post.summary || "",
+          category: post.category?.slug || "news",
+          imageUrl: post.imageUrl || null,
+          author: post.author?.username || "관리자",
+          views: post.views || 0,
+          status: post.status,
+          isPublished: post.isPublished,
+          createdAt: post.createdAt?.toISOString() || null,
+          updatedAt: post.updatedAt?.toISOString() || null,
+          publishedAt: post.publishedAt?.toISOString() || null,
+        }))
+      : [];
+
+    // Find notice category and fetch notices (dependent query)
+    const noticeCategory = categories.find((cat) => cat.slug === "notice");
+    if (noticeCategory) {
+      const noticesResult = await container.getGetPostsUseCase().execute({
+        categoryId: noticeCategory.id,
+        limit: 4,
         page: 1,
-        status: "published",
       });
-      latestNews = allPostsResult?.posts
-        ? allPostsResult.posts.map((post: any) => ({
-            id: post.id,
-            title: post.title,
-            content: post.content,
-            summary: post.summary || "",
-            category: post.category?.slug || "news",
-            imageUrl: post.imageUrl || null,
-            author: post.author?.username || "관리자",
-            views: post.views || 0,
-            status: post.status,
-            isPublished: post.isPublished,
+      notices = noticesResult?.posts
+        ? noticesResult.posts.map((post: any) => ({
+            ...post,
             createdAt: post.createdAt?.toISOString() || null,
             updatedAt: post.updatedAt?.toISOString() || null,
             publishedAt: post.publishedAt?.toISOString() || null,
           }))
         : [];
-    } catch (error) {
-      console.error("Error fetching latest posts:", error);
     }
   }
 
