@@ -4,8 +4,8 @@ import PageHeader from "@/presentation/components/common/PageHeader";
 
 export default function GreetingPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mx-auto">
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-16">
         <Breadcrumb
           items={[{ label: "About Us", href: "/about" }, { label: "우리는" }]}
         />
@@ -279,6 +279,6 @@ export default function GreetingPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

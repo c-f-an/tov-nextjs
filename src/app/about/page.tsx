@@ -45,51 +45,54 @@ const aboutItems = [
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Breadcrumb items={[{ label: "About Us" }]} />
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-16">
 
-      <h1 className="sr-only">토브협회 소개 - 사단법인 토브협회</h1>
+        <Breadcrumb items={[{ label: "About Us" }]} />
 
-      <PageHeader
-        title="About Us"
-        description="당신의 'Mission'과 'Fund'를 연결하는 Tov 입니다."
-      />
-      
-      <div className="mb-12 text-center">
-        <div className="mb-12 text-center bg-gray-50 p-6 rounded-lg">
-          <p className="text-xl text-gray-600 my-2">
-            “당신의 ’Mission’과 ‘Fund’를 연결하는&nbsp;
-            <span className="text-primary font-bold text-3xl">Tov</span>&nbsp;
-            입니다.”
-          </p>
-          <p className="text-lg text-gray-600 my-2">
-            Tov exists to connect funds with mission.
-          </p>
+        <h1 className="sr-only">토브협회 소개 - 사단법인 토브협회</h1>
+
+        <PageHeader
+          title="About Us"
+          description="당신의 'Mission'과 'Fund'를 연결하는 Tov 입니다."
+        />
+
+        <div className="mb-12 text-center">
+          <div className="mb-12 text-center bg-gray-50 p-6 rounded-lg">
+            <p className="text-xl text-gray-600 my-2">
+              “당신의 ’Mission’과 ‘Fund’를 연결하는&nbsp;
+              <span className="text-primary font-bold text-3xl">Tov</span>&nbsp;
+              입니다.”
+            </p>
+            <p className="text-lg text-gray-600 my-2">
+              Tov exists to connect funds with mission.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mx-auto">
+          {aboutItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href}>
+                <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-4 mb-2">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <CardTitle className="text-xl">{item.title}</CardTitle>
+                    </div>
+                    <CardDescription className="text-base">
+                      {item.description}
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mx-auto">
-        {aboutItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link key={item.href} href={item.href}>
-              <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <div className="flex items-center gap-4 mb-2">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-xl">{item.title}</CardTitle>
-                  </div>
-                  <CardDescription className="text-base">
-                    {item.description}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
+    </main>
   );
 }

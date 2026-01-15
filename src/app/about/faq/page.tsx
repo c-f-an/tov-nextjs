@@ -68,8 +68,8 @@ export default function FAQPage() {
   const displayedFAQs = selectedCategory ? faqs[selectedCategory] || [] : [];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mx-auto">
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-16">
         <Breadcrumb
           items={[
             { label: "About Us", href: "/about" },
@@ -132,7 +132,7 @@ export default function FAQPage() {
               </div>
             ) : (
               displayedFAQs.map((faq) => (
-                <div key={faq.id} className="border border-gray-200 rounded-lg">
+                <div key={faq.id} className="bg-white border border-gray-200 rounded-lg">
                   <button
                     onClick={() => toggleExpand(faq.id)}
                     className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-accent"
@@ -177,7 +177,7 @@ export default function FAQPage() {
         )}
 
         {/* Contact Info */}
-        <div className="mt-12 p-6 bg-gray-50 rounded-lg text-center">
+        <div className="mt-12 p-6 bg-white border border-gray-200 rounded-lg text-center shadow-sm">
           <p className="text-gray-700 mb-2">찾으시는 답변이 없으신가요?</p>
           <p className="text-gray-600">
             고객센터: 02-6951-1391 | 이메일: tov.npo@gmail.com
@@ -190,6 +190,6 @@ export default function FAQPage() {
           </a>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

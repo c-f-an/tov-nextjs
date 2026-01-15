@@ -5,8 +5,8 @@ import PageHeader from "@/presentation/components/common/PageHeader";
 
 export default function OrganizationPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mx-auto">
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-16">
         <Breadcrumb
           items={[{ label: "About Us", href: "/about" }, { label: "조직도" }]}
         />
@@ -77,7 +77,7 @@ export default function OrganizationPage() {
         </div>
 
         {/* 자문위원회 */}
-        <div className="bg-gray-50 rounded-lg p-8">
+        <div className="bg-white border border-gray-200 shadow-sm rounded-lg p-8">
           <h2 className="text-2xl font-bold mb-6 text-center">자문위원회</h2>
           <div className="grid md:grid-cols-3 gap-6 mx-auto">
             <div className="bg-white rounded-lg p-6 text-center">
@@ -101,6 +101,6 @@ export default function OrganizationPage() {
           </p>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

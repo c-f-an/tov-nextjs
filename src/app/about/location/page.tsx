@@ -20,8 +20,8 @@ const KakaoMap = dynamic(() => import("@/components/KakaoMap"), {
 
 export default function LocationPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mx-auto">
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-16">
         <Breadcrumb
           items={[{ label: "About Us", href: "/about" }, { label: "오시는길" }]}
         />
@@ -174,6 +174,6 @@ export default function LocationPage() {
           </ul>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
