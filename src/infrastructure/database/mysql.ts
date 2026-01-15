@@ -3,9 +3,9 @@ import { performance } from "perf_hooks";
 
 // Optimized configuration for t2.micro (1GB RAM, 1 vCPU) with bot support
 const T2_MICRO_OPTIMIZED_CONFIG = {
-  // Connection pool sizing for t2.micro - optimized for bots
-  connectionLimit: 5, // Reduced for t2.micro resource limits
-  maxIdle: 2, // Reduced idle connections
+  // Connection pool sizing for t2.micro - optimized for parallel queries
+  connectionLimit: 10, // Increased to handle parallel queries on main page (6 queries + 1 dependent)
+  maxIdle: 3, // Keep 3 idle connections for quick response
   idleTimeout: 60000, // 60s - keep connections alive longer
   queueLimit: 0, // Unlimited queue
 
@@ -150,27 +150,42 @@ if (process.env.NODE_ENV === "production") {
   }
 }
 
-// Enhanced warmup with performance check
+// Enhanced warmup with performance check - creates multiple connections upfront
 async function warmupPool() {
   if (typeof window === "undefined") {
     try {
       const startTime = performance.now();
-      const connection = await pool.getConnection();
 
-      // Test query performance
-      await connection.query("SELECT 1");
+      // Pre-create multiple connections (50% of pool size) to reduce cold start
+      const warmupCount = Math.ceil(poolConfig.connectionLimit! / 2);
+      console.log(`[MySQL] Warming up ${warmupCount} connections...`);
+
+      const connectionPromises: Promise<mysql.PoolConnection>[] = [];
+      for (let i = 0; i < warmupCount; i++) {
+        connectionPromises.push(
+          pool.getConnection()
+            .then(async (conn) => {
+              await conn.query("SELECT 1");
+              return conn;
+            })
+        );
+      }
+
+      // Wait for all connections to be created
+      const connections = await Promise.all(connectionPromises);
       const pingTime = performance.now() - startTime;
 
-      connection.release();
+      // Release all connections back to pool
+      connections.forEach((conn) => conn.release());
 
-      console.log(`[MySQL] Pool warmed up (ping: ${pingTime.toFixed(2)}ms)`);
+      console.log(
+        `[MySQL] Pool warmed up with ${warmupCount} connections (total time: ${pingTime.toFixed(2)}ms, avg: ${(pingTime / warmupCount).toFixed(2)}ms per connection)`
+      );
 
       // Warning if initial connection is slow
-      if (pingTime > 1000) {
+      if (pingTime / warmupCount > 1000) {
         console.warn(
-          "[MySQL] Slow initial connection detected:",
-          pingTime.toFixed(2),
-          "ms"
+          `[MySQL] Slow initial connection detected: ${(pingTime / warmupCount).toFixed(2)}ms per connection`
         );
       }
     } catch (error) {
@@ -186,7 +201,8 @@ if (typeof window === "undefined") {
   warmupPool().catch(console.error);
 }
 
-// Keep-alive mechanism - ping every 5 minutes to prevent connection timeout
+// Keep-alive mechanism - ping every 30 seconds to prevent connection timeout
+// Reduced from 5 minutes to 30 seconds to prevent idle connection drops by EC2 NAT/firewall
 let lastPingTime = Date.now();
 let connectionId: any = null;
 
@@ -223,7 +239,7 @@ if (typeof window === "undefined") {
         console.error("[MySQL] Failed to recreate pool:", recreateError);
       }
     }
-  }, 300000); // 5 minutes
+  }, 30000); // 30 seconds - reduced from 5 minutes for EC2 environment
 
   // Clean up interval on process termination
   process.once("SIGTERM", () => clearInterval(keepAliveInterval));
