@@ -78,7 +78,7 @@ export default function PostsPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-16">
-      <Breadcrumb items={[{ label: "토브 소식" }]} />
+        <Breadcrumb items={[{ label: "토브 소식" }]} />
         <PageHeader
           title="토브 소식"
           description="토브협회의 다양한 소식과 공지사항을 확인하세요"
@@ -172,11 +172,10 @@ export default function PostsPage() {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`px-3 py-2 rounded-md ${
-                          currentPage === page
-                            ? 'bg-primary text-primary-foreground'
-                            : 'text-gray-700 hover:bg-gray-100'
-                        }`}
+                        className={`px-3 py-2 rounded-md ${currentPage === page
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-gray-700 hover:bg-gray-100'
+                          }`}
                       >
                         {page}
                       </button>
