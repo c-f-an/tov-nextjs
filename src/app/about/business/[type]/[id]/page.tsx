@@ -126,7 +126,6 @@ export default function ReportDetailPage() {
               },
               { label: report.year + "년" },
             ]}
-            className="text-white/80 mb-4"
           />
           <div className="flex items-center gap-3 mb-4">
             <div
@@ -164,7 +163,7 @@ export default function ReportDetailPage() {
             </Link>
             <div className="flex gap-2">
               {report.file_url && (
-                <Button variant="outline" size="sm" className="gap-2" asChild>
+                <Button variant="outline" size="sm" className="gap-2">
                   <a
                     href={report.file_url}
                     target="_blank"
