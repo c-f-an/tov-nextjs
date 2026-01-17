@@ -1,20 +1,11 @@
 import { injectable } from 'tsyringe';
-import mysql from 'mysql2/promise';
 import { User } from '@/core/domain/entities/User';
 import { IUserRepository } from '@/core/domain/repositories/IUserRepository';
+import { getConnection } from '@/infrastructure/database/mysql';
 
 @injectable()
 export class UserRepositoryMySQL implements IUserRepository {
-  private pool: mysql.Pool;
-
-  constructor() {
-    this.pool = mysql.createPool({
-      uri: process.env.DATABASE_URL,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-    });
-  }
+  // 중앙 집중식 싱글톤 pool 사용 - 새 풀 생성하지 않음
 
   private toDomain(dbUser: any): User {
     return new User(
@@ -36,7 +27,7 @@ export class UserRepositoryMySQL implements IUserRepository {
   }
 
   async findById(id: number): Promise<User | null> {
-    const connection = await this.pool.getConnection();
+    const connection = await getConnection();
     try {
       const [rows] = await connection.execute(
         'SELECT * FROM users WHERE id = ?',
@@ -50,7 +41,7 @@ export class UserRepositoryMySQL implements IUserRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const connection = await this.pool.getConnection();
+    const connection = await getConnection();
     try {
       const [rows] = await connection.execute(
         'SELECT * FROM users WHERE email = ?',
@@ -64,7 +55,7 @@ export class UserRepositoryMySQL implements IUserRepository {
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    const connection = await this.pool.getConnection();
+    const connection = await getConnection();
     try {
       const [rows] = await connection.execute(
         'SELECT * FROM users WHERE username = ?',
@@ -78,15 +69,15 @@ export class UserRepositoryMySQL implements IUserRepository {
   }
 
   async save(user: User): Promise<User> {
-    const connection = await this.pool.getConnection();
+    const connection = await getConnection();
     try {
       if (user.id) {
         // Update existing user
         await connection.execute(
-          `UPDATE users SET 
-            username = ?, email = ?, password = ?, name = ?, 
-            phone = ?, email_verified_at = ?, remember_token = ?, 
-            login_type = ?, avatar_url = ?, last_login_at = ?, 
+          `UPDATE users SET
+            username = ?, email = ?, password = ?, name = ?,
+            phone = ?, email_verified_at = ?, remember_token = ?,
+            login_type = ?, avatar_url = ?, last_login_at = ?,
             last_login_ip = ?, updated_at = NOW()
           WHERE id = ?`,
           [
@@ -101,9 +92,9 @@ export class UserRepositoryMySQL implements IUserRepository {
         // Create new user
         const [result] = await connection.execute(
           `INSERT INTO users (
-            username, email, password, name, phone, 
-            email_verified_at, remember_token, login_type, 
-            avatar_url, last_login_at, last_login_ip, 
+            username, email, password, name, phone,
+            email_verified_at, remember_token, login_type,
+            avatar_url, last_login_at, last_login_ip,
             created_at, updated_at
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
           [
@@ -113,7 +104,7 @@ export class UserRepositoryMySQL implements IUserRepository {
             user.lastLoginIp
           ]
         ) as any;
-        
+
         user.id = result.insertId;
         return user;
       }
@@ -123,7 +114,7 @@ export class UserRepositoryMySQL implements IUserRepository {
   }
 
   async delete(id: number): Promise<void> {
-    const connection = await this.pool.getConnection();
+    const connection = await getConnection();
     try {
       await connection.execute('DELETE FROM users WHERE id = ?', [id]);
     } finally {
