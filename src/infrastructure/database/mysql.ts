@@ -5,8 +5,8 @@ import { performance } from "perf_hooks";
 const T2_MICRO_OPTIMIZED_CONFIG = {
   // Connection pool sizing for t2.micro - optimized for parallel queries
   connectionLimit: 10, // Increased to handle parallel queries on main page (6 queries + 1 dependent)
-  maxIdle: 3, // Keep 3 idle connections for quick response
-  idleTimeout: 60000, // 60s - keep connections alive longer
+  maxIdle: 5, // Keep 3 idle connections for quick response
+  idleTimeout: 300000, // 60s - keep connections alive longer
   queueLimit: 0, // Unlimited queue
 
   // Timeouts optimized for bot crawlers (Naver requires < 10s response)
@@ -261,12 +261,12 @@ export function getPoolStatus() {
     },
     pool: poolAny.pool
       ? {
-          size: poolAny.pool.size,
-          available: poolAny.pool.available,
-          pending: poolAny.pool.pending,
-          borrowed: poolAny.pool.borrowed,
-          spareResourceCapacity: poolAny.pool.spareResourceCapacity,
-        }
+        size: poolAny.pool.size,
+        available: poolAny.pool.available,
+        pending: poolAny.pool.pending,
+        borrowed: poolAny.pool.borrowed,
+        spareResourceCapacity: poolAny.pool.spareResourceCapacity,
+      }
       : null,
   };
 }
@@ -307,13 +307,13 @@ export async function query<T = any>(
     // Clean parameters
     const cleanParams = params
       ? params.map((param) => {
-          if (param === undefined) return null;
-          if (typeof param === "string" && /^\d+$/.test(param)) {
-            const num = parseInt(param, 10);
-            if (!isNaN(num)) return num;
-          }
-          return param;
-        })
+        if (param === undefined) return null;
+        if (typeof param === "string" && /^\d+$/.test(param)) {
+          const num = parseInt(param, 10);
+          if (!isNaN(num)) return num;
+        }
+        return param;
+      })
       : [];
 
     // Get validated pool and execute query
