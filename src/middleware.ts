@@ -19,7 +19,11 @@ export async function middleware(request: NextRequest) {
   const userAgent = request.headers.get('user-agent') || '';
   const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
 
-  console.log('Middleware: Request received', { pathname });
+  // Production에서는 로그 비활성화 (성능 최적화)
+  const isDev = process.env.NODE_ENV === 'development';
+  if (isDev) {
+    console.log('Middleware: Request received', { pathname });
+  }
 
   // Skip middleware for static assets and Next.js internals
   if (pathname.startsWith('/_next') ||
@@ -175,12 +179,11 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
+     * Match only specific paths that need middleware processing:
+     * - API routes (except health check)
+     * - Pages that require auth checks
+     * Excludes: static files, images, fonts, etc.
      */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:jpg|jpeg|png|gif|svg|ico|webp|woff|woff2|ttf|eot|css|js|map)$).*)',
   ],
 };

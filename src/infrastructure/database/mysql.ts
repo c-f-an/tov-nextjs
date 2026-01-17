@@ -218,7 +218,10 @@ if (typeof window === "undefined") {
       connectionId = newConnectionId;
       lastPingTime = Date.now();
 
-      console.log(`[MySQL] Keep-alive ping successful (ID: ${connectionId})`);
+      // Keep-alive 성공 로그는 개발 환경에서만 출력
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[MySQL] Keep-alive ping successful (ID: ${connectionId})`);
+      }
     } catch (error: any) {
       console.error("[MySQL] Keep-alive failed:", error.message);
 
