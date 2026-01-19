@@ -129,25 +129,31 @@ try {
   throw error;
 }
 
-// Singleton pattern for Next.js - prevent multiple pools in development
+// Singleton pattern for Next.js - prevent multiple pools
 declare global {
   var mysqlPool: mysql.Pool | undefined;
   var mysqlPoolMetrics: typeof poolMetrics | undefined;
   var mysqlQueryMetrics: typeof queryMetrics | undefined;
+  var mysqlPoolCreationCount: number | undefined;
 }
 
-if (process.env.NODE_ENV === "production") {
-  pool = globalThis.mysqlPool || pool;
-  globalThis.mysqlPool = pool;
+// Check if pool already exists BEFORE creating a new one
+if (globalThis.mysqlPool) {
+  // Reuse existing pool - close the one we just created
+  pool.end().catch(() => {}); // Silently close the unnecessary pool
+  pool = globalThis.mysqlPool;
+  console.log("[MySQL] Reusing existing connection pool (singleton)");
 } else {
-  // In development, use global to preserve pool across HMR
-  if (!globalThis.mysqlPool) {
-    globalThis.mysqlPool = pool;
-    globalThis.mysqlPoolMetrics = poolMetrics;
-    globalThis.mysqlQueryMetrics = queryMetrics;
-  } else {
-    pool = globalThis.mysqlPool;
-  }
+  // First time - save to global
+  globalThis.mysqlPool = pool;
+  globalThis.mysqlPoolCreationCount = (globalThis.mysqlPoolCreationCount || 0) + 1;
+  console.log(`[MySQL] Pool registered as singleton (creation count: ${globalThis.mysqlPoolCreationCount})`);
+}
+
+// Also preserve metrics in global scope
+if (!globalThis.mysqlPoolMetrics) {
+  globalThis.mysqlPoolMetrics = poolMetrics;
+  globalThis.mysqlQueryMetrics = queryMetrics;
 }
 
 // Enhanced warmup with performance check - creates multiple connections upfront
@@ -261,6 +267,10 @@ export function getPoolStatus() {
       connectionLimit: poolConfig.connectionLimit,
       idleTimeout: poolConfig.idleTimeout,
       queueLimit: poolConfig.queueLimit,
+    },
+    singleton: {
+      poolCreationCount: globalThis.mysqlPoolCreationCount || 0,
+      isReusedPool: (globalThis.mysqlPoolCreationCount || 0) === 1,
     },
     pool: poolAny.pool
       ? {
