@@ -5,7 +5,7 @@ import { performance } from "perf_hooks";
 const T2_MICRO_OPTIMIZED_CONFIG = {
   // Connection pool sizing for t2.micro - optimized for parallel queries
   connectionLimit: 10, // Increased to handle parallel queries on main page (6 queries + 1 dependent)
-  maxIdle: 3, // Keep 3 idle connections for quick response
+  maxIdle: 10, // Keep 3 idle connections for quick response
   idleTimeout: 60000, // 60s - keep connections alive longer
   queueLimit: 0, // Unlimited queue
 
@@ -15,7 +15,8 @@ const T2_MICRO_OPTIMIZED_CONFIG = {
 
   // Keep-alive for persistent connections
   enableKeepAlive: true,
-  keepAliveInitialDelay: 0, // Immediate keep-alive
+  keepAliveInitialDelay: 10000, // Immediate keep-alive
+  waitForConnections: true, // 풀이 꽉 찼을 때 에러 대신 대기
 
   // Performance optimizations
   namedPlaceholders: false, // Keep disabled as per current setup
@@ -140,7 +141,7 @@ declare global {
 // Check if pool already exists BEFORE creating a new one
 if (globalThis.mysqlPool) {
   // Reuse existing pool - close the one we just created
-  pool.end().catch(() => {}); // Silently close the unnecessary pool
+  pool.end().catch(() => { }); // Silently close the unnecessary pool
   pool = globalThis.mysqlPool;
   console.log("[MySQL] Reusing existing connection pool (singleton)");
 } else {
