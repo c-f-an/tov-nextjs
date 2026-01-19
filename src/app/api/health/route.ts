@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   query,
   getPool,
-  healthCheck,
-  getConnectionInfo,
   getPoolStatus,
   getMemoryUsage
 } from "@/infrastructure/database/mysql";
@@ -16,113 +14,50 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    // Run health check from mysql.ts
-    const health = await healthCheck();
-
-    // Get additional connection info
-    const connectionInfo = getConnectionInfo();
-
-    // Try to get current connection ID
-    let currentConnectionId = null;
-    try {
-      const result = await query("SELECT CONNECTION_ID() as id, NOW() as serverTime");
-      currentConnectionId = result[0]?.id;
-    } catch (error) {
-      console.error("[Health API] Failed to get connection ID:", error);
-    }
-
-    // Get process list count for monitoring
-    let connectionCount = 0;
-    try {
-      const processListQuery = `
-        SELECT COUNT(*) as count
-        FROM information_schema.processlist
-        WHERE USER IN (?, ?, ?)
-      `;
-      const result = await query(processListQuery, [
-        process.env.DATABASE_USER || "tov-client",
-        "admin",
-        "root"
-      ]);
-      connectionCount = result[0]?.count || 0;
-    } catch (error) {
-      console.error("[Health API] Failed to get process list:", error);
-    }
+    // Lightweight health check - single SELECT 1 query only
+    await query("SELECT 1");
 
     const responseTime = Date.now() - startTime;
+    const poolStatus = getPoolStatus();
 
-    const response = {
-      status: health.status,
+    return NextResponse.json({
+      status: "healthy",
       timestamp: new Date().toISOString(),
       responseTime: `${responseTime}ms`,
       database: {
-        status: health.status,
-        latency: `${health.latency}ms`,
-        currentConnectionId,
-        totalConnections: connectionCount,
-        errors: health.errors,
-        lastError: health.lastError
+        status: "healthy",
+        latency: `${responseTime}ms`,
       },
-      connection: {
-        ...connectionInfo,
-        poolAlive: !!currentConnectionId,
-        requiresReconnect: connectionInfo.isStale
-      },
-      pool: health.poolStatus,
-      memory: health.memoryUsage,
-      environment: {
-        nodeEnv: process.env.NODE_ENV,
-        host: process.env.DATABASE_HOST || "localhost",
-        database: process.env.DATABASE_NAME || process.env.DB_NAME || "tov_db"
+      pool: {
+        connectionLimit: poolStatus.config.connectionLimit,
+        singleton: poolStatus.singleton,
       }
-    };
-
-    // Set appropriate status code
-    const statusCode = health.status === "healthy" && !connectionInfo.isStale ? 200 : 503;
-
-    return NextResponse.json(response, {
-      status: statusCode,
+    }, {
+      status: 200,
       headers: {
         "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         "X-Response-Time": `${responseTime}ms`
       }
     });
   } catch (error: any) {
-    console.error("[Health API] Error:", error);
-
     const responseTime = Date.now() - startTime;
 
-    return NextResponse.json(
-      {
-        status: "error",
-        timestamp: new Date().toISOString(),
-        responseTime: `${responseTime}ms`,
-        error: {
-          message: error.message,
-          code: error.code,
-          errno: error.errno,
-          sqlState: error.sqlState
-        },
-        database: {
-          status: "unhealthy",
-          latency: null,
-          currentConnectionId: null,
-          totalConnections: 0
-        },
-        connection: {
-          poolAlive: false,
-          requiresReconnect: true
-        },
-        memory: getMemoryUsage()
-      },
-      {
-        status: 500,
-        headers: {
-          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-          "X-Response-Time": `${responseTime}ms`
-        }
+    return NextResponse.json({
+      status: "unhealthy",
+      timestamp: new Date().toISOString(),
+      responseTime: `${responseTime}ms`,
+      database: {
+        status: "unhealthy",
+        error: error.message,
+        code: error.code
       }
-    );
+    }, {
+      status: 503,
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "X-Response-Time": `${responseTime}ms`
+      }
+    });
   }
 }
 
