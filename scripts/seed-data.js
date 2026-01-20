@@ -1,5 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
 
 // 로컬 터널링 환경 사용시 .env.local 파일 우선 로드

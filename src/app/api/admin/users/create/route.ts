@@ -5,7 +5,7 @@ import { MySQLUserRepository } from "@/infrastructure/repositories/MySQLUserRepo
 // import { emailService } from "@/lib/email/email-service";
 // 무료 이메일 서비스 (Gmail, Naver, Outlook 등)
 import { freeEmailService as emailService } from "@/lib/email/free-email-service";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const userRepository = new MySQLUserRepository();
 
