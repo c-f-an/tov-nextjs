@@ -13,9 +13,32 @@ interface S3ImageProps {
   priority?: boolean;
 }
 
+// Pre-signed URL cache with 10 minute TTL (S3 URLs typically valid for 15 minutes)
+const URL_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+const urlCache = new Map<string, { url: string; timestamp: number }>();
+
+function getCachedUrl(key: string): string | null {
+  const cached = urlCache.get(key);
+  if (!cached) return null;
+  if (Date.now() - cached.timestamp > URL_CACHE_TTL) {
+    urlCache.delete(key);
+    return null;
+  }
+  return cached.url;
+}
+
+function setCachedUrl(key: string, url: string): void {
+  // Limit cache size to prevent memory issues
+  if (urlCache.size > 100) {
+    const firstKey = urlCache.keys().next().value;
+    if (firstKey) urlCache.delete(firstKey);
+  }
+  urlCache.set(key, { url, timestamp: Date.now() });
+}
+
 /**
  * S3 이미지 컴포넌트
- * - 프라이빗 버킷: s3Key를 사용하여 pre-signed URL 자동 생성
+ * - 프라이빗 버킷: s3Key를 사용하여 pre-signed URL 자동 생성 (캐싱 적용)
  * - 퍼블릭 버킷: publicUrl 직접 사용
  */
 export const S3Image: React.FC<S3ImageProps> = ({
@@ -38,8 +61,13 @@ export const S3Image: React.FC<S3ImageProps> = ({
       return;
     }
 
-    // S3 Key가 제공된 경우 pre-signed URL 생성
+    // S3 Key가 제공된 경우 캐시 확인 후 pre-signed URL 생성
     if (s3Key) {
+      const cachedUrl = getCachedUrl(s3Key);
+      if (cachedUrl) {
+        setImageUrl(cachedUrl);
+        return;
+      }
       fetchPresignedUrl();
     }
   }, [s3Key, publicUrl]);
@@ -59,6 +87,7 @@ export const S3Image: React.FC<S3ImageProps> = ({
 
       const data = await response.json();
       setImageUrl(data.url);
+      setCachedUrl(s3Key, data.url);
     } catch (err) {
       console.error('Error fetching pre-signed URL:', err);
       setError('이미지를 불러올 수 없습니다.');
