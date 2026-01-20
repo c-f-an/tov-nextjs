@@ -37,17 +37,17 @@ export class MySQLConsultationRepository implements IConsultationRepository {
   }
 
   async findByUserId(userId: string, pagination: PaginationParams): Promise<PaginatedResult<Consultation>> {
-    const [countResult] = await query<any>(
-      'SELECT COUNT(*) as total FROM consultations WHERE user_id = ?',
-      [userId]
-    );
-    const total = countResult.total;
-
     const offset = (pagination.page - 1) * pagination.limit;
-    const rows = await query<ConsultationRow>(
-      'SELECT * FROM consultations WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-      [userId, Number(pagination.limit), Number(offset)]
-    );
+
+    // Execute COUNT and SELECT queries in parallel for better performance
+    const [countResult, rows] = await Promise.all([
+      query<any>('SELECT COUNT(*) as total FROM consultations WHERE user_id = ?', [userId]),
+      query<ConsultationRow>(
+        'SELECT * FROM consultations WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+        [userId, Number(pagination.limit), Number(offset)]
+      )
+    ]);
+    const total = countResult[0].total;
 
     return {
       data: rows.map(row => this.mapToConsultation(row)),
@@ -58,17 +58,17 @@ export class MySQLConsultationRepository implements IConsultationRepository {
   }
 
   async findByCounselorId(counselorId: string, pagination: PaginationParams): Promise<PaginatedResult<Consultation>> {
-    const [countResult] = await query<any>(
-      'SELECT COUNT(*) as total FROM consultations WHERE counselor_id = ?',
-      [counselorId]
-    );
-    const total = countResult.total;
-
     const offset = (pagination.page - 1) * pagination.limit;
-    const rows = await query<ConsultationRow>(
-      'SELECT * FROM consultations WHERE counselor_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-      [counselorId, Number(pagination.limit), Number(offset)]
-    );
+
+    // Execute COUNT and SELECT queries in parallel for better performance
+    const [countResult, rows] = await Promise.all([
+      query<any>('SELECT COUNT(*) as total FROM consultations WHERE counselor_id = ?', [counselorId]),
+      query<ConsultationRow>(
+        'SELECT * FROM consultations WHERE counselor_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+        [counselorId, Number(pagination.limit), Number(offset)]
+      )
+    ]);
+    const total = countResult[0].total;
 
     return {
       data: rows.map(row => this.mapToConsultation(row)),
@@ -113,18 +113,17 @@ export class MySQLConsultationRepository implements IConsultationRepository {
     }
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
-    
-    const [countResult] = await query<any>(
-      `SELECT COUNT(*) as total FROM consultations ${whereClause}`,
-      params
-    );
-    const total = countResult.total;
-
     const offset = (pagination.page - 1) * pagination.limit;
-    const rows = await query<ConsultationRow>(
-      `SELECT * FROM consultations ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-      [...params, Number(pagination.limit), Number(offset)]
-    );
+
+    // Execute COUNT and SELECT queries in parallel for better performance
+    const [countResult, rows] = await Promise.all([
+      query<any>(`SELECT COUNT(*) as total FROM consultations ${whereClause}`, params),
+      query<ConsultationRow>(
+        `SELECT * FROM consultations ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+        [...params, Number(pagination.limit), Number(offset)]
+      )
+    ]);
+    const total = countResult[0].total;
 
     return {
       data: rows.map(row => this.mapToConsultation(row)),

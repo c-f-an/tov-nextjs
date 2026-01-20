@@ -81,21 +81,20 @@ export class MySQLPostRepository implements IPostRepository {
     }
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
-    
-    // Get total count
-    const countQuery = `SELECT COUNT(*) as total FROM posts ${whereClause}`;
-    const [countResult] = await query<any>(countQuery, params);
-    const total = countResult.total;
-
-    // Get paginated results
     const offset = (pagination.page - 1) * pagination.limit;
-    const dataQuery = `
-      SELECT * FROM posts 
-      ${whereClause}
-      ORDER BY is_notice DESC, published_at DESC, created_at DESC
-      LIMIT ? OFFSET ?
-    `;
-    const rows = await query<PostRow>(dataQuery, [...params, Number(pagination.limit), Number(offset)]);
+
+    // Execute COUNT and SELECT queries in parallel for better performance
+    const [countResult, rows] = await Promise.all([
+      query<any>(`SELECT COUNT(*) as total FROM posts ${whereClause}`, params),
+      query<PostRow>(
+        `SELECT * FROM posts
+         ${whereClause}
+         ORDER BY is_notice DESC, published_at DESC, created_at DESC
+         LIMIT ? OFFSET ?`,
+        [...params, Number(pagination.limit), Number(offset)]
+      )
+    ]);
+    const total = countResult[0].total;
 
     return {
       data: rows.map(row => this.mapToPost(row)),
