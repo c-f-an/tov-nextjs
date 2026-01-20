@@ -10,7 +10,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['var(--font-nanum-gothic)', '"Nanum Gothic"', 'sans-serif'],
-        mono: ['var(--font-nanum-gothic)', '"Nanum Gothic"', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
     },
   },

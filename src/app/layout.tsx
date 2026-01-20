@@ -5,9 +5,10 @@ import { MainLayout } from "@/presentation/components/layout/MainLayout";
 import "./globals.css";
 
 const nanumGothic = Nanum_Gothic({
-  weight: ["400", "700", "800"],
+  weight: ["400", "700"],
   variable: "--font-nanum-gothic",
   subsets: ["latin"],
+  preload: false,
 });
 
 export const metadata: Metadata = {

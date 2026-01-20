@@ -71,9 +71,10 @@ jobs:
               exec_mode: 'fork',
               autorestart: true,
               watch: false,
-              max_memory_restart: '800M',
+              max_memory_restart: '700M',
               min_uptime: '10s',
               max_restarts: 10,
+              node_args: '--max-old-space-size=512',
               env: {
                 NODE_ENV: 'production',
                 PORT: 3000
