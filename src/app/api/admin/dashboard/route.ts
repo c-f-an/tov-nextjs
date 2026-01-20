@@ -13,50 +13,51 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get dashboard statistics
-    const userStats = await query(
-      'SELECT COUNT(*) as total, SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as new_this_month FROM users'
-    );
-
-    const postStats = await query(
-      'SELECT COUNT(*) as total, SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) as new_this_week FROM posts WHERE status = ?',
-      ['published']
-    );
-
-    const consultationStats = await query(
-      'SELECT COUNT(*) as pending FROM consultations WHERE status = ?',
-      ['pending']
-    );
-
-    const donationStats = await query(
-      'SELECT COALESCE(SUM(amount), 0) as monthly_total FROM donations WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) AND status = ?',
-      ['completed']
-    );
-
-    // Get recent posts
-    const recentPosts = await query(
-      `SELECT p.id, p.title, p.created_at, c.name as category_name, c.slug as category_slug, u.name as author_name
-       FROM posts p
-       LEFT JOIN categories c ON p.category_id = c.id
-       LEFT JOIN users u ON p.user_id = u.id
-       WHERE p.status = ?
-       ORDER BY p.created_at DESC
-       LIMIT 5`,
-      ['published']
-    );
-
-    // Get recent consultations
-    const recentConsultations = await query(
-      `SELECT id, name, phone, consultation_type, status, created_at
-       FROM consultations
-       ORDER BY created_at DESC
-       LIMIT 5`
-    );
-
-    // Get today's active users count
-    const activeUsers = await query(
-      'SELECT COUNT(DISTINCT id) as today_active FROM users WHERE DATE(last_login_at) = CURDATE()'
-    );
+    // Get dashboard statistics - Execute all queries in parallel for better performance
+    const [
+      userStats,
+      postStats,
+      consultationStats,
+      donationStats,
+      recentPosts,
+      recentConsultations,
+      activeUsers
+    ] = await Promise.all([
+      query(
+        'SELECT COUNT(*) as total, SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as new_this_month FROM users'
+      ),
+      query(
+        'SELECT COUNT(*) as total, SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) as new_this_week FROM posts WHERE status = ?',
+        ['published']
+      ),
+      query(
+        'SELECT COUNT(*) as pending FROM consultations WHERE status = ?',
+        ['pending']
+      ),
+      query(
+        'SELECT COALESCE(SUM(amount), 0) as monthly_total FROM donations WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) AND status = ?',
+        ['completed']
+      ),
+      query(
+        `SELECT p.id, p.title, p.created_at, c.name as category_name, c.slug as category_slug, u.name as author_name
+         FROM posts p
+         LEFT JOIN categories c ON p.category_id = c.id
+         LEFT JOIN users u ON p.user_id = u.id
+         WHERE p.status = ?
+         ORDER BY p.created_at DESC
+         LIMIT 5`,
+        ['published']
+      ),
+      query(
+        `SELECT id, name, phone, consultation_type, status, created_at
+         FROM consultations
+         ORDER BY created_at DESC
+         LIMIT 5`
+      ),
+      query(
+        'SELECT COUNT(DISTINCT id) as today_active FROM users WHERE DATE(last_login_at) = CURDATE()'
+      )
+    ]);
 
     // Log admin action
     await logAdminAction(
