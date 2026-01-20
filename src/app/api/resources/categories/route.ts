@@ -14,7 +14,11 @@ export async function GET(request: NextRequest) {
       ? await resourceCategoryRepository.findActive()
       : await resourceCategoryRepository.findAll();
 
-    return NextResponse.json(categories);
+    return NextResponse.json(categories, {
+      headers: {
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=60', // 5 minutes cache
+      },
+    });
   } catch (error) {
     console.error('Error fetching resource categories:', error);
     return NextResponse.json(

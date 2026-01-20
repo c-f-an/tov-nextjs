@@ -36,6 +36,10 @@ export async function GET(request: NextRequest) {
         endDate: banner.endDate,
         isCurrentlyActive: banner.isCurrentlyActive()
       }))
+    }, {
+      headers: {
+        'Cache-Control': 'public, max-age=60, stale-while-revalidate=30', // 1 minute cache for banners
+      },
     });
   } catch (error) {
     console.error('Error fetching main banners:', error);

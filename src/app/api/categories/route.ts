@@ -21,7 +21,11 @@ export async function GET(request: NextRequest) {
       categories = categories.filter(cat => cat.slug === slug);
     }
 
-    return NextResponse.json(categories);
+    return NextResponse.json(categories, {
+      headers: {
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=60', // 5 minutes cache
+      },
+    });
   } catch (error) {
     console.error('Error fetching categories:', error);
     return NextResponse.json(

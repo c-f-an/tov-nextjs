@@ -22,6 +22,10 @@ export async function GET(request: NextRequest) {
         isActive: quickLink.isActive,
         isExternal: quickLink.isExternal()
       }))
+    }, {
+      headers: {
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=60', // 5 minutes cache
+      },
     });
   } catch (error) {
     console.error('Error fetching quick links:', error);
