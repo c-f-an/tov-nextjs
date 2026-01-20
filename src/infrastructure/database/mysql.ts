@@ -83,10 +83,16 @@ const queryMetrics = new Map<
   }
 >();
 
+// Production-safe logging
+const isDev = process.env.NODE_ENV === 'development';
+const log = (...args: any[]) => isDev && console.log(...args);
+const warn = (...args: any[]) => console.warn(...args);
+const error = (...args: any[]) => console.error(...args);
+
 // Function to create connection pool
 function createPool(): mysql.Pool {
   const newPool = mysql.createPool(poolConfig);
-  console.log("[MySQL] Optimized connection pool created for t2.micro");
+  log("[MySQL] Optimized connection pool created for t2.micro");
 
   // Monitor pool events (if available)
   const poolAny = newPool as any;
@@ -107,9 +113,9 @@ function createPool(): mysql.Pool {
 
   // Add error handling for connection loss
   (newPool as any).on("error", (err: any) => {
-    console.error("[MySQL] Pool error:", err);
+    error("[MySQL] Pool error:", err);
     if (err.code === "PROTOCOL_CONNECTION_LOST") {
-      console.log("[MySQL] Connection lost, recreating pool...");
+      log("[MySQL] Connection lost, recreating pool...");
       pool = createPool();
       if (process.env.NODE_ENV === "production") {
         globalThis.mysqlPool = pool;
@@ -125,9 +131,9 @@ let pool: mysql.Pool;
 
 try {
   pool = createPool();
-} catch (error) {
-  console.error("[MySQL] Failed to create connection pool:", error);
-  throw error;
+} catch (err) {
+  error("[MySQL] Failed to create connection pool:", err);
+  throw err;
 }
 
 // Singleton pattern for Next.js - prevent multiple pools
@@ -143,12 +149,12 @@ if (globalThis.mysqlPool) {
   // Reuse existing pool - close the one we just created
   pool.end().catch(() => { }); // Silently close the unnecessary pool
   pool = globalThis.mysqlPool;
-  console.log("[MySQL] Reusing existing connection pool (singleton)");
+  log("[MySQL] Reusing existing connection pool (singleton)");
 } else {
   // First time - save to global
   globalThis.mysqlPool = pool;
   globalThis.mysqlPoolCreationCount = (globalThis.mysqlPoolCreationCount || 0) + 1;
-  console.log(`[MySQL] Pool registered as singleton (creation count: ${globalThis.mysqlPoolCreationCount})`);
+  log(`[MySQL] Pool registered as singleton (creation count: ${globalThis.mysqlPoolCreationCount})`);
 }
 
 // Also preserve metrics in global scope
@@ -165,7 +171,7 @@ async function warmupPool() {
 
       // Pre-create multiple connections (50% of pool size) to reduce cold start
       const warmupCount = Math.ceil(poolConfig.connectionLimit! / 2);
-      console.log(`[MySQL] Warming up ${warmupCount} connections...`);
+      log(`[MySQL] Warming up ${warmupCount} connections...`);
 
       const connectionPromises: Promise<mysql.PoolConnection>[] = [];
       for (let i = 0; i < warmupCount; i++) {
@@ -185,27 +191,27 @@ async function warmupPool() {
       // Release all connections back to pool
       connections.forEach((conn) => conn.release());
 
-      console.log(
+      log(
         `[MySQL] Pool warmed up with ${warmupCount} connections (total time: ${pingTime.toFixed(2)}ms, avg: ${(pingTime / warmupCount).toFixed(2)}ms per connection)`
       );
 
       // Warning if initial connection is slow
       if (pingTime / warmupCount > 1000) {
-        console.warn(
+        warn(
           `[MySQL] Slow initial connection detected: ${(pingTime / warmupCount).toFixed(2)}ms per connection`
         );
       }
-    } catch (error) {
+    } catch (err) {
       poolMetrics.connectionErrors++;
-      poolMetrics.lastError = error as Error;
-      console.error("[MySQL] Pool warmup failed:", error);
+      poolMetrics.lastError = err as Error;
+      error("[MySQL] Pool warmup failed:", err);
     }
   }
 }
 
 // Start warmup
 if (typeof window === "undefined") {
-  warmupPool().catch(console.error);
+  warmupPool().catch(error);
 }
 
 // Keep-alive mechanism - ping every 30 seconds to prevent connection timeout
@@ -220,17 +226,14 @@ if (typeof window === "undefined") {
       const newConnectionId = (result[0] as any)[0]?.id;
 
       if (connectionId && connectionId !== newConnectionId) {
-        console.log(`[MySQL] Connection ID changed from ${connectionId} to ${newConnectionId}`);
+        log(`[MySQL] Connection ID changed from ${connectionId} to ${newConnectionId}`);
       }
       connectionId = newConnectionId;
       lastPingTime = Date.now();
 
-      // Keep-alive 성공 로그는 개발 환경에서만 출력
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[MySQL] Keep-alive ping successful (ID: ${connectionId})`);
-      }
-    } catch (error: any) {
-      console.error("[MySQL] Keep-alive failed:", error.message);
+      log(`[MySQL] Keep-alive ping successful (ID: ${connectionId})`);
+    } catch (err: any) {
+      error("[MySQL] Keep-alive failed:", err.message);
 
       // Attempt to recreate pool on keep-alive failure
       try {
@@ -238,15 +241,15 @@ if (typeof window === "undefined") {
         if (process.env.NODE_ENV === "production") {
           globalThis.mysqlPool = pool;
         }
-        console.log("[MySQL] Pool recreated after keep-alive failure");
+        log("[MySQL] Pool recreated after keep-alive failure");
 
         // Test new pool
         const testResult = await pool.query("SELECT CONNECTION_ID() as id");
         connectionId = (testResult[0] as any)[0]?.id;
         lastPingTime = Date.now();
-        console.log(`[MySQL] New pool tested successfully (ID: ${connectionId})`);
+        log(`[MySQL] New pool tested successfully (ID: ${connectionId})`);
       } catch (recreateError) {
-        console.error("[MySQL] Failed to recreate pool:", recreateError);
+        error("[MySQL] Failed to recreate pool:", recreateError);
       }
     }
   }, 30000); // 30 seconds - reduced from 5 minutes for EC2 environment
@@ -294,8 +297,8 @@ export async function getPool(): Promise<mysql.Pool> {
     try {
       await pool.query("SELECT 1");
       lastPingTime = now;
-    } catch (error: any) {
-      console.error("[MySQL] Connection test failed, recreating pool:", error.message);
+    } catch (err: any) {
+      error("[MySQL] Connection test failed, recreating pool:", err.message);
       pool = createPool();
       if (process.env.NODE_ENV === "production") {
         globalThis.mysqlPool = pool;
@@ -341,22 +344,22 @@ export async function query<T = any>(
     // Log slow queries
     if (duration > 1000) {
       poolMetrics.slowQueries++;
-      console.warn(
+      warn(
         `[MySQL] Slow query detected (${duration.toFixed(2)}ms):`,
         queryKey
       );
     }
 
     return rows as T[];
-  } catch (error: any) {
+  } catch (err: any) {
     // Handle connection errors with reconnection logic
     if (
-      error.code === "ECONNREFUSED" ||
-      error.code === "PROTOCOL_CONNECTION_LOST" ||
-      error.code === "ETIMEDOUT" ||
-      error.code === "ENOTFOUND"
+      err.code === "ECONNREFUSED" ||
+      err.code === "PROTOCOL_CONNECTION_LOST" ||
+      err.code === "ETIMEDOUT" ||
+      err.code === "ENOTFOUND"
     ) {
-      console.log("[MySQL] Connection lost, attempting to reconnect...");
+      log("[MySQL] Connection lost, attempting to reconnect...");
 
       // Recreate pool
       try {
@@ -367,18 +370,18 @@ export async function query<T = any>(
 
         // Retry the query once
         const [rows] = await pool.query(sql, params || []);
-        console.log("[MySQL] Reconnection successful, query executed");
+        log("[MySQL] Reconnection successful, query executed");
         return rows as T[];
       } catch (retryError) {
         poolMetrics.lastError = retryError as Error;
-        console.error("[MySQL] Query retry failed:", retryError);
+        error("[MySQL] Query retry failed:", retryError);
         throw retryError;
       }
     }
 
-    poolMetrics.lastError = error as Error;
-    console.error("[MySQL] Query error:", error);
-    throw error;
+    poolMetrics.lastError = err as Error;
+    error("[MySQL] Query error:", err);
+    throw err;
   }
 }
 
@@ -463,7 +466,7 @@ export async function withTransaction<T>(
 
     const duration = performance.now() - startTime;
     if (duration > 1000) {
-      console.warn(
+      warn(
         `[MySQL] Slow transaction detected: ${duration.toFixed(2)}ms`
       );
     }
@@ -511,11 +514,11 @@ export async function healthCheck(): Promise<{
 if (typeof window === "undefined") {
   const shutdown = async () => {
     try {
-      console.log("[MySQL] Closing connection pool...");
+      log("[MySQL] Closing connection pool...");
       await pool.end();
-      console.log("[MySQL] Connection pool closed");
-    } catch (error) {
-      console.error("[MySQL] Error closing pool:", error);
+      log("[MySQL] Connection pool closed");
+    } catch (err) {
+      error("[MySQL] Error closing pool:", err);
     }
   };
 
