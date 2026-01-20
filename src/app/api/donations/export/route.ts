@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import * as XLSX from 'xlsx';
 import { getContainer } from '@/infrastructure/config/getContainer';
 import { cookies } from 'next/headers';
 import { verifyAccessToken } from '@/lib/auth-utils';
+
+// Maximum records per batch to prevent memory issues
+const BATCH_SIZE = 1000;
+const MAX_EXPORT_RECORDS = 50000;
 
 export async function GET(request: NextRequest) {
   try {
@@ -36,12 +39,47 @@ export async function GET(request: NextRequest) {
     const container = getContainer();
     const getDonationsUseCase = container.getGetDonationsUseCase();
 
-    const result = await getDonationsUseCase.execute({
+    // First, get total count to check if export is feasible
+    const countResult = await getDonationsUseCase.execute({
       page: 1,
-      limit: 10000, // Get all donations for export
+      limit: 1,
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined
     });
+
+    if (countResult.total > MAX_EXPORT_RECORDS) {
+      return NextResponse.json(
+        { error: `Too many records (${countResult.total}). Maximum export limit is ${MAX_EXPORT_RECORDS}. Please narrow down the date range.` },
+        { status: 400 }
+      );
+    }
+
+    // Fetch donations in batches to prevent memory issues
+    const allDonations: any[] = [];
+    let totalAmount = 0;
+    const totalPages = Math.ceil(countResult.total / BATCH_SIZE);
+
+    for (let page = 1; page <= totalPages; page++) {
+      const batchResult = await getDonationsUseCase.execute({
+        page,
+        limit: BATCH_SIZE,
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined
+      });
+      allDonations.push(...batchResult.donations);
+      if (page === 1) {
+        totalAmount = batchResult.totalAmount;
+      }
+    }
+
+    // Dynamic import XLSX to reduce initial bundle size
+    const XLSX = await import('xlsx');
+
+    const result = {
+      donations: allDonations,
+      total: countResult.total,
+      totalAmount
+    };
 
     // Create workbook
     const wb = XLSX.utils.book_new();
