@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 
 interface Category {
@@ -18,6 +18,41 @@ interface MenuItem {
   submenu?: { title: string; href: string }[];
 }
 
+// Menu cache with 5 minute TTL
+const MENU_CACHE_KEY = "tov_menu_cache";
+const MENU_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+interface MenuCache {
+  data: MenuItem[];
+  timestamp: number;
+}
+
+function getMenuFromCache(): MenuItem[] | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const cached = localStorage.getItem(MENU_CACHE_KEY);
+    if (!cached) return null;
+    const { data, timestamp }: MenuCache = JSON.parse(cached);
+    if (Date.now() - timestamp > MENU_CACHE_TTL) {
+      localStorage.removeItem(MENU_CACHE_KEY);
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function setMenuToCache(data: MenuItem[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    const cache: MenuCache = { data, timestamp: Date.now() };
+    localStorage.setItem(MENU_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
@@ -25,6 +60,12 @@ export function Header() {
   const { user, logout } = useAuth();
 
   useEffect(() => {
+    // Try to load from cache first
+    const cachedMenu = getMenuFromCache();
+    if (cachedMenu) {
+      setMenuItems(cachedMenu);
+      return;
+    }
     fetchMenuItems();
   }, []);
 
@@ -116,6 +157,7 @@ export function Header() {
       ];
 
       setMenuItems(staticMenuItems);
+      setMenuToCache(staticMenuItems);
     } catch (error) {
       console.error("Failed to fetch categories:", error);
 
