@@ -15,6 +15,15 @@ const nextConfig = {
     keepAlive: true,
   },
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'tov-homepage-resource-production.s3.amazonaws.com',
+      },
+    ],
+  },
+
   async headers() {
     return [
       {

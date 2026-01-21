@@ -132,7 +132,7 @@ EMAIL_FROM=your-email@gmail.com
 
 #### 설정
 ```env
-NEXT_PUBLIC_KAKAO_MAP_API_KEY=f60ac689635543440ef447181e7f6af7
+NEXT_PUBLIC_KAKAO_MAP_API_KEY="your-kakao-key
 NEXT_PUBLIC_COMPANY_ADDRESS=서울 종로구 삼일대로 428 낙원상가 5층 500호
 ```
 

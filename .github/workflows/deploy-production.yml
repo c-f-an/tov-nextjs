@@ -74,7 +74,7 @@ jobs:
               max_memory_restart: '700M',
               min_uptime: '10s',
               max_restarts: 10,
-              node_args: '--max-old-space-size=512',
+              node_args: '--max-old-space-size=384',
               env: {
                 NODE_ENV: 'production',
                 PORT: 3000
@@ -188,6 +188,9 @@ jobs:
           JWT_ACCESS_SECRET=${{ vars.JWT_ACCESS_SECRET }}
           JWT_REFRESH_SECRET=${{ vars.JWT_REFRESH_SECRET }}
           NEXT_PUBLIC_KAKAO_MAP_API_KEY=${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }}
+          # ISR On-demand Revalidation을 위한 시크릿 토큰
+          # CMS 등 외부 서비스에서 웹훅을 호출할 때 보안을 위해 사용합니다.
+          REVALIDATION_SECRET=${{ secrets.REVALIDATION_SECRET }}
           NEXT_PUBLIC_COMPANY_ADDRESS=${{ vars.NEXT_PUBLIC_COMPANY_ADDRESS }}
           NEXT_PUBLIC_APP_URL=${{ vars.NEXT_PUBLIC_APP_URL }}
           NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
