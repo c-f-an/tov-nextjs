@@ -81,10 +81,8 @@ export default function KakaoMap({
   return (
     <>
       <Script
-        src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services&autoload=false`}
-        strategy="afterInteractive"
-        onLoad={() => setIsLoaded(true)}
-        referrerPolicy="origin"
+        src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services&autoload=false`}
+        strategy="beforeInteractive"
       />
       <div
         ref={mapRef}
