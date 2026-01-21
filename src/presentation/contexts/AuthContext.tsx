@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('AuthContext: Token refresh successful', data.user);
+        // console.log('AuthContext: Token refresh successful', data.user);
         setUser(data.user);
         setAccessToken(data.accessToken);
         return;
@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Token refresh failed:', error);
     }
-    
+
     // Clear auth state if refresh fails
     setUser(null);
     setAccessToken(null);
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data = await response.json();
     setUser(data.user);
     setAccessToken(data.accessToken);
-    
+
     // Return data for the caller to handle redirect
     return data;
   };
@@ -123,11 +123,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
   }, [refreshToken]);
-
-  // Debug log when user state changes
-  useEffect(() => {
-    console.log('AuthContext: User state changed', { user, accessToken });
-  }, [user, accessToken]);
 
   // Set up token refresh interval
   useEffect(() => {

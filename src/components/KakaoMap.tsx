@@ -27,20 +27,13 @@ export default function KakaoMap({
   const mapRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // KakaoMap 컴포넌트 내부
-  useEffect(() => {
-    // 배포된 환경의 브라우저 콘솔에서 직접 확인
-    console.log("현재 사용 중인 API KEY:", process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY);
-    console.log("현재 브라우저 Origin:", window.location.origin);
-  }, []);
-
   // 지도 초기화 함수
   const initMap = () => {
     if (!mapRef.current || !window.kakao) return;
 
     window.kakao.maps.load(() => {
       const container = mapRef.current;
-      
+
       // 1. 중심 좌표 설정 (주소 우선, 없으면 위경도)
       const displayMap = (coords: any) => {
         const options = {
@@ -48,7 +41,7 @@ export default function KakaoMap({
           level: level,
         };
         const map = new window.kakao.maps.Map(container, options);
-        
+
         const marker = new window.kakao.maps.Marker({
           position: coords,
           map: map,
@@ -93,9 +86,9 @@ export default function KakaoMap({
         onLoad={() => setIsLoaded(true)}
         referrerPolicy="origin"
       />
-      <div 
-        ref={mapRef} 
-        style={{ width: "100%", height: "100%", minHeight: "400px" }} 
+      <div
+        ref={mapRef}
+        style={{ width: "100%", height: "100%", minHeight: "400px" }}
       />
     </>
   );
