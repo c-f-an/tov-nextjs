@@ -41,7 +41,8 @@
       "Bash(wc:*)",
       "Bash(grep:*)",
       "Bash(du:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "ask": []

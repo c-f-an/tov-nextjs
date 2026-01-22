@@ -59,17 +59,19 @@ export async function POST(request: NextRequest) {
               fit: 'inside',
               withoutEnlargement: true
             })
-            .jpeg({ quality: BANNER_CONFIG.quality })
+            .webp({ quality: BANNER_CONFIG.quality })
             .toBuffer();
         } else {
           // 원본 크기가 작으면 품질만 조정
           resizedBuffer = await image
-            .jpeg({ quality: BANNER_CONFIG.quality })
+            .webp({ quality: BANNER_CONFIG.quality })
             .toBuffer();
         }
       } else {
-        // 메타데이터가 없으면 원본 사용
-        resizedBuffer = buffer;
+        // 메타데이터가 없으면 WebP로 변환
+        resizedBuffer = await image
+          .webp({ quality: BANNER_CONFIG.quality })
+          .toBuffer();
       }
 
       console.log(`Banner Original size: ${(buffer.length / 1024).toFixed(2)}KB`);
@@ -84,16 +86,16 @@ export async function POST(request: NextRequest) {
     // Initialize S3 service with 'main_banners' base path
     const s3Service = new S3Service('main_banners');
 
-    // 파일명 생성 (.jpg 확장자로 통일)
-    // 형식: banner_bannerId_timestamp.jpg
+    // 파일명 생성 (.webp 확장자로 통일)
+    // 형식: banner_bannerId_timestamp.webp
     const timestamp = Date.now();
-    const fileName = `banner_${bannerId}_${timestamp}.jpg`;
+    const fileName = `banner_${bannerId}_${timestamp}.webp`;
 
     // S3 업로드 (basePath가 'main_banners'이므로 최종 경로: main_banners/파일명)
     const uploadResult = await s3Service.uploadImage(
       fileName,
       resizedBuffer,
-      'image/jpeg',
+      'image/webp',
       {
         originalName: file.name,
         uploadedAt: new Date().toISOString(),
