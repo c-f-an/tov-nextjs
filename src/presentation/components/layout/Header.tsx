@@ -316,12 +316,12 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
+          <nav className="hidden lg:flex items-center space-x-4">
             {menuItems.map((item) => (
               <div key={item.href} className="relative group">
                 <Link
                   href={item.href}
-                  className="text-xl text-gray-700 hover:text-blue-600 font-medium py-6 block"
+                  className="text-base text-gray-700 hover:text-primary font-semibold py-6 block"
                 >
                   {item.title}
                 </Link>
@@ -395,9 +395,8 @@ export function Header() {
                       className="p-2 hover:bg-gray-100 rounded"
                     >
                       <svg
-                        className={`w-4 h-4 transition-transform ${
-                          expandedMenus.includes(item.href) ? "rotate-180" : ""
-                        }`}
+                        className={`w-4 h-4 transition-transform ${expandedMenus.includes(item.href) ? "rotate-180" : ""
+                          }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
