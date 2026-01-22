@@ -15,15 +15,15 @@ interface DonationFormData {
   email: string;
   address: string;
   postcode: string;
-  
+
   // Donation info
   donationType: 'regular' | 'one_time';
   amount: string;
   paymentMethod: string;
-  
+
   // Receipt info
   receiptRequired: boolean;
-  
+
   // Agreement
   privacyAgree: boolean;
 }
@@ -164,7 +164,7 @@ function DonationForm() {
         </ol>
       </nav>
 
-      <PageHeader 
+      <PageHeader
         title="후원 신청"
         description="여러분의 후원이 투명한 비영리 문화를 만들어갑니다"
       />
@@ -318,11 +318,10 @@ function DonationForm() {
                     key={amount}
                     type="button"
                     onClick={() => handleAmountClick(amount)}
-                    className={`py-2 px-4 rounded-md border ${
-                      formData.amount === amount.toString()
+                    className={`py-2 px-4 rounded-md border ${formData.amount === amount.toString()
                         ? 'bg-primary text-primary-foreground border-blue-600'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     {amount.toLocaleString()}원
                   </button>
@@ -337,6 +336,25 @@ function DonationForm() {
                 min="1000"
                 required
               />
+            </div>
+          </div>
+
+          {/* Bank Account Info */}
+          <div className="mb-8 bg-blue-50 p-6 rounded-lg border border-blue-100">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">입금 계좌 안내</h3>
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center">
+                <span className="w-24 text-gray-600 font-medium">은행명</span>
+                <span className="text-gray-900">KB국민은행</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center">
+                <span className="w-24 text-gray-600 font-medium">계좌번호</span>
+                <span className="text-xl font-bold text-blue-600">006001-04-353709</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center">
+                <span className="w-24 text-gray-600 font-medium">예금주</span>
+                <span className="text-gray-900">사단법인 토브협회</span>
+              </div>
             </div>
           </div>
 
