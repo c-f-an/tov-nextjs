@@ -11,8 +11,6 @@ export default function RegisterPage() {
     confirmPassword: "",
     name: "",
     phoneNumber: "",
-    churchName: "",
-    position: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -160,40 +158,6 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
                 placeholder="010-1234-5678"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="churchName"
-                className="block text-sm font-medium text-black"
-              >
-                교회명
-              </label>
-              <input
-                id="churchName"
-                name="churchName"
-                type="text"
-                value={formData.churchName}
-                onChange={handleChange}
-                className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="position"
-                className="block text-sm font-medium text-black"
-              >
-                직분
-              </label>
-              <input
-                id="position"
-                name="position"
-                type="text"
-                value={formData.position}
-                onChange={handleChange}
-                className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
               />
             </div>
 
