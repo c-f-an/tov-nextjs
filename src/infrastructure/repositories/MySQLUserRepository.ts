@@ -1,5 +1,5 @@
 import { IUserRepository } from '@/core/domain/repositories/IUserRepository';
-import { User, UserStatus, LoginType, UserRole } from '@/core/domain/entities/User';
+import { User, UserStatus, LoginType, UserRole, UserType } from '@/core/domain/entities/User';
 import { query, queryOne, withTransaction } from '../database/mysql';
 import { RowDataPacket } from 'mysql2';
 
@@ -12,6 +12,7 @@ interface UserRow extends RowDataPacket {
   phone?: string | null;
   role: string;
   status: string;
+  user_type: number;
   email_verified_at?: Date | null;
   remember_token?: string | null;
   login_type: string;
@@ -58,15 +59,15 @@ export class MySQLUserRepository implements IUserRepository {
     if (user.id) {
       // Update existing user
       await query(
-        `UPDATE users 
-         SET username = ?, email = ?, password = ?, name = ?, phone = ?, 
-             role = ?, status = ?, email_verified_at = ?, remember_token = ?, 
-             login_type = ?, avatar_url = ?, last_login_at = ?, last_login_ip = ?, 
+        `UPDATE users
+         SET username = ?, email = ?, password = ?, name = ?, phone = ?,
+             role = ?, status = ?, user_type = ?, email_verified_at = ?, remember_token = ?,
+             login_type = ?, avatar_url = ?, last_login_at = ?, last_login_ip = ?,
              updated_at = NOW()
          WHERE id = ?`,
         [
           user.username, user.email, user.password, user.name, user.phone,
-          user.role, user.status, user.emailVerifiedAt, user.rememberToken,
+          user.role, user.status, user.userType, user.emailVerifiedAt, user.rememberToken,
           user.loginType, user.avatarUrl, user.lastLoginAt, user.lastLoginIp,
           user.id
         ]
@@ -75,13 +76,13 @@ export class MySQLUserRepository implements IUserRepository {
     } else {
       // Insert new user
       const result = await query<any>(
-        `INSERT INTO users (username, email, password, name, phone, role, status, 
-                           email_verified_at, remember_token, login_type, avatar_url, 
+        `INSERT INTO users (username, email, password, name, phone, role, status, user_type,
+                           email_verified_at, remember_token, login_type, avatar_url,
                            last_login_at, last_login_ip, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           user.username, user.email, user.password, user.name, user.phone,
-          user.role, user.status, user.emailVerifiedAt, user.rememberToken,
+          user.role, user.status, user.userType, user.emailVerifiedAt, user.rememberToken,
           user.loginType, user.avatarUrl, user.lastLoginAt, user.lastLoginIp
         ]
       );
@@ -93,6 +94,7 @@ export class MySQLUserRepository implements IUserRepository {
         user.role,
         user.status,
         user.loginType,
+        user.userType,
         user.username,
         user.password,
         user.phone,
@@ -107,8 +109,35 @@ export class MySQLUserRepository implements IUserRepository {
     }
   }
 
-  async update(user: User): Promise<void> {
-    await this.save(user);
+  async update(id: number, data: any): Promise<void> {
+    const fields: string[] = [];
+    const values: any[] = [];
+
+    const fieldMap: Record<string, string> = {
+      username: 'username',
+      name: 'name',
+      email: 'email',
+      phone: 'phone',
+      status: 'status',
+      role: 'role',
+      userType: 'user_type',
+      updatedAt: 'updated_at',
+    };
+
+    Object.keys(data).forEach((key) => {
+      if (fieldMap[key]) {
+        fields.push(`${fieldMap[key]} = ?`);
+        values.push(data[key]);
+      }
+    });
+
+    if (fields.length === 0) return;
+
+    values.push(id);
+    await query(
+      `UPDATE users SET ${fields.join(', ')} WHERE id = ?`,
+      values
+    );
   }
 
   async delete(id: number): Promise<void> {
@@ -124,6 +153,7 @@ export class MySQLUserRepository implements IUserRepository {
       row.role as any, // Will be converted to UserRole enum
       row.status as any, // Will be converted to UserStatus enum
       row.login_type as any, // Will be converted to LoginType enum
+      row.user_type as UserType ?? UserType.NORMAL,
       row.username,
       row.password,
       row.phone,

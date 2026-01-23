@@ -14,14 +14,23 @@ interface User {
   phone: string
   username: string
   status: string
+  userType: number
   joinDate: string
   lastLogin: string | null
+}
+
+const userTypeLabels: Record<number, { label: string; color: string }> = {
+  0: { label: "일반", color: "bg-gray-100 text-gray-700" },
+  1: { label: "후원", color: "bg-yellow-100 text-yellow-700" },
+  2: { label: "정회원", color: "bg-green-100 text-green-700" },
+  3: { label: "승인대기", color: "bg-orange-100 text-orange-700" },
 }
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive' | 'suspended'>('all')
+  const [filterUserType, setFilterUserType] = useState<'all' | 0 | 1 | 2 | 3>('all')
   const [loading, setLoading] = useState(true)
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -49,11 +58,12 @@ export default function AdminUsersPage() {
   }
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.username?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = filterStatus === 'all' || user.status === filterStatus
-    return matchesSearch && matchesStatus
+    const matchesUserType = filterUserType === 'all' || user.userType === filterUserType
+    return matchesSearch && matchesStatus && matchesUserType
   })
 
   const getStatusDisplay = (status: string) => {
@@ -235,6 +245,17 @@ export default function AdminUsersPage() {
           <option value="inactive">비활성</option>
           <option value="suspended">정지</option>
         </select>
+        <select
+          value={filterUserType}
+          onChange={(e) => setFilterUserType(e.target.value === 'all' ? 'all' : parseInt(e.target.value) as any)}
+          className="px-3 py-2 border rounded"
+        >
+          <option value="all">전체 등급</option>
+          <option value={0}>일반</option>
+          <option value={1}>후원</option>
+          <option value={2}>정회원</option>
+          <option value={3}>승인대기</option>
+        </select>
         <div className="flex-1">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -326,6 +347,7 @@ export default function AdminUsersPage() {
             <th className="text-left py-3 px-4">연락처</th>
             <th className="text-center py-3 px-4">가입일</th>
             <th className="text-center py-3 px-4">최근 접속</th>
+            <th className="text-center py-3 px-4">등급</th>
             <th className="text-center py-3 px-4">상태</th>
             <th className="text-center py-3 px-4">관리</th>
           </tr>
@@ -366,6 +388,11 @@ export default function AdminUsersPage() {
               </td>
               <td className="text-center py-3 px-4 text-sm">
                 {user.lastLogin || '접속 기록 없음'}
+              </td>
+              <td className="text-center py-3 px-4">
+                <span className={`px-2 py-1 text-xs rounded ${userTypeLabels[user.userType ?? 0]?.color}`}>
+                  {userTypeLabels[user.userType ?? 0]?.label}
+                </span>
               </td>
               <td className="text-center py-3 px-4">
                 <span className={`px-2 py-1 text-xs rounded ${getStatusColor(user.status)}`}>

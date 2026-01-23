@@ -59,6 +59,7 @@ export async function GET(request: NextRequest) {
         phone,
         username,
         status,
+        user_type as userType,
         login_type,
         DATE_FORMAT(created_at, '%Y.%m.%d') as joinDate,
         CASE

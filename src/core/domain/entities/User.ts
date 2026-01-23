@@ -17,6 +17,13 @@ export enum UserRole {
   ADMIN = 'ADMIN'
 }
 
+export enum UserType {
+  NORMAL = 0,      // 일반
+  SPONSOR = 1,     // 후원
+  MEMBER = 2,      // 정회원
+  PENDING = 3      // 정회원승인대기
+}
+
 export interface IUser {
   id: number;
   username?: string | null;
@@ -26,6 +33,7 @@ export interface IUser {
   phone?: string | null;
   role: UserRole;
   status: UserStatus;
+  userType: UserType;
   emailVerifiedAt?: Date | null;
   rememberToken?: string | null;
   loginType: LoginType;
@@ -44,6 +52,7 @@ export class User implements IUser {
     public readonly role: UserRole,
     public readonly status: UserStatus,
     public readonly loginType: LoginType,
+    public readonly userType: UserType = UserType.NORMAL,
     public readonly username?: string | null,
     public readonly password?: string | null,
     public readonly phone?: string | null,
@@ -56,7 +65,7 @@ export class User implements IUser {
     public readonly updatedAt?: Date | null
   ) {}
 
-  static create(params: Omit<IUser, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'emailVerifiedAt' | 'lastLoginAt' | 'lastLoginIp' | 'rememberToken' | 'role'>): User {
+  static create(params: Omit<IUser, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'emailVerifiedAt' | 'lastLoginAt' | 'lastLoginIp' | 'rememberToken' | 'role' | 'userType'>): User {
     return new User(
       0, // Auto-increment ID will be assigned by database
       params.email,
@@ -64,6 +73,7 @@ export class User implements IUser {
       UserRole.USER, // Default role
       UserStatus.active,
       params.loginType || LoginType.email,
+      UserType.NORMAL, // Default user type
       params.username,
       params.password,
       params.phone,

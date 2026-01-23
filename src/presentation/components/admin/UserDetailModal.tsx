@@ -23,6 +23,13 @@ const roleLabels: Record<string, { label: string; color: string }> = {
   ADMIN: { label: "관리자", color: "bg-purple-100 text-purple-800" },
 };
 
+const userTypeLabels: Record<number, { label: string; color: string }> = {
+  0: { label: "일반", color: "bg-gray-100 text-gray-800" },
+  1: { label: "후원", color: "bg-yellow-100 text-yellow-800" },
+  2: { label: "정회원", color: "bg-green-100 text-green-800" },
+  3: { label: "정회원승인대기", color: "bg-orange-100 text-orange-800" },
+};
+
 export function UserDetailModal({
   userId,
   isOpen,
@@ -46,6 +53,7 @@ export function UserDetailModal({
     position: "",
     status: "active",
     role: "USER",
+    userType: 0,
     adminNote: "",
   });
 
@@ -72,6 +80,7 @@ export function UserDetailModal({
         position: data.position || "",
         status: data.status || "active",
         role: data.role || "USER",
+        userType: data.userType ?? 0,
         adminNote: data.adminNote || "",
       });
     } catch (error) {
@@ -157,6 +166,31 @@ export function UserDetailModal({
       } catch (error) {
         console.error("Error updating role:", error);
         alert("권한 변경에 실패했습니다.");
+      }
+    }
+  };
+
+  const handleUserTypeChange = async (newUserType: number) => {
+    if (window.confirm(`정말로 회원등급을 ${userTypeLabels[newUserType]?.label}(으)로 변경하시겠습니까?`)) {
+      try {
+        const response = await fetch(`/api/admin/users/${userId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userType: newUserType,
+          }),
+        });
+
+        if (!response.ok) throw new Error("Failed to update user type");
+
+        alert("회원등급이 변경되었습니다.");
+        fetchUser();
+        onUpdate();
+      } catch (error) {
+        console.error("Error updating user type:", error);
+        alert("회원등급 변경에 실패했습니다.");
       }
     }
   };
@@ -411,6 +445,32 @@ export function UserDetailModal({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
+                    회원등급
+                  </label>
+                  <div className="mt-1 flex items-center space-x-2">
+                    <span
+                      className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${
+                        userTypeLabels[user.userType ?? 0]?.color
+                      }`}
+                    >
+                      {userTypeLabels[user.userType ?? 0]?.label}
+                    </span>
+                    {!editMode && (
+                      <select
+                        value={user.userType ?? 0}
+                        onChange={(e) => handleUserTypeChange(parseInt(e.target.value))}
+                        className="ml-2 text-sm border rounded px-2 py-1"
+                      >
+                        <option value={0}>일반</option>
+                        <option value={1}>후원</option>
+                        <option value={2}>정회원</option>
+                        <option value={3}>정회원승인대기</option>
+                      </select>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
                     가입일
                   </label>
                   <p className="mt-1 text-gray-900">
@@ -473,6 +533,7 @@ export function UserDetailModal({
                           position: user.position || "",
                           status: user.status || "active",
                           role: user.role || "USER",
+                          userType: user.userType ?? 0,
                           adminNote: user.adminNote || "",
                         });
                       }}

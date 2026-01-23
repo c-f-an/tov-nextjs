@@ -3,10 +3,10 @@ import { performance } from "perf_hooks";
 
 // Optimized configuration for t2.micro (1GB RAM, 1 vCPU) with bot support
 const T2_MICRO_OPTIMIZED_CONFIG = {
-  // Connection pool sizing for t2.micro - optimized for parallel queries
-  connectionLimit: 10, // Increased to handle parallel queries on main page (6 queries + 1 dependent)
-  maxIdle: 10, // Keep 3 idle connections for quick response
-  idleTimeout: 60000, // 60s - keep connections alive longer
+  // Connection pool sizing - reduced to stay within max_user_connections limit
+  connectionLimit: 5, // Reduced to prevent exceeding MySQL max_user_connections
+  maxIdle: 2, // Keep minimal idle connections
+  idleTimeout: 30000, // 30s - release idle connections faster
   queueLimit: 0, // Unlimited queue
 
   // Timeouts optimized for bot crawlers (Naver requires < 10s response)
@@ -44,7 +44,6 @@ if (process.env.DATABASE_URL) {
     user: dbUrl.username,
     password: dbUrl.password || "",
     database: dbUrl.pathname.slice(1),
-    waitForConnections: true,
     ...T2_MICRO_OPTIMIZED_CONFIG,
   };
 } else {
@@ -54,7 +53,6 @@ if (process.env.DATABASE_URL) {
     user: process.env.DATABASE_USER || "root",
     password: process.env.DATABASE_PASSWORD || "",
     database: process.env.DATABASE_NAME || "tov_db",
-    waitForConnections: true,
     ...T2_MICRO_OPTIMIZED_CONFIG,
   };
 }
@@ -169,9 +167,9 @@ async function warmupPool() {
     try {
       const startTime = performance.now();
 
-      // Pre-create multiple connections (50% of pool size) to reduce cold start
-      const warmupCount = Math.ceil(poolConfig.connectionLimit! / 2);
-      log(`[MySQL] Warming up ${warmupCount} connections...`);
+      // Pre-create minimal connections to reduce cold start while avoiding max_user_connections issues
+      const warmupCount = 1; // Only warm up 1 connection to stay within limits
+      log(`[MySQL] Warming up ${warmupCount} connection...`);
 
       const connectionPromises: Promise<mysql.PoolConnection>[] = [];
       for (let i = 0; i < warmupCount; i++) {

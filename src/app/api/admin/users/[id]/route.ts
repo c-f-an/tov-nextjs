@@ -8,7 +8,7 @@ const userRepository = new MySQLUserRepository();
 // GET /api/admin/users/[id] - Get single user details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
@@ -17,7 +17,8 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = parseInt(params.id);
+    const { id } = await params;
+    const userId = parseInt(id);
     if (isNaN(userId)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -35,7 +36,8 @@ export async function GET(
       "users",
       userId,
       { action: "view_user_detail", userId },
-      request
+      request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined,
+      request.headers.get("user-agent") || undefined
     );
 
     // Format user data for response
@@ -50,6 +52,7 @@ export async function GET(
       denomination: user.denomination,
       status: user.status,
       role: user.role,
+      userType: user.userType,
       loginType: user.loginType,
       adminNote: user.adminNote || "",
       createdAt: user.createdAt,
@@ -70,7 +73,7 @@ export async function GET(
 // PATCH /api/admin/users/[id] - Update user details
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
@@ -79,7 +82,8 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = parseInt(params.id);
+    const { id } = await params;
+    const userId = parseInt(id);
     if (isNaN(userId)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -94,6 +98,7 @@ export async function PATCH(
       position,
       status,
       role,
+      userType,
       adminNote,
     } = body;
 
@@ -113,6 +118,7 @@ export async function PATCH(
       position: position || existingUser.position,
       status: status || existingUser.status,
       role: role || existingUser.role,
+      userType: userType !== undefined ? userType : existingUser.userType,
       adminNote: adminNote !== undefined ? adminNote : existingUser.adminNote,
       updatedAt: new Date(),
     };
@@ -137,7 +143,8 @@ export async function PATCH(
       "users",
       userId,
       { action: "update_user", userId, changes },
-      request
+      request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined,
+      request.headers.get("user-agent") || undefined
     );
 
     // Fetch updated user
@@ -156,6 +163,7 @@ export async function PATCH(
         denomination: updatedUser!.denomination,
         status: updatedUser!.status,
         role: updatedUser!.role,
+        userType: updatedUser!.userType,
         loginType: updatedUser!.loginType,
         adminNote: updatedUser!.adminNote,
         createdAt: updatedUser!.createdAt,
@@ -175,7 +183,7 @@ export async function PATCH(
 // DELETE /api/admin/users/[id] - Delete user (soft delete by setting status to 'deleted')
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
@@ -184,7 +192,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = parseInt(params.id);
+    const { id } = await params;
+    const userId = parseInt(id);
     if (isNaN(userId)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -208,7 +217,8 @@ export async function DELETE(
       "users",
       userId,
       { action: "delete_user", userId, userName: user.name || user.username },
-      request
+      request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined,
+      request.headers.get("user-agent") || undefined
     );
 
     return NextResponse.json({
