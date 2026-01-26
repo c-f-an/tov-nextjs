@@ -22,7 +22,7 @@ export default function PageHeader({
   if (backgroundImage) {
     return (
       <div
-        className={`relative text-center mb-12 py-4 px-4 rounded-2xl overflow-hidden ${className}`}
+        className={`relative text-center h-44 mb-12 py-4 px-4 rounded-2xl overflow-hidden ${className}`}
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: "cover",

@@ -7,24 +7,11 @@ export default function GreetingPage() {
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <PageHeader
-          title={
-            <div className="inline-flex flex-col items-center text-white">
-              {/* 첫 번째 줄: 위치 유지 */}
-              <span className="text-lg md:text-xl font-bold tracking-tight whitespace-nowrap md:-translate-x-36 opacity-90 mb-1">
-                당신의 'MISSION'과 'FUND'를 연결하는
-              </span>
-
-              {/* 두 번째 줄: 기준선 */}
-              <div className="flex items-center gap-2">
-                <span className="text-5xl md:text-6xl font-black tracking-tighter">TOV</span>
-                <span className="text-2xl md:text-3xl font-bold">입니다.</span>
-              </div>
-            </div>
-          }
-          description="Tov exists to connect funds with mission"
-          backgroundImage="/menu-header/header_bg_about_us.webp"
+          title={<></>}
+          description=""
+          backgroundImage="/menu-header/header-bg-about-greeting.webp"
           overlayColor="#00357f"
-          overlayOpacity={60}
+          overlayOpacity={0}
         >
           <Breadcrumb
             items={[{ label: "About Us", href: "/about" }, { label: "토브협회 소개" }]}

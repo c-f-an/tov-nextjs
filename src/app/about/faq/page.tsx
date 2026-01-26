@@ -71,23 +71,11 @@ export default function FAQPage() {
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <PageHeader
-          title={
-            <div className="inline-flex flex-col items-center text-white">
-              {/* 빈 공간 확보: case1의 첫 줄과 똑같은 폰트 사이즈와 여백을 주되 invisible 처리 */}
-              <span className="text-lg md:text-xl font-bold mb-1 invisible select-none">
-                &nbsp;
-              </span>
-
-              {/* 실제 텍스트: 이제 case1의 두 번째 줄과 정확히 같은 높이에 위치합니다 */}
-              <div className="flex items-center gap-2">
-                <span className="text-5xl md:text-6xl font-black tracking-tighter">자주 묻는 질문</span>
-              </div>
-            </div>
-          }
-          description="자주 묻는 질문과 답변을 확인해보세요."
-          backgroundImage="/menu-header/header_bg_together.webp"
+          title={<></>}
+          description=""
+          backgroundImage="/menu-header/header-bg-about-qna.webp"
           overlayColor="#00357f"
-          overlayOpacity={60}
+          overlayOpacity={0}
         >
           <Breadcrumb
             items={[
