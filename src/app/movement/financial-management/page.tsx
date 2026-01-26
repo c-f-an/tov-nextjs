@@ -1,9 +1,7 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
   Shield,
   Scale,
   Target,
@@ -16,7 +14,6 @@ import {
   FileBarChart,
   Eye,
   Users2,
-  FileText,
   Phone,
   FileSearch,
 } from "lucide-react";
@@ -116,15 +113,20 @@ export default function HealthyFinancialManagementPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-16">
-        <Breadcrumb
-          items={[{ label: "토브운동", href: "/movement" }, { label: "건강한 재정관리" }]}
-        />
-
+      <div className="container mx-auto px-4 py-8">
         <PageHeader
-          title="건강한 재정관리"
-          description="Mission과 Fund가 만나 교회와 단체를 건강하게 세워가는 흐름을 돕습니다"
-        />
+          title={<></>}
+          description=""
+          backgroundImage="/menu-header/header-bg-movement-management.webp"
+          overlayColor="#00357f"
+          overlayOpacity={0}
+        >
+          <Breadcrumb
+            items={[{ label: "토브운동", href: "/movement" }, { label: "건강한 재정관리" }]}
+
+            variant="light"
+          />
+        </PageHeader>
 
         {/* 핵심 메시지 */}
         <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 max-w-4xl mx-auto mb-16">

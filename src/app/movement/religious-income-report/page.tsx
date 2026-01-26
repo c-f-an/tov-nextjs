@@ -95,16 +95,23 @@ export default function ReligiousIncomeReportPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-16">
-        <Breadcrumb
-          items={[{ label: "토브운동", href: "/movement" }, { label: "종교인 소득신고" }]} />
+      <div className="container mx-auto px-4 py-8">
+
+        <PageHeader
+          title={<></>}
+          description=""
+          backgroundImage="/menu-header/header-bg-movement-income-report.webp"
+          overlayColor="#00357f"
+          overlayOpacity={0}
+        >
+          <Breadcrumb
+            items={[{ label: "토브운동", href: "/movement" }, { label: "종교인 소득신고" }]}
+            variant="light"
+          />
+        </PageHeader>
 
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <PageHeader
-            title="종교인 소득신고"
-            description="정직은 믿음의 또 다른 이름입니다"
-          />
 
           {/* Main Message Card */}
           <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-0 shadow-xl mb-12">

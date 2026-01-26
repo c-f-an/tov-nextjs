@@ -133,14 +133,19 @@ export default function FinancialEducationPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-16">
-        <Breadcrumb
-          items={[{ label: "건강한 재정교육", href: "/movement" }, { label: "건강한 재정관리" }]}
-        />
+      <div className="container mx-auto px-4 py-8">
         <PageHeader
-          title="건강한 재정교육"
-          description="투명한 숫자가 세상을 바꾸고, 정직한 재정이 희망을 이어갑니다"
-        />
+          title={<></>}
+          description=""
+          backgroundImage="/menu-header/header-bg-movement-education.webp"
+          overlayColor="#00357f"
+          overlayOpacity={0}
+        >
+          <Breadcrumb
+            items={[{ label: "건강한 재정교육", href: "/movement" }, { label: "건강한 재정관리" }]}
+            variant="light"
+          />
+        </PageHeader>
 
         <div className="mx-auto">
           <div className="mb-8">
