@@ -108,12 +108,6 @@ export default function CategoryPostsPage() {
         <div className="container mx-auto px-4 py-12">
           {/* 카테고리 탭 */}
           <div className="flex flex-wrap gap-2 mb-8">
-            <Link
-              href="/posts"
-              className="px-4 py-2 bg-white text-gray-700 rounded-md hover:bg-gray-100 border"
-            >
-              전체
-            </Link>
             {categories.map(cat => (
               <Link
                 key={cat.id}

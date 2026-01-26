@@ -4,10 +4,11 @@ import { query } from '@/infrastructure/database/mysql';
 // GET /api/posts/[id] - posts 테이블에서 게시물 상세 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
 
     // 조회수 증가
     await query(
@@ -91,11 +92,12 @@ export async function GET(
 // PUT /api/posts/[id] - 게시물 수정 (관리자만)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // TODO: 관리자 권한 체크
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     const body = await request.json();
     const {
       title,
@@ -178,11 +180,12 @@ export async function PUT(
 // DELETE /api/posts/[id] - 게시물 삭제 (관리자만)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // TODO: 관리자 권한 체크
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
 
     // 뉴스 존재 여부 확인
     const [existing] = await query(

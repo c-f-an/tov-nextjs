@@ -87,12 +87,12 @@ export default function PostsPage() {
         <div className="container mx-auto px-4 py-12">
           {/* 카테고리 탭 */}
           <div className="flex flex-wrap gap-2 mb-8">
-            <Link
+            {/* <Link
               href="/posts"
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/80"
             >
               전체
-            </Link>
+            </Link> */}
             {categories.map(cat => (
               <Link
                 key={cat.id}
