@@ -375,60 +375,62 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation - Overlay */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-white border-t">
-          <div className="container mx-auto px-4 py-4">
-            {menuItems.map((item) => (
-              <div key={item.href} className="mb-4">
-                <div className="flex items-center justify-between">
-                  <Link
-                    href={item.href}
-                    className="block font-medium text-gray-700 hover:text-blue-600 mb-2"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
+        <>
+          {/* 배경 오버레이 */}
+          <div
+            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+            onClick={() => setIsMenuOpen(false)}
+          />
+          {/* 메뉴 패널 */}
+          <div className="lg:hidden absolute left-0 right-0 top-full bg-white border-t shadow-lg z-50 max-h-[80vh] overflow-y-auto">
+            <div className="container mx-auto px-4 py-4">
+              {menuItems.map((item) => (
+                <div key={item.href} className="mb-4">
+                  <div className="flex items-center justify-between">
                     {item.title}
-                  </Link>
-                  {item.submenu && item.submenu.length > 0 && (
-                    <button
-                      onClick={() => toggleSubmenu(item.href)}
-                      className="p-2 hover:bg-gray-100 rounded"
-                    >
-                      <svg
-                        className={`w-4 h-4 transition-transform ${expandedMenus.includes(item.href) ? "rotate-180" : ""
-                          }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                    {item.submenu && item.submenu.length > 0 && (
+                      <button
+                        onClick={() => toggleSubmenu(item.href)}
+                        className="p-2 hover:bg-gray-100 rounded"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </button>
+                        <svg
+                          className={`w-4 h-4 transition-transform ${expandedMenus.includes(item.href) ? "rotate-180" : ""
+                            }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                  {item.submenu && expandedMenus.includes(item.href) && (
+                    <div className="ml-4 space-y-2">
+                      {item.submenu.map((subItem) => (
+                        <Link
+                          key={subItem.href}
+                          href={subItem.href}
+                          className="block text-sm text-gray-600 hover:text-blue-600"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {subItem.title}
+                        </Link>
+                      ))}
+                    </div>
                   )}
                 </div>
-                {item.submenu && expandedMenus.includes(item.href) && (
-                  <div className="ml-4 space-y-2">
-                    {item.submenu.map((subItem) => (
-                      <Link
-                        key={subItem.href}
-                        href={subItem.href}
-                        className="block text-sm text-gray-600 hover:text-blue-600"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {subItem.title}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </header>
   );
