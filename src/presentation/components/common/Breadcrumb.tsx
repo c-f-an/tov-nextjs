@@ -8,14 +8,17 @@ interface BreadcrumbItem {
 
 interface BreadcrumbProps {
   items: BreadcrumbItem[];
+  variant?: 'default' | 'light';
 }
 
-export function Breadcrumb({ items }: BreadcrumbProps) {
+export function Breadcrumb({ items, variant = 'default' }: BreadcrumbProps) {
+  const isLight = variant === 'light';
+
   return (
-    <nav className="mb-8" aria-label="Breadcrumb">
-      <ol className="flex items-center space-x-2 text-sm text-gray-600">
+    <nav className={isLight ? '' : 'mb-8'} aria-label="Breadcrumb">
+      <ol className={`flex items-center space-x-2 text-sm ${isLight ? 'text-white/80 font-bold' : 'text-gray-600 font-bold'}`}>
         <li>
-          <Link href="/" className="hover:text-blue-600">홈</Link>
+          <Link href="/" className={isLight ? 'hover:text-white' : 'hover:text-blue-600'}>홈</Link>
         </li>
         {items.map((item, index) => (
           <React.Fragment key={index}>
@@ -24,11 +27,11 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
             </li>
             <li>
               {item.href ? (
-                <Link href={item.href} className="hover:text-blue-600">
+                <Link href={item.href} className={isLight ? 'hover:text-white' : 'hover:text-blue-600'}>
                   {item.label}
                 </Link>
               ) : (
-                <span className="text-gray-900 font-medium">{item.label}</span>
+                <span className={isLight ? 'text-white font-bold' : 'text-gray-900 font-bold'}>{item.label}</span>
               )}
             </li>
           </React.Fragment>

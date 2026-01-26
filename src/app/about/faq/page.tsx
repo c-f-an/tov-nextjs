@@ -69,17 +69,34 @@ export default function FAQPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-16">
-        <Breadcrumb
-          items={[
-            { label: "About Us", href: "/about" },
-            { label: "자주 묻는 질문" },
-          ]}
-        />
+      <div className="container mx-auto px-4 py-8">
         <PageHeader
-          title="자주 묻는 질문"
+          title={
+            <div className="inline-flex flex-col items-center text-white">
+              {/* 빈 공간 확보: case1의 첫 줄과 똑같은 폰트 사이즈와 여백을 주되 invisible 처리 */}
+              <span className="text-lg md:text-xl font-bold mb-1 invisible select-none">
+                &nbsp;
+              </span>
+
+              {/* 실제 텍스트: 이제 case1의 두 번째 줄과 정확히 같은 높이에 위치합니다 */}
+              <div className="flex items-center gap-2">
+                <span className="text-5xl md:text-6xl font-black tracking-tighter">자주 묻는 질문</span>
+              </div>
+            </div>
+          }
           description="자주 묻는 질문과 답변을 확인해보세요."
-        />
+          backgroundImage="/menu-header/header_bg_together.webp"
+          overlayColor="#00357f"
+          overlayOpacity={60}
+        >
+          <Breadcrumb
+            items={[
+              { label: "About Us", href: "/about" },
+              { label: "자주 묻는 질문" },
+            ]}
+            variant="light"
+          />
+        </PageHeader>
 
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="mb-8">
@@ -107,11 +124,10 @@ export default function FAQPage() {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                  selectedCategory === category
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
+                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${selectedCategory === category
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  }`}
               >
                 {category}
               </button>
@@ -142,9 +158,8 @@ export default function FAQPage() {
                       <span className="text-gray-900">{faq.question}</span>
                     </div>
                     <svg
-                      className={`w-5 h-5 text-gray-400 transition-transform ${
-                        expandedItems.has(faq.id) ? "transform rotate-180" : ""
-                      }`}
+                      className={`w-5 h-5 text-gray-400 transition-transform ${expandedItems.has(faq.id) ? "transform rotate-180" : ""
+                        }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

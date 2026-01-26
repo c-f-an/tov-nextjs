@@ -21,14 +21,31 @@ const KakaoMap = dynamic(() => import("@/components/KakaoMap"), {
 export default function LocationPage() {
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-16">
-        <Breadcrumb
-          items={[{ label: "About Us", href: "/about" }, { label: "오시는길" }]}
-        />
+      <div className="container mx-auto px-4 py-8">
         <PageHeader
-          title="오시는 길"
+          title={
+            <div className="inline-flex flex-col items-center text-white">
+              {/* 빈 공간 확보: case1의 첫 줄과 똑같은 폰트 사이즈와 여백을 주되 invisible 처리 */}
+              <span className="text-lg md:text-xl font-bold mb-1 invisible select-none">
+                &nbsp;
+              </span>
+
+              {/* 실제 텍스트: 이제 case1의 두 번째 줄과 정확히 같은 높이에 위치합니다 */}
+              <div className="flex items-center gap-2">
+                <span className="text-5xl md:text-6xl font-black tracking-tighter">오시는 길</span>
+              </div>
+            </div>
+          }
           description="토브협회를 방문하시려는 분들을 위한 안내입니다."
-        />
+          backgroundImage="/menu-header/header_bg_visit.webp"
+          overlayColor="#00357f"
+          overlayOpacity={60}
+        >
+          <Breadcrumb
+            items={[{ label: "About Us", href: "/about" }, { label: "오시는 길" }]}
+            variant="light"
+          />
+        </PageHeader>
 
         {/* 지도 영역 */}
         <div className="mb-8">

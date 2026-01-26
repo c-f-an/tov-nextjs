@@ -6,14 +6,33 @@ import PageHeader from "@/presentation/components/common/PageHeader";
 export default function OrganizationPage() {
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-16">
-        <Breadcrumb
-          items={[{ label: "About Us", href: "/about" }, { label: "조직도" }]}
-        />
-        <PageHeader 
-          title="Tov와 함께하는 이들"
-          description="'Mission'과 'Fund'를 연결하여 더 나은 세상을 열어가는 이야기의 주인공, 바로 당신입니다."
-        />
+      <div className="container mx-auto px-4 py-8">
+
+        <PageHeader
+          title={
+            <div className="inline-flex flex-col items-center text-white">
+              {/* 빈 공간 확보: case1의 첫 줄과 똑같은 폰트 사이즈와 여백을 주되 invisible 처리 */}
+              <span className="text-lg md:text-xl font-bold mb-1 invisible select-none">
+                &nbsp;
+              </span>
+
+              {/* 실제 텍스트: 이제 case1의 두 번째 줄과 정확히 같은 높이에 위치합니다 */}
+              <div className="flex items-center gap-2">
+                <span className="text-5xl md:text-6xl font-black tracking-tighter">TOV</span>
+                <span className="text-2xl md:text-3xl font-bold">와 함께하는 이들</span>
+              </div>
+            </div>
+          }
+          description="더 나은 세상을 열어가는 이야기의 주인공, 바로 당신입니다."
+          backgroundImage="/menu-header/header_bg_together.webp"
+          overlayColor="#00357f"
+          overlayOpacity={60}
+        >
+          <Breadcrumb
+            items={[{ label: "About Us", href: "/about" }, { label: "조직도" }]}
+            variant="light"
+          />
+        </PageHeader>
 
         {/* 이사장 */}
         <div className="mb-8">
