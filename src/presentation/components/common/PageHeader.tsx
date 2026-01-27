@@ -22,24 +22,25 @@ export default function PageHeader({
   if (backgroundImage) {
     return (
       <div
-        className={`relative text-center h-44 mb-12 py-4 px-4 rounded-2xl overflow-hidden ${className}`}
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        className={`relative text-center mb-12 rounded-2xl overflow-hidden ${className}`}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={backgroundImage}
+          alt=""
+          className="w-full h-44 object-cover object-center md:h-auto"
+        />
         <div
           className="absolute inset-0"
           style={{ backgroundColor: overlayColor, opacity: overlayOpacity / 100 }}
         />
-        <div className="relative z-10 mb-16">
+        <div className="absolute inset-0 flex items-center justify-center z-10">
           {children && (
-            <div className="absolute top-0 left-0 mb-4">
+            <div className="absolute top-4 left-4">
               {children}
             </div>
           )}
-          <div className="pt-8">
+          <div>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
               {title}
             </h1>
