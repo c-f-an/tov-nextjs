@@ -96,14 +96,19 @@ export default function CategoryPostsPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-16">
-        <Breadcrumb
-          items={[{ label: "토브 소식", href: "/movement" }, { label: currentCategory?.name || "" }]}
-        />
+      <div className="container mx-auto px-4 py-8">
         <PageHeader
-          title={currentCategory?.name || "토브 소식"}
-          description={`${currentCategory?.name || "카테고리"}의 게시물을 확인하세요`}
-        />
+          title={<></>}
+          description=""
+          backgroundImage={`/menu-header/header-bg-posts-${currentCategory?.type}.webp`}
+          overlayColor="#00357f"
+          overlayOpacity={0}
+        >
+          <Breadcrumb
+            items={[{ label: "토브 소식", href: "/movement" }, { label: currentCategory?.name || "" }]}
+            variant="light"
+          />
+        </PageHeader>
 
         <div className="container mx-auto px-4 py-12">
           {/* 카테고리 탭 */}
