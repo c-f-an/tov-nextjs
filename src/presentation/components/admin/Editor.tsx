@@ -16,9 +16,11 @@ export function Editor({
   minHeight = "400px",
 }: EditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isComposing = useRef(false);
   const lastValue = useRef(value);
+  const [isUploading, setIsUploading] = useState(false);
 
   // 텍스트 포맷팅 함수들 - 개선된 버전
   const formatText = (command: string, value?: string) => {
@@ -104,6 +106,100 @@ export function Editor({
       handleContentChange();
     };
     reader.readAsDataURL(file);
+  };
+
+  // 파일 타입에 따른 아이콘 반환
+  const getFileIcon = (fileName: string) => {
+    const ext = fileName.split('.').pop()?.toLowerCase() || '';
+    const iconMap: Record<string, string> = {
+      pdf: '📄',
+      doc: '📝',
+      docx: '📝',
+      xls: '📊',
+      xlsx: '📊',
+      ppt: '📽️',
+      pptx: '📽️',
+      hwp: '📃',
+      zip: '📦',
+    };
+    return iconMap[ext] || '📎';
+  };
+
+  // 파일 크기 포맷팅
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
+  // 일반 파일 업로드 처리
+  const handleFileUpload = async (file: File) => {
+    const allowedExtensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.hwp', '.zip'];
+    const fileExt = '.' + file.name.split('.').pop()?.toLowerCase();
+
+    if (!allowedExtensions.includes(fileExt)) {
+      alert(
+        "지원하지 않는 파일 형식입니다.\n(pdf, doc, docx, xls, xlsx, ppt, pptx, hwp, zip 형식만 가능합니다)"
+      );
+      return;
+    }
+
+    // 파일 크기 제한 (50MB)
+    const maxSize = 50 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert("파일 크기는 50MB 이하여야 합니다.");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || '파일 업로드에 실패했습니다.');
+      }
+
+      const result = await response.json();
+      const fileIcon = getFileIcon(file.name);
+      const fileSize = formatFileSize(file.size);
+
+      // 파일 카드 스타일로 삽입
+      const fileCardHtml = `<div data-file-card="true" contenteditable="false" style="display: inline-block; margin: 8px 0;">
+        <a href="${result.url}" target="_blank" rel="noopener noreferrer" download="${file.name}" style="display: inline-flex; align-items: center; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; text-decoration: none; color: #374151; background-color: #f9fafb; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+          <span style="font-size: 24px; margin-right: 12px;">${fileIcon}</span>
+          <span style="display: flex; flex-direction: column;">
+            <span style="font-weight: 500; color: #111827;">${file.name}</span>
+            <span style="font-size: 12px; color: #6b7280;">${result.type} • ${fileSize}</span>
+          </span>
+          <span style="margin-left: 12px; color: #6b7280;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+          </span>
+        </a>
+      </div>&nbsp;`;
+
+      editorRef.current?.focus();
+      document.execCommand("insertHTML", false, fileCardHtml);
+      handleContentChange();
+    } catch (error) {
+      console.error('File upload error:', error);
+      alert(error instanceof Error ? error.message : '파일 업로드에 실패했습니다.');
+    } finally {
+      setIsUploading(false);
+      // input 초기화
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   // 붙여넣기 이벤트 처리
@@ -384,7 +480,7 @@ export function Editor({
           </button>
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => imageInputRef.current?.click()}
             className="p-2 hover:bg-gray-200 rounded transition-colors"
             title="이미지"
           >
@@ -403,13 +499,67 @@ export function Editor({
             </svg>
           </button>
           <input
-            ref={fileInputRef}
+            ref={imageInputRef}
             type="file"
             accept=".jpg,.jpeg,.png,.gif,.webp"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) handleImageUpload(file);
+              e.target.value = '';
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="p-2 hover:bg-gray-200 rounded transition-colors disabled:opacity-50"
+            title="파일 첨부"
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <svg
+                className="w-4 h-4 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+            ) : (
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                />
+              </svg>
+            )}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.zip"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleFileUpload(file);
             }}
           />
         </div>
