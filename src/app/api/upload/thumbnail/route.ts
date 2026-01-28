@@ -98,13 +98,13 @@ export async function POST(request: NextRequest) {
     const subDirectory = folder.replace(/^posts\/?/, ''); // 'posts/' 접두사 제거
     const fileKey = subDirectory ? `${subDirectory}/${fileName}` : fileName;
 
-    // S3 업로드
+    // S3 업로드 (메타데이터에 한글 파일명은 인코딩)
     const uploadResult = await s3Service.uploadImage(
       fileKey,
       resizedBuffer,
       'image/webp',
       {
-        originalName: file.name,
+        originalName: encodeURIComponent(file.name),
         uploadedAt: new Date().toISOString(),
         postId,
         categoryId

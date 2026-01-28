@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { formatDate } from '@/lib/utils/date';
-import { User, Plus, Pencil, Trash2, X } from 'lucide-react';
-import { S3ThumbnailUpload } from '@/presentation/components/common/S3ThumbnailUpload';
+import { User, Plus, Pencil, Trash2, X, Upload } from 'lucide-react';
 
 interface OrganizationPerson {
   id: number;
@@ -58,10 +57,48 @@ export default function AdminOrganizationPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchPeople();
   }, [filterCategory, searchTerm]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다.');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      uploadFormData.append('personId', editingId?.toString() || 'new');
+
+      const response = await fetch('/api/upload/organization', {
+        method: 'POST',
+        credentials: 'include',
+        body: uploadFormData,
+      });
+
+      if (!response.ok) throw new Error('Upload failed');
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, photoUrl: data.url }));
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('이미지 업로드에 실패했습니다.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   const fetchPeople = async () => {
     try {
@@ -402,11 +439,22 @@ export default function AdminOrganizationPage() {
                     </div>
                   )}
                   <div className="flex-1">
-                    <S3ThumbnailUpload
-                      onUploadSuccess={(url) => setFormData(prev => ({ ...prev, photoUrl: url }))}
-                      folder="organization"
-                      buttonText="사진 업로드"
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
                     />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-50"
+                    >
+                      <Upload className="w-4 h-4" />
+                      {isUploading ? '업로드 중...' : '사진 업로드'}
+                    </button>
                     {formData.photoUrl && (
                       <button
                         type="button"
