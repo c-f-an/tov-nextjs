@@ -17,8 +17,6 @@ export class LoginUseCase {
       throw new Error('Invalid email or password');
     }
 
-    console.log('User found:', { id: user.id, email: user.email, role: user.role });
-
     if (user.status !== UserStatus.active) {
       throw new Error('Account is not active');
     }
@@ -45,6 +43,7 @@ export class LoginUseCase {
       user.role,
       user.status,
       user.loginType,
+      user.userType,
       user.username,
       user.password,
       user.phone,

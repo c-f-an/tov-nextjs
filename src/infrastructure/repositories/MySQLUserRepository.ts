@@ -109,34 +109,20 @@ export class MySQLUserRepository implements IUserRepository {
     }
   }
 
-  async update(id: number, data: any): Promise<void> {
-    const fields: string[] = [];
-    const values: any[] = [];
-
-    const fieldMap: Record<string, string> = {
-      username: 'username',
-      name: 'name',
-      email: 'email',
-      phone: 'phone',
-      status: 'status',
-      role: 'role',
-      userType: 'user_type',
-      updatedAt: 'updated_at',
-    };
-
-    Object.keys(data).forEach((key) => {
-      if (fieldMap[key]) {
-        fields.push(`${fieldMap[key]} = ?`);
-        values.push(data[key]);
-      }
-    });
-
-    if (fields.length === 0) return;
-
-    values.push(id);
+  async update(user: User): Promise<void> {
     await query(
-      `UPDATE users SET ${fields.join(', ')} WHERE id = ?`,
-      values
+      `UPDATE users
+       SET username = ?, email = ?, password = ?, name = ?, phone = ?,
+           role = ?, status = ?, user_type = ?, email_verified_at = ?, remember_token = ?,
+           login_type = ?, avatar_url = ?, last_login_at = ?, last_login_ip = ?,
+           updated_at = NOW()
+       WHERE id = ?`,
+      [
+        user.username, user.email, user.password, user.name, user.phone,
+        user.role, user.status, user.userType, user.emailVerifiedAt, user.rememberToken,
+        user.loginType, user.avatarUrl, user.lastLoginAt, user.lastLoginIp,
+        user.id
+      ]
     );
   }
 
