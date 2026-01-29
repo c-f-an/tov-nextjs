@@ -56,58 +56,6 @@ function getLinkText(linkUrl?: string | null): string {
   return linkTextMap[linkUrl] || "자세히 보기";
 }
 
-// Helper function to parse imageOption string to inline styles
-function parseImageOption(imageOption?: string): React.CSSProperties {
-  if (!imageOption) return {};
-
-  const styles: React.CSSProperties = {};
-
-  // Parse opacity
-  const opacityMatch = imageOption.match(/opacity-(\d+)/);
-  if (opacityMatch) {
-    styles.opacity = parseInt(opacityMatch[1]) / 100;
-  }
-
-  // Parse radial gradient
-  if (imageOption.includes("radial-gradient")) {
-    const radialMatch = imageOption.match(/radial-gradient\(circle,([^,]+),([^)]+)\)/);
-    if (radialMatch) {
-      styles.background = `radial-gradient(circle, ${radialMatch[1]}, ${radialMatch[2]})`;
-    }
-  }
-  // Parse linear gradient with direction
-  else if (imageOption.includes("bg-gradient-")) {
-    const directionMatch = imageOption.match(/bg-gradient-(to-[a-z]+)/);
-    const fromMatch = imageOption.match(/from-\[([^\]]+)\]/);
-    const toMatch = imageOption.match(/to-\[([^\]]+)\]/);
-
-    if (directionMatch && fromMatch && toMatch) {
-      const direction = directionMatch[1];
-      // Convert Tailwind direction to CSS gradient direction
-      const cssDirection: Record<string, string> = {
-        'to-t': 'to top',
-        'to-b': 'to bottom',
-        'to-l': 'to left',
-        'to-r': 'to right',
-        'to-tl': 'to top left',
-        'to-tr': 'to top right',
-        'to-bl': 'to bottom left',
-        'to-br': 'to bottom right',
-      };
-      styles.background = `linear-gradient(${cssDirection[direction] || 'to bottom'}, ${fromMatch[1]}, ${toMatch[1]})`;
-    }
-  }
-  // Parse solid background color (fallback)
-  else if (imageOption.includes("bg-[") && !imageOption.includes("radial-gradient")) {
-    const bgMatch = imageOption.match(/bg-\[([^\]]+)\]/);
-    if (bgMatch && !styles.background) {
-      styles.backgroundColor = bgMatch[1];
-    }
-  }
-
-  return styles;
-}
-
 export function MainBanner({ banners }: MainBannerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -115,15 +63,15 @@ export function MainBanner({ banners }: MainBannerProps) {
   const displayBanners =
     banners.length > 0
       ? banners.map((banner) => ({
-          id: banner.id!,
-          title: banner.title,
-          subtitle: banner.subtitle || "",
-          description: banner.description || "",
-          imagePath: banner.imagePath,
-          imageOption: banner.imageOption || "",
-          linkUrl: banner.linkUrl || "#",
-          linkText: getLinkText(banner.linkUrl),
-        }))
+        id: banner.id!,
+        title: banner.title,
+        subtitle: banner.subtitle || "",
+        description: banner.description || "",
+        imagePath: banner.imagePath,
+        imageOption: banner.imageOption || "",
+        linkUrl: banner.linkUrl || "#",
+        linkText: getLinkText(banner.linkUrl),
+      }))
       : defaultBanners;
 
   useEffect(() => {
@@ -137,67 +85,77 @@ export function MainBanner({ banners }: MainBannerProps) {
   }, [displayBanners.length]);
 
   return (
-    <section className="relative h-[500px] bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
+    <section className="relative h-[500px] overflow-hidden">
+      {/* Fixed background image */}
+      <img
+        src="/main-banner-bg/main-banner-bg.webp"
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-black/30" />
+
       {displayBanners.map((banner, index) => (
-        <Link
+        <div
           key={banner.id}
-          href={banner.linkUrl}
-          className={`absolute inset-0 transition-opacity duration-1000 cursor-pointer ${
-            index === currentSlide ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
         >
-          {/* Background Image */}
-          {banner.imagePath && (
-            <img
-              src={banner.imagePath}
-              alt={banner.title}
-              className="absolute inset-0 w-full h-full object-contain"
-              style={parseImageOption(banner.imageOption)}
-            />
-          )}
 
-          {/* Overlay gradients - only show if no custom imageOption */}
-          {!banner.imageOption && (
-            <>
-              <div className="absolute inset-0 bg-gradient-to-r from-white/80 to-white/40 z-10" />
-              <div className="absolute inset-0 bg-black-100/30 z-10" />
-            </>
-          )}
+          {/* Two-column content */}
+          <div className="relative z-10 h-full flex items-center justify-center px-4">
+            <div
+              className="mx-auto flex items-center gap-12"
+              style={{ width: '100%', maxWidth: '1000px' }}
+            >
 
-          {/* Banner Content */}
-          <div className="relative z-20 h-full flex items-center">
-            <div className="container mx-auto px-4">
-              <div className="max-w-2xl text-gray-800">
-                {banner.title && (
-                  <h2 className="text-5xl font-bold mb-4 animate-fadeInUp">
-                    {banner.title}
-                  </h2>
+              {/* Left: Banner Image Poster Card */}
+              <div
+                className="flex items-center justify-center"
+                style={{ width: '400px', height: '320px', flexShrink: 0 }}
+              >
+                {banner.imagePath ? (
+                  <img
+                    src={banner.imagePath}
+                    alt={banner.title || ""}
+                    className="max-w-full max-h-full object-contain rounded-lg border-4 border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-lg bg-primary/50" />
                 )}
-                {banner.subtitle && (
-                  <h3 className="text-2xl mb-4 animate-fadeInUp animation-delay-200">
-                    {banner.subtitle}
-                  </h3>
-                )}
+              </div>
+
+              {/* Right: Info Panel */}
+              <div className="flex-1 flex flex-col text-white">
+                <h3 className="text-2xl font-bold leading-snug mb-3">
+                  {banner.title}
+                </h3>
                 {banner.description && (
-                  <p className="text-lg animate-fadeInUp animation-delay-400">
+                  <p className="text-white/70 text-base leading-relaxed mb-8">
                     {banner.description}
                   </p>
                 )}
+                <div>
+                  <Link
+                    href={banner.linkUrl}
+                    className="inline-block bg-secondary text-white font-bold px-7 py-3 rounded-full text-sm hover:brightness-110 transition-all shadow-lg"
+                  >
+                    {banner.linkText}
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        </Link>
+        </div>
       ))}
 
       {/* Slide Indicators */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-30">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-30">
         {displayBanners.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-3 h-3 rounded-full transition-colors ${
-              index === currentSlide ? "bg-blue-600" : "bg-gray-400"
-            }`}
+            className={`w-2.5 h-2.5 rounded-full transition-colors ${index === currentSlide ? "bg-white" : "bg-white/30"
+              }`}
           />
         ))}
       </div>
@@ -209,10 +167,10 @@ export function MainBanner({ banners }: MainBannerProps) {
             (prev) => (prev - 1 + displayBanners.length) % displayBanners.length
           )
         }
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/70 hover:bg-white/90 text-gray-800 p-3 rounded-full shadow-lg transition-all hover:shadow-xl z-30"
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all z-30"
       >
         <svg
-          className="w-6 h-6"
+          className="w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -229,10 +187,10 @@ export function MainBanner({ banners }: MainBannerProps) {
         onClick={() =>
           setCurrentSlide((prev) => (prev + 1) % displayBanners.length)
         }
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/70 hover:bg-white/90 text-gray-800 p-3 rounded-full shadow-lg transition-all hover:shadow-xl z-30"
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all z-30"
       >
         <svg
-          className="w-6 h-6"
+          className="w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
