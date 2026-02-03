@@ -100,7 +100,7 @@ export default function CategoryPostsPage() {
         <PageHeader
           title={<></>}
           description=""
-          backgroundImage={`/menu-header/header-bg-posts-${currentCategory?.type}.webp`}
+          backgroundImage={`/menu-header/header-bg-posts-${categorySlug}.webp`}
           overlayColor="#00357f"
           overlayOpacity={0}
         >
