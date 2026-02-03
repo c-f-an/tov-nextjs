@@ -244,77 +244,76 @@ export default function AdminResourcesPage() {
             등록된 자료가 없습니다.
           </div>
         ) : (
-          <table className="min-w-full">
+          <table className="min-w-full table-fixed">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-[280px] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   제목
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-[100px] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   카테고리
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-[80px] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   유형
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-[80px] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   파일
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-[70px] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   다운로드
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-[60px] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   상태
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-[90px] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   작성일
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-[100px] px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   관리
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {resources.map((resource) => (
-                <tr key={resource.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
+                <tr key={resource.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-4">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/admin/resources/${resource.id}/edit`}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate block"
+                        title={resource.title}
+                      >
                         {resource.title}
-                        {resource.isFeatured && (
-                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                            주요
-                          </span>
-                        )}
-                      </div>
-                      {resource.description && (
-                        <div className="text-sm text-gray-500 truncate max-w-xs">
-                          {resource.description}
-                        </div>
+                      </Link>
+                      {resource.isFeatured && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">
+                          주요
+                        </span>
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-4 py-4 text-sm text-gray-900 truncate">
                     {resource.category?.name || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-4 py-4 text-sm text-gray-900">
                     {getResourceTypeLabel(resource.resourceType)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-4 py-4 text-sm text-gray-900">
                     {resource.fileType ? (
                       <div>
-                        <div className="font-medium">{resource.fileType}</div>
-                        <div className="text-gray-500">
+                        <div className="font-medium text-xs">{resource.fileType}</div>
+                        <div className="text-gray-500 text-xs">
                           {formatFileSize(resource.fileSize)}
                         </div>
                       </div>
                     ) : (
-                      <span className="text-gray-400">외부링크</span>
+                      <span className="text-gray-400 text-xs">외부링크</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-4 py-4 text-sm text-gray-900">
                     {resource.downloadCount}회
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 py-4">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                       resource.isActive
                         ? 'bg-green-100 text-green-800'
@@ -323,13 +322,13 @@ export default function AdminResourcesPage() {
                       {resource.isActive ? '공개' : '비공개'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-4 py-4 text-sm text-gray-500">
                     {new Date(resource.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-4 py-4 text-sm font-medium">
                     <Link
                       href={`/admin/resources/${resource.id}/edit`}
-                      className="text-indigo-600 hover:text-indigo-900 mr-4"
+                      className="text-indigo-600 hover:text-indigo-900 mr-3"
                     >
                       수정
                     </Link>

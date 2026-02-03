@@ -451,7 +451,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8">{children}</main>
+        <main className="flex-1 min-w-0 overflow-x-auto p-8">{children}</main>
       </div>
     </div>
   );

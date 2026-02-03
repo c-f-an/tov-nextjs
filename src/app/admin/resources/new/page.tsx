@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/presentation/contexts/AuthContext";
+import { Editor } from "@/presentation/components/admin/Editor";
 import Link from "next/link";
 
 interface ResourceCategory {
@@ -223,13 +224,13 @@ export default function NewResourcePage() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             설명
           </label>
-          <textarea
+          <Editor
             value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
+            onChange={(value) =>
+              setFormData({ ...formData, description: value })
             }
-            className="w-full border rounded px-3 py-2"
-            rows={4}
+            placeholder="자료에 대한 설명을 입력하세요..."
+            minHeight="200px"
           />
         </div>
 

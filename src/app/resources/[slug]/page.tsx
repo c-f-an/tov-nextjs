@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { FileText, Download, BookOpen, ArrowLeft } from 'lucide-react'
+import { FileText, Download, BookOpen, ExternalLink } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
 import PageHeader from "@/presentation/components/common/PageHeader"
@@ -110,10 +110,8 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-
-
+    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PageHeader
           title={<></>}
           description=""
@@ -128,7 +126,7 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
         </PageHeader>
 
         {/* 자료 목록 */}
-        <div className="space-y-8 mb-12">
+        <div className="space-y-12 mb-16">
           {resources.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
@@ -143,49 +141,92 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
               if (typeResources.length === 0) return null;
 
               return (
-                <div key={type}>
-                  <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <Icon className="h-6 w-6 text-primary" />
+                <div key={type} className="mb-4">
+                  <h2 className="text-xl font-bold mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
                     {config.title}
+                    <span className="text-sm font-normal text-gray-500 ml-auto">
+                      {typeResources.length}개 자료
+                    </span>
                   </h2>
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid md:grid-cols-2 gap-6">
                     {typeResources.map((resource: Resource) => (
-                      <Card key={resource.id} className="hover:shadow-lg transition-shadow">
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-start gap-3 mb-3">
-                                <FileText className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
-                                <div className="flex-1">
-                                  <Link href={`/resources/item/${resource.id}`} className="hover:text-primary transition-colors">
-                                    <h3 className="font-bold text-lg mb-2">{resource.title}</h3>
-                                  </Link>
-                                  {resource.description && (
-                                    <p className="text-sm text-gray-600 mb-3">{resource.description}</p>
-                                  )}
-                                  <div className="flex flex-wrap gap-2 text-xs text-gray-500">
-                                    <span className="bg-gray-100 px-2 py-1 rounded">{resource.fileType}</span>
-                                    <span className="bg-gray-100 px-2 py-1 rounded">{formatFileSize(resource.fileSize)}</span>
-                                    <span className="bg-gray-100 px-2 py-1 rounded">업데이트: {formatDate(resource.publishedAt)}</span>
-                                  </div>
-                                </div>
-                              </div>
+                      <Card key={resource.id} className="hover:shadow-xl transition-all duration-300 h-full flex flex-col border border-gray-100 bg-white rounded-xl overflow-hidden">
+                        <CardContent className="p-0 flex flex-col flex-1">
+                          {/* 콘텐츠 영역 */}
+                          <div className="p-6 flex-1">
+                            <Link href={`/resources/item/${resource.id}`} className="group block">
+                              <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+                                {resource.title}
+                              </h3>
+                            </Link>
+                            {resource.description && (
+                              <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+                                {resource.description.replace(/<[^>]*>/g, '')}
+                              </p>
+                            )}
+                            {/* 메타 정보 */}
+                            <div className="flex flex-wrap gap-2 text-xs">
+                              {resource.fileType && (
+                                <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full font-medium">
+                                  {resource.fileType}
+                                </span>
+                              )}
+                              {resource.fileSize && (
+                                <span className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">
+                                  {formatFileSize(resource.fileSize)}
+                                </span>
+                              )}
+                              {resource.publishedAt && (
+                                <span className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">
+                                  {formatDate(resource.publishedAt)}
+                                </span>
+                              )}
                             </div>
                           </div>
-                          {resource.filePath || resource.externalLink ? (
-                            <Link
-                              href={`/api/resources/${resource.id}/download`}
-                              className="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-                            >
-                              <Download className="h-4 w-4" />
-                              다운로드
-                            </Link>
-                          ) : (
-                            <div className="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2 text-sm bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed">
-                              <FileText className="h-4 w-4" />
-                              파일 준비중
-                            </div>
-                          )}
+
+                          {/* 다운로드 버튼 영역 */}
+                          <div className="px-6 pb-6 pt-4 border-t border-gray-100 bg-gray-50/50">
+                            {(resource.files && resource.files.length > 0) ? (
+                              <div className="space-y-2">
+                                {resource.files.map((file: any) => (
+                                  <Link
+                                    key={file.id}
+                                    href={`/api/resources/${resource.id}/download?fileId=${file.id}`}
+                                    className="flex items-center justify-between gap-3 w-full px-4 py-3 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition-all hover:shadow-md"
+                                  >
+                                    <span className="truncate flex-1 text-left font-medium">{file.originalFilename}</span>
+                                    <Download className="h-4 w-4 flex-shrink-0" />
+                                  </Link>
+                                ))}
+                              </div>
+                            ) : resource.filePath ? (
+                              <Link
+                                href={`/api/resources/${resource.id}/download`}
+                                className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary/90 transition-all hover:shadow-md"
+                              >
+                                <Download className="h-4 w-4" />
+                                {resource.originalFilename || '다운로드'}
+                              </Link>
+                            ) : resource.externalLink ? (
+                              <Link
+                                href={resource.externalLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-all hover:shadow-md"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                                외부 링크 이동
+                              </Link>
+                            ) : (
+                              <div className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed">
+                                <FileText className="h-4 w-4" />
+                                파일 준비중
+                              </div>
+                            )}
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
@@ -197,18 +238,22 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
         </div>
 
         {/* 추가 안내 */}
-        <div className="mt-8 bg-gray-100 rounded-lg p-6">
-          <h3 className="font-bold mb-2">추가 도움이 필요하신가요?</h3>
-          <p className="text-gray-700 mb-4">
-            자료실에서 찾으시는 정보가 없거나 추가 상담이 필요하신 경우,
-            전문 상담사가 도와드립니다.
-          </p>
-          <Link
-            href="/consultation"
-            className="inline-block px-6 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-colors"
-          >
-            상담 신청하기
-          </Link>
+        <div className="mt-12 bg-gradient-to-r from-primary/5 to-blue-50 rounded-2xl p-8 md:p-10 border border-primary/10">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <h3 className="font-bold text-xl mb-3 text-gray-900">추가 도움이 필요하신가요?</h3>
+              <p className="text-gray-600 leading-relaxed">
+                자료실에서 찾으시는 정보가 없거나 추가 상담이 필요하신 경우,<br className="hidden md:block" />
+                전문 상담사가 도와드립니다.
+              </p>
+            </div>
+            <Link
+              href="/consultation"
+              className="inline-flex items-center justify-center px-8 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-all hover:shadow-lg font-medium whitespace-nowrap"
+            >
+              상담 신청하기
+            </Link>
+          </div>
         </div>
       </div>
     </main>

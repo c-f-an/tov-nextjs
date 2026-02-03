@@ -93,6 +93,22 @@ export default async function ResourceDetailPage({ params }: PageProps) {
     etc: "기타 자료",
   };
 
+  // HTML 엔티티 디코딩 (이중 인코딩된 경우 처리)
+  const decodeHtmlEntities = (html: string) => {
+    return html
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, ' ');
+  };
+
+  // description에서 이중 인코딩된 HTML 처리
+  const processedDescription = resource.description
+    ? decodeHtmlEntities(resource.description)
+    : null;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb
@@ -125,10 +141,7 @@ export default async function ResourceDetailPage({ params }: PageProps) {
           : "자료실로 돌아가기"}
       </Link>
 
-      <PageHeader
-        title={resource.title}
-        description={resource.description || ""}
-      />
+      <PageHeader title={resource.title} />
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* 메인 컨텐츠 */}
@@ -136,16 +149,14 @@ export default async function ResourceDetailPage({ params }: PageProps) {
           <Card className="border-0 shadow-none">
             <CardContent className="p-8">
               {/* 상세 설명 */}
-              <div className="prose max-w-none">
-                <h3 className="text-lg font-semibold mb-4">자료 설명</h3>
-                {resource.description ? (
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                    {resource.description}
-                  </p>
-                ) : (
-                  <p className="text-gray-500">상세 설명이 없습니다.</p>
-                )}
-              </div>
+              {processedDescription && (
+                <div className="prose max-w-none prose-p:break-words prose-a:break-all">
+                  <div
+                    className="text-gray-700 leading-relaxed break-words overflow-hidden [&_*]:max-w-full [&_img]:h-auto [&_table]:w-full [&_table]:overflow-x-auto [&_pre]:overflow-x-auto [&_pre]:whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ __html: processedDescription }}
+                  />
+                </div>
+              )}
 
               {/* 다운로드/외부링크 버튼 */}
               <div className="mt-8 pt-6 border-t">

@@ -85,6 +85,41 @@ export class MySQLResourceRepository implements IResourceRepository {
 
     const items = (rows as any[]).map(row => this.mapRowToEntity(row));
 
+    // Load files for all resources in one query
+    if (items.length > 0) {
+      const resourceIds = items.map(item => item.id);
+      const placeholders = resourceIds.map(() => '?').join(',');
+      const [fileRows] = await pool.execute(
+        `SELECT * FROM resource_files WHERE resource_id IN (${placeholders}) ORDER BY sort_order ASC, created_at ASC`,
+        resourceIds
+      );
+
+      // Group files by resource_id
+      const filesByResourceId = new Map<number, ResourceFile[]>();
+      for (const fileRow of fileRows as any[]) {
+        const resourceId = fileRow.resource_id;
+        if (!filesByResourceId.has(resourceId)) {
+          filesByResourceId.set(resourceId, []);
+        }
+        filesByResourceId.get(resourceId)!.push(new ResourceFile(
+          fileRow.id,
+          fileRow.resource_id,
+          fileRow.file_path,
+          fileRow.original_filename,
+          fileRow.file_type,
+          fileRow.file_size,
+          fileRow.sort_order,
+          fileRow.download_count,
+          new Date(fileRow.created_at)
+        ));
+      }
+
+      // Assign files to each resource
+      for (const item of items) {
+        item.files = filesByResourceId.get(item.id) || [];
+      }
+    }
+
     return {
       items,
       total,
