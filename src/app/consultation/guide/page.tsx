@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 import PageHeader from "@/presentation/components/common/PageHeader";
 
 const consultationSteps = [
@@ -134,144 +135,134 @@ const consultationTypes = [
 
 export default function ConsultationGuidePage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Breadcrumb */}
-      <nav className="mb-8">
-        <ol className="flex items-center space-x-2 text-sm text-gray-600">
-          <li>
-            <Link href="/" className="hover:text-blue-600">
-              홈
-            </Link>
-          </li>
-          <li>
-            <span className="mx-2">/</span>
-          </li>
-          <li>
-            <Link href="/consultation" className="hover:text-blue-600">
-              상담센터
-            </Link>
-          </li>
-          <li>
-            <span className="mx-2">/</span>
-          </li>
-          <li className="text-gray-900 font-medium">상담안내</li>
-        </ol>
-      </nav>
-
-      <PageHeader
-        title="전문가 상담 서비스"
-        description="15년 이상의 경력을 가진 전문가들이 직접 상담해드립니다"
-      />
-      <div className="text-center mb-16">
-        <Link
-          href="/consultation/apply"
-          className="inline-block px-8 py-3 bg-primary text-primary-foreground font-medium rounded-md hover:bg-blue-700 transition-colors"
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <PageHeader
+          title={<></>}
+          description=""
+          backgroundImage="/menu-header/header-bg-consultation-guide.webp"
+          overlayColor="#00357f"
+          overlayOpacity={0}
         >
-          상담 신청하기
-        </Link>
-      </div>
+          <Breadcrumb
+            items={[{ label: "상담센터" }, { label: "상담안내" }]}
+            variant="light"
+          />
+        </PageHeader>
 
-      {/* Consultation Process */}
-      <section className="mb-16">
-        <h2 className="text-2xl font-bold text-center mb-12">상담 진행 절차</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {consultationSteps.map((item) => (
-            <div key={item.step} className="text-center">
-              <div className="bg-blue-100 text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                {item.icon}
-              </div>
-              <div className="text-sm text-gray-500 mb-2">STEP {item.step}</div>
-              <h3 className="font-semibold mb-2">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Consultation Types */}
-      <section className="mb-16">
-        <h2 className="text-2xl font-bold text-center mb-12">상담 분야</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {consultationTypes.map((type) => (
-            <div key={type.title} className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-xl font-semibold mb-3">{type.title}</h3>
-              <p className="text-gray-600 mb-4">{type.description}</p>
-              <ul className="space-y-2">
-                {type.features.map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <svg
-                      className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Features */}
-      <section className="mb-16 bg-gray-50 rounded-lg p-8">
-        <h2 className="text-2xl font-bold text-center mb-12">
-          왜 토브협회 상담인가요?
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="text-4xl font-bold text-blue-600 mb-2">무료</div>
-            <h3 className="font-semibold mb-2">상담료 없음</h3>
-            <p className="text-sm text-gray-600">
-              모든 상담은 무료로 제공됩니다. 부담 없이 문의하세요.
-            </p>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl font-bold text-blue-600 mb-2">전문가</div>
-            <h3 className="font-semibold mb-2">검증된 전문성</h3>
-            <p className="text-sm text-gray-600">
-              세무사, 회계사 등 각 분야 전문가가 직접 상담합니다.
-            </p>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl font-bold text-blue-600 mb-2">맞춤형</div>
-            <h3 className="font-semibold mb-2">개별 맞춤 상담</h3>
-            <p className="text-sm text-gray-600">
-              각 단체의 상황에 맞는 최적의 솔루션을 제공합니다.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <div className="text-center bg-primary text-primary-foreground rounded-lg p-8">
-        <h2 className="text-2xl font-bold mb-4">지금 바로 상담을 시작하세요</h2>
-        <p className="mb-6">
-          온라인으로 간편하게 신청하고, 전문가의 도움을 받아보세요.
-        </p>
-        <div className="flex justify-center space-x-4">
+        <div className="text-center mb-16">
           <Link
             href="/consultation/apply"
-            className="inline-block px-6 py-3 bg-white text-blue-600 font-medium rounded-md hover:bg-gray-100 transition-colors"
+            className="inline-block px-8 py-3 bg-primary text-primary-foreground font-medium rounded-md hover:bg-blue-700 transition-colors"
           >
-            상담 신청
-          </Link>
-          <Link
-            href="/consultation/faq"
-            className="inline-block px-6 py-3 bg-transparent border-2 border-white text-white font-medium rounded-md hover:bg-white/10 transition-colors"
-          >
-            자주 묻는 질문
+            상담 신청하기
           </Link>
         </div>
+
+        {/* Consultation Process */}
+        <section className="mb-16">
+          <h2 className="text-2xl font-bold text-center mb-12">상담 진행 절차</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {consultationSteps.map((item) => (
+              <div key={item.step} className="text-center">
+                <div className="bg-blue-100 text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  {item.icon}
+                </div>
+                <div className="text-sm text-gray-500 mb-2">STEP {item.step}</div>
+                <h3 className="font-semibold mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-600">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Consultation Types */}
+        <section className="mb-16">
+          <h2 className="text-2xl font-bold text-center mb-12">상담 분야</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {consultationTypes.map((type) => (
+              <div key={type.title} className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-xl font-semibold mb-3">{type.title}</h3>
+                <p className="text-gray-600 mb-4">{type.description}</p>
+                <ul className="space-y-2">
+                  {type.features.map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <svg
+                        className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className="mb-16 bg-gray-50 rounded-lg p-8">
+          <h2 className="text-2xl font-bold text-center mb-12">
+            왜 토브협회 상담인가요?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-blue-600 mb-2">무료</div>
+              <h3 className="font-semibold mb-2">상담료 없음</h3>
+              <p className="text-sm text-gray-600">
+                모든 상담은 무료로 제공됩니다. 부담 없이 문의하세요.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-blue-600 mb-2">전문가</div>
+              <h3 className="font-semibold mb-2">검증된 전문성</h3>
+              <p className="text-sm text-gray-600">
+                세무사, 회계사 등 각 분야 전문가가 직접 상담합니다.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-blue-600 mb-2">맞춤형</div>
+              <h3 className="font-semibold mb-2">개별 맞춤 상담</h3>
+              <p className="text-sm text-gray-600">
+                각 단체의 상황에 맞는 최적의 솔루션을 제공합니다.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <div className="text-center bg-primary text-primary-foreground rounded-lg p-8">
+          <h2 className="text-2xl font-bold mb-4">지금 바로 상담을 시작하세요</h2>
+          <p className="mb-6">
+            온라인으로 간편하게 신청하고, 전문가의 도움을 받아보세요.
+          </p>
+          <div className="flex justify-center space-x-4">
+            <Link
+              href="/consultation/apply"
+              className="inline-block px-6 py-3 bg-white text-blue-600 font-medium rounded-md hover:bg-gray-100 transition-colors"
+            >
+              상담 신청
+            </Link>
+            <Link
+              href="/consultation/faq"
+              className="inline-block px-6 py-3 bg-transparent border-2 border-white text-white font-medium rounded-md hover:bg-white/10 transition-colors"
+            >
+              자주 묻는 질문
+            </Link>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

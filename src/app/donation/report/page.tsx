@@ -41,18 +41,21 @@ export default function FinancialReportPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        <Breadcrumb
-          items={[
-            { label: "후원하기", href: "/donation" },
-            { label: "재정보고" },
-          ]}
-        />
+
         <PageHeader
-          title="재정보고"
-          description="투명함의 약속 | Tov의 사명을 실현하는 이야기입니다."
-        />
+          title={<></>}
+          description=""
+          backgroundImage="/menu-header/header-bg-donation-report.webp"
+          overlayColor="#00357f"
+          overlayOpacity={0}
+        >
+          <Breadcrumb
+            items={[{ label: "후원하기" }, { label: "재정보고" }]}
+            variant="light"
+          />
+        </PageHeader>
 
         {/* 재정보고 섹션 */}
         <section>
@@ -141,6 +144,6 @@ export default function FinancialReportPage() {
           </div>
         </div> */}
       </div>
-    </div>
+    </main>
   );
 }
