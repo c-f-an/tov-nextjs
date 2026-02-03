@@ -443,7 +443,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <aside
           className={`${
             isSidebarOpen ? "w-64" : "w-0"
-          } bg-white border-r border-gray-200 min-h-screen transition-all duration-300 overflow-hidden`}
+          } flex-shrink-0 bg-white border-r border-gray-200 min-h-screen transition-all duration-300 overflow-hidden`}
         >
           <Suspense fallback={<div className="mt-8 px-4"></div>}>
             <AdminSidebarNavigation />
