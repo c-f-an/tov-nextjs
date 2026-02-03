@@ -1,6 +1,11 @@
+import { ResourceFile } from './ResourceFile';
+
 export type ResourceType = 'guide' | 'form' | 'education' | 'law' | 'etc';
 
 export class Resource {
+  // Files relation (multiple files support)
+  public files?: ResourceFile[];
+
   constructor(
     public readonly id: number,
     public categoryId: number,
@@ -134,7 +139,23 @@ export class Resource {
   }
 
   hasFile(): boolean {
-    return !!this.filePath;
+    return !!this.filePath || (this.files?.length ?? 0) > 0;
+  }
+
+  hasFiles(): boolean {
+    return (this.files?.length ?? 0) > 0;
+  }
+
+  getFilesCount(): number {
+    return this.files?.length ?? (this.filePath ? 1 : 0);
+  }
+
+  setFiles(files: ResourceFile[]): void {
+    this.files = files;
+  }
+
+  getFirstFile(): ResourceFile | null {
+    return this.files?.[0] ?? null;
   }
 
   hasExternalLink(): boolean {

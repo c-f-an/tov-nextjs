@@ -17,6 +17,7 @@ import { IQuickLinkRepository } from '@/core/domain/repositories/IQuickLinkRepos
 import { IFinancialReportRepository } from '@/core/domain/repositories/IFinancialReportRepository';
 import { IResourceRepository } from '@/core/domain/repositories/IResourceRepository';
 import { IResourceCategoryRepository } from '@/core/domain/repositories/IResourceCategoryRepository';
+import { IResourceFileRepository } from '@/core/domain/repositories/IResourceFileRepository';
 
 // Services
 import { IAuthService } from '@/core/domain/services/IAuthService';
@@ -62,6 +63,7 @@ import { MySQLQuickLinkRepository } from '../repositories/MySQLQuickLinkReposito
 import { MySQLFinancialReportRepository } from '../repositories/MySQLFinancialReportRepository';
 import { MySQLResourceRepository } from '../repositories/MySQLResourceRepository';
 import { MySQLResourceCategoryRepository } from '../repositories/MySQLResourceCategoryRepository';
+import { MySQLResourceFileRepository } from '../repositories/MySQLResourceFileRepository';
 
 // Services
 import { JwtAuthService } from '../services/JwtAuthService.server';
@@ -88,6 +90,7 @@ export class Container {
   private financialReportRepository: IFinancialReportRepository;
   private resourceRepository: IResourceRepository;
   private resourceCategoryRepository: IResourceCategoryRepository;
+  private resourceFileRepository: IResourceFileRepository;
 
   // Services
   private authService: IAuthService;
@@ -112,6 +115,7 @@ export class Container {
     this.financialReportRepository = new MySQLFinancialReportRepository();
     this.resourceRepository = new MySQLResourceRepository();
     this.resourceCategoryRepository = new MySQLResourceCategoryRepository();
+    this.resourceFileRepository = new MySQLResourceFileRepository();
 
     // Initialize services
     this.authService = new JwtAuthService(
@@ -197,6 +201,10 @@ export class Container {
 
   getResourceCategoryRepository(): IResourceCategoryRepository {
     return this.resourceCategoryRepository;
+  }
+
+  getResourceFileRepository(): IResourceFileRepository {
+    return this.resourceFileRepository;
   }
 
   // Service getters

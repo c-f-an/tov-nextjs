@@ -11,6 +11,18 @@ interface ResourceCategory {
   slug: string;
 }
 
+interface ResourceFile {
+  id: number;
+  resourceId: number;
+  filePath: string;
+  originalFilename: string;
+  fileType: string;
+  fileSize: number;
+  sortOrder: number;
+  downloadCount: number;
+  createdAt: string;
+}
+
 interface Resource {
   id: number;
   categoryId: number;
@@ -30,6 +42,7 @@ interface Resource {
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  files?: ResourceFile[];
 }
 
 export default function EditResourcePage() {
@@ -41,6 +54,7 @@ export default function EditResourcePage() {
   const [fetching, setFetching] = useState(true);
   const [categories, setCategories] = useState<ResourceCategory[]>([]);
   const [resource, setResource] = useState<Resource | null>(null);
+  const [existingFiles, setExistingFiles] = useState<ResourceFile[]>([]);
   const [formData, setFormData] = useState({
     categoryId: "",
     title: "",
@@ -52,7 +66,7 @@ export default function EditResourcePage() {
     isActive: true,
     publishedAt: new Date().toISOString().split("T")[0],
   });
-  const [file, setFile] = useState<File | null>(null);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
 
   useEffect(() => {
     if (!user || user.role !== "ADMIN") {
@@ -89,6 +103,7 @@ export default function EditResourcePage() {
       if (response.ok) {
         const data = await response.json();
         setResource(data);
+        setExistingFiles(data.files || []);
         setFormData({
           categoryId: data.categoryId.toString(),
           title: data.title,
@@ -116,16 +131,51 @@ export default function EditResourcePage() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+    if (e.target.files && e.target.files.length > 0) {
+      // Copy files to array before resetting input
+      const selectedFiles = Array.from(e.target.files);
+      setNewFiles((prev) => [...prev, ...selectedFiles]);
+      e.target.value = "";
     }
   };
 
-  const handleDownload = async () => {
-    if (!resource?.filePath || !resourceId) return;
+  const handleRemoveNewFile = (index: number) => {
+    setNewFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDeleteExistingFile = async (fileId: number) => {
+    if (!confirm("이 파일을 삭제하시겠습니까?")) return;
 
     try {
-      const response = await fetch(`/api/resources/${resourceId}/download`, {
+      const response = await fetch(
+        `/api/resources/${resourceId}/files/${fileId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        setExistingFiles((prev) => prev.filter((f) => f.id !== fileId));
+        alert("파일이 삭제되었습니다.");
+      } else {
+        alert("파일 삭제에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("Failed to delete file:", error);
+      alert("파일 삭제 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleDownload = async (fileId?: number) => {
+    try {
+      const url = fileId
+        ? `/api/resources/${resourceId}/download?fileId=${fileId}`
+        : `/api/resources/${resourceId}/download`;
+
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -133,13 +183,24 @@ export default function EditResourcePage() {
 
       if (response.ok) {
         const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
+        const blobUrl = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
-        a.href = url;
-        a.download = resource.originalFilename || "download";
+        a.href = blobUrl;
+
+        // Get filename from Content-Disposition header or use default
+        const contentDisposition = response.headers.get("Content-Disposition");
+        let filename = "download";
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename="(.+)"/);
+          if (match) {
+            filename = decodeURIComponent(match[1]);
+          }
+        }
+
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
+        window.URL.revokeObjectURL(blobUrl);
         document.body.removeChild(a);
       } else {
         alert("파일 다운로드에 실패했습니다.");
@@ -150,6 +211,12 @@ export default function EditResourcePage() {
     }
   };
 
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -158,8 +225,12 @@ export default function EditResourcePage() {
       return;
     }
 
-    // 새 파일이 없고, 기존 파일도 없고, 외부 링크도 없으면 에러
-    if (!file && !resource?.filePath && !formData.externalLink) {
+    // Check if there's at least one file or external link
+    if (
+      existingFiles.length === 0 &&
+      newFiles.length === 0 &&
+      !formData.externalLink
+    ) {
       alert("파일 또는 외부 링크 중 하나는 필수입니다.");
       return;
     }
@@ -186,10 +257,12 @@ export default function EditResourcePage() {
         throw new Error("자료 수정에 실패했습니다.");
       }
 
-      // Step 2: Upload new file if provided (with resource ID in filename)
-      if (file) {
+      // Step 2: Upload new files if any
+      if (newFiles.length > 0) {
         const uploadFormData = new FormData();
-        uploadFormData.append("file", file);
+        newFiles.forEach((file) => {
+          uploadFormData.append("files", file);
+        });
         uploadFormData.append("resourceId", resourceId);
 
         const uploadResponse = await fetch("/api/resources/upload", {
@@ -321,48 +394,95 @@ export default function EditResourcePage() {
           />
         </div>
 
-        {/* 현재 파일 정보 */}
-        {resource?.filePath && (
-          <div className="mt-6 p-4 bg-gray-50 rounded">
-            <div className="flex justify-between items-start mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                현재 파일
-              </label>
-              <button
-                type="button"
-                onClick={handleDownload}
-                className="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-              >
-                다운로드
-              </button>
-            </div>
-            <div className="text-sm text-gray-600">
-              <p>파일명: {resource.originalFilename}</p>
-              <p>파일 타입: {resource.fileType}</p>
-              <p>
-                파일 크기:{" "}
-                {resource.fileSize
-                  ? `${(resource.fileSize / 1024).toFixed(2)} KB`
-                  : "N/A"}
-              </p>
+        {/* 현재 파일 목록 */}
+        {existingFiles.length > 0 && (
+          <div className="mt-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              현재 파일 ({existingFiles.length}개)
+            </label>
+            <div className="space-y-2">
+              {existingFiles.map((file) => (
+                <div
+                  key={file.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded border"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {file.originalFilename}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {file.fileType} | {formatFileSize(file.fileSize)} |
+                      다운로드: {file.downloadCount}회
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2 ml-4">
+                    <button
+                      type="button"
+                      onClick={() => handleDownload(file.id)}
+                      className="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                    >
+                      다운로드
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteExistingFile(file.id)}
+                      className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* 파일 업로드 (새 파일로 교체) */}
+        {/* 파일 추가 */}
         <div className="mt-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {resource?.filePath ? "새 파일로 교체 (선택사항)" : "파일 업로드"}
+            파일 추가 (여러 파일 선택 가능)
           </label>
           <input
             type="file"
             onChange={handleFileChange}
             className="w-full border rounded px-3 py-2"
-            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.zip"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.zip,.jpg,.jpeg,.png,.gif,.webp,.svg"
+            multiple
           />
           <p className="text-sm text-gray-500 mt-1">
-            PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, ZIP 파일만 가능합니다.
+            PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, ZIP, JPG, PNG 파일 가능
           </p>
+
+          {/* 새로 추가할 파일 목록 */}
+          {newFiles.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm font-medium text-gray-700">
+                추가할 파일 ({newFiles.length}개)
+              </p>
+              {newFiles.map((file, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-blue-50 rounded border border-blue-200"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {file.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatFileSize(file.size)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveNewFile(index)}
+                    className="ml-4 text-red-600 hover:text-red-800 text-sm"
+                  >
+                    취소
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 외부 링크 */}
@@ -458,8 +578,12 @@ export default function EditResourcePage() {
             </h3>
             <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
               <div>
-                <p className="font-medium">다운로드</p>
-                <p>{resource.downloadCount}회</p>
+                <p className="font-medium">총 다운로드</p>
+                <p>
+                  {existingFiles.reduce((sum, f) => sum + f.downloadCount, 0) +
+                    resource.downloadCount}
+                  회
+                </p>
               </div>
               <div>
                 <p className="font-medium">조회</p>

@@ -1,5 +1,6 @@
 import { IResourceRepository, ResourceFilter, PaginationOptions, PaginatedResult } from '@/core/domain/repositories/IResourceRepository';
 import { Resource, ResourceType } from '@/core/domain/entities/Resource';
+import { ResourceFile } from '@/core/domain/entities/ResourceFile';
 import { pool } from '@/infrastructure/database/mysql';
 
 export class MySQLResourceRepository implements IResourceRepository {
@@ -101,7 +102,28 @@ export class MySQLResourceRepository implements IResourceRepository {
       [id]
     );
     const row = (rows as any[])[0];
-    return row ? this.mapRowToEntity(row) : null;
+    if (!row) return null;
+
+    const resource = this.mapRowToEntity(row);
+
+    // Load files from resource_files table
+    const [fileRows] = await pool.execute(
+      'SELECT * FROM resource_files WHERE resource_id = ? ORDER BY sort_order ASC, created_at ASC',
+      [id]
+    );
+    resource.files = (fileRows as any[]).map(fileRow => new ResourceFile(
+      fileRow.id,
+      fileRow.resource_id,
+      fileRow.file_path,
+      fileRow.original_filename,
+      fileRow.file_type,
+      fileRow.file_size,
+      fileRow.sort_order,
+      fileRow.download_count,
+      new Date(fileRow.created_at)
+    ));
+
+    return resource;
   }
 
   async findByCategoryId(categoryId: number, pagination?: PaginationOptions): Promise<PaginatedResult<Resource>> {

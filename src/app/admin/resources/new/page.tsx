@@ -27,7 +27,7 @@ export default function NewResourcePage() {
     isActive: true,
     publishedAt: new Date().toISOString().split("T")[0],
   });
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
 
   useEffect(() => {
     if (!user || user.role !== "ADMIN") {
@@ -50,9 +50,23 @@ export default function NewResourcePage() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+    if (e.target.files && e.target.files.length > 0) {
+      // Copy files to array before resetting input
+      const newFiles = Array.from(e.target.files);
+      setFiles((prev) => [...prev, ...newFiles]);
+      // Reset input to allow selecting the same file again
+      e.target.value = "";
     }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,7 +77,7 @@ export default function NewResourcePage() {
       return;
     }
 
-    if (!file && !formData.externalLink) {
+    if (files.length === 0 && !formData.externalLink) {
       alert("파일 또는 외부 링크 중 하나는 필수입니다.");
       return;
     }
@@ -93,10 +107,12 @@ export default function NewResourcePage() {
 
       const createdResource = await response.json();
 
-      // Step 2: Upload file if provided (with resource ID in filename)
-      if (file) {
+      // Step 2: Upload files if provided (with resource ID in filename)
+      if (files.length > 0) {
         const uploadFormData = new FormData();
-        uploadFormData.append("file", file);
+        files.forEach((file) => {
+          uploadFormData.append("files", file);
+        });
         uploadFormData.append("resourceId", createdResource.id.toString());
 
         const uploadResponse = await fetch("/api/resources/upload", {
@@ -220,17 +236,49 @@ export default function NewResourcePage() {
         {/* 파일 업로드 */}
         <div className="mt-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            파일 업로드
+            파일 업로드 (여러 파일 선택 가능)
           </label>
           <input
             type="file"
             onChange={handleFileChange}
             className="w-full border rounded px-3 py-2"
-            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.zip"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.zip,.jpg,.jpeg,.png,.gif,.webp,.svg"
+            multiple
           />
           <p className="text-sm text-gray-500 mt-1">
-            PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, ZIP 파일만 가능합니다.
+            PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, ZIP, JPG, PNG 파일 가능
           </p>
+
+          {/* 선택된 파일 목록 */}
+          {files.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm font-medium text-gray-700">
+                선택된 파일 ({files.length}개)
+              </p>
+              {files.map((file, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded border"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {file.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatFileSize(file.size)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveFile(index)}
+                    className="ml-4 text-red-600 hover:text-red-800 text-sm"
+                  >
+                    삭제
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 외부 링크 */}

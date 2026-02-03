@@ -2,21 +2,30 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { S3Service } from "@/infrastructure/services/S3Service";
 import { getContainer } from "@/infrastructure/config/getContainer";
+import { ResourceFile } from "@/core/domain/entities/ResourceFile";
 
-// POST /api/resources/upload - Upload file for a specific resource
+// POST /api/resources/upload - Upload file(s) for a specific resource
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File;
+
+    // Support both single file (file) and multiple files (files)
+    const singleFile = formData.get("file") as File | null;
+    const multipleFiles = formData.getAll("files") as File[];
     const resourceIdValue = formData.get("resourceId");
 
+    // Combine files: prefer multiple files, fallback to single file
+    const filesToUpload = multipleFiles.length > 0
+      ? multipleFiles
+      : (singleFile ? [singleFile] : []);
+
     console.log("FormData received:", {
-      hasFile: !!file,
+      filesCount: filesToUpload.length,
       resourceIdValue,
       resourceIdType: typeof resourceIdValue,
     });
 
-    if (!file) {
+    if (filesToUpload.length === 0) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
@@ -29,8 +38,7 @@ export async function POST(request: NextRequest) {
 
     const resourceId = resourceIdValue.toString();
 
-    // Validate file type
-    const fileExt = path.extname(file.name).toLowerCase();
+    // Validate file types
     const allowedExtensions = [
       ".pdf",
       ".doc",
@@ -49,72 +57,102 @@ export async function POST(request: NextRequest) {
       ".svg",
     ];
 
-    if (!allowedExtensions.includes(fileExt)) {
-      return NextResponse.json({ error: "Invalid file type" }, { status: 400 });
+    for (const file of filesToUpload) {
+      const fileExt = path.extname(file.name).toLowerCase();
+      if (!allowedExtensions.includes(fileExt)) {
+        return NextResponse.json(
+          { error: `Invalid file type: ${file.name}` },
+          { status: 400 }
+        );
+      }
     }
 
-    // Initialize S3 service
-    const s3Service = new S3Service("resources");
-
-    // Generate file key with resource ID: {timestamp}_{uniqueId}_{resourceId}.{ext}
-    const timestamp = Date.now();
-    const uniqueId = Math.random().toString(36).substring(2, 8);
-    const year = new Date().getFullYear();
-    const month = String(new Date().getMonth() + 1).padStart(2, "0");
-    const fileKey = `${timestamp}_${uniqueId}_${resourceId}${fileExt}`;
-
-    console.log("Resource Upload:", {
-      resourceId,
-      fileKey,
-      originalName: file.name,
-      fileExt,
-    });
-
-    // Convert file to buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Get file type (MIME)
-    const fileType = file.type || "application/octet-stream";
-
-    // Upload to S3
-    const uploadResult = await s3Service.uploadFile(fileKey, buffer, fileType, {
-      originalName: encodeURIComponent(file.name),
-      uploadedAt: new Date().toISOString(),
-      resourceId: resourceId,
-    });
-
-    // Update resource with file information
+    // Verify resource exists
     const container = getContainer();
     const resourceRepository = container.getResourceRepository();
+    const resourceFileRepository = container.getResourceFileRepository();
 
     const resource = await resourceRepository.findById(parseInt(resourceId));
     if (!resource) {
-      // Clean up uploaded file if resource not found
-      await s3Service.deleteFile(uploadResult.key);
       return NextResponse.json(
         { error: "Resource not found" },
         { status: 404 }
       );
     }
 
-    // Update resource with file info
-    resource.setFile(
-      uploadResult.key,
-      file.name,
-      fileExt.substring(1).toUpperCase(),
-      file.size
-    );
+    // Get current file count for sort order
+    const existingFiles = await resourceFileRepository.findByResourceId(parseInt(resourceId));
+    let sortOrder = existingFiles.length;
 
-    await resourceRepository.update(resource);
+    // Initialize S3 service
+    const s3Service = new S3Service("resources");
+    const uploadedFiles = [];
+
+    // Upload each file
+    for (const file of filesToUpload) {
+      const fileExt = path.extname(file.name).toLowerCase();
+
+      // Generate file key: {timestamp}_{uniqueId}_{resourceId}.{ext}
+      const timestamp = Date.now();
+      const uniqueId = Math.random().toString(36).substring(2, 8);
+      const fileKey = `${timestamp}_${uniqueId}_${resourceId}${fileExt}`;
+
+      console.log("Resource Upload:", {
+        resourceId,
+        fileKey,
+        originalName: file.name,
+        fileExt,
+        sortOrder,
+      });
+
+      // Convert file to buffer
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+
+      // Get file type (MIME)
+      const fileType = file.type || "application/octet-stream";
+
+      // Upload to S3
+      const uploadResult = await s3Service.uploadFile(fileKey, buffer, fileType, {
+        originalName: encodeURIComponent(file.name),
+        uploadedAt: new Date().toISOString(),
+        resourceId: resourceId,
+      });
+
+      // Create ResourceFile entity and save to database
+      const resourceFile = ResourceFile.create({
+        resourceId: parseInt(resourceId),
+        filePath: uploadResult.key,
+        originalFilename: file.name,
+        fileType: fileExt.substring(1).toUpperCase(),
+        fileSize: file.size,
+        sortOrder: sortOrder,
+      });
+
+      const savedFile = await resourceFileRepository.create(resourceFile);
+      sortOrder++;
+
+      uploadedFiles.push({
+        id: savedFile.id,
+        path: uploadResult.key,
+        url: uploadResult.url,
+        originalName: file.name,
+        type: fileExt.substring(1).toUpperCase(),
+        size: file.size,
+        etag: uploadResult.etag,
+      });
+    }
+
+    // Return response based on single or multiple files
+    if (uploadedFiles.length === 1) {
+      // Backward compatibility: return single file object
+      return NextResponse.json(uploadedFiles[0]);
+    }
 
     return NextResponse.json({
-      path: uploadResult.key,
-      url: uploadResult.url,
-      originalName: file.name,
-      type: fileExt.substring(1).toUpperCase(),
-      size: file.size,
-      etag: uploadResult.etag,
+      message: "Files uploaded successfully",
+      files: uploadedFiles,
+      totalFiles: uploadedFiles.length,
     });
   } catch (error) {
     console.error("Resource upload error:", error);

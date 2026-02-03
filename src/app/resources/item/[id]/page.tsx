@@ -149,7 +149,38 @@ export default async function ResourceDetailPage({ params }: PageProps) {
 
               {/* 다운로드/외부링크 버튼 */}
               <div className="mt-8 pt-6 border-t">
-                {resource.filePath ? (
+                {/* 다중 파일 목록 (resource_files 테이블) */}
+                {resource.files && resource.files.length > 0 ? (
+                  <div className="p-4 bg-gray-50 rounded">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      파일 목록 ({resource.files.length}개)
+                    </label>
+                    <div className="space-y-2">
+                      {resource.files.map((file: any) => (
+                        <div
+                          key={file.id}
+                          className="flex items-center justify-between p-3 bg-white rounded border"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {file.originalFilename}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {file.fileType} | {formatFileSize(file.fileSize)}
+                            </p>
+                          </div>
+                          <Link
+                            href={`/api/resources/${resource.id}/download?fileId=${file.id}`}
+                            className="ml-4 text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                          >
+                            다운로드
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : resource.filePath ? (
+                  // 하위 호환: 기존 단일 파일 표시
                   <div className="p-4 bg-gray-50 rounded">
                     <div className="flex justify-between items-start mb-2">
                       <label className="block text-sm font-medium text-gray-700">
@@ -213,7 +244,9 @@ export default async function ResourceDetailPage({ params }: PageProps) {
                   <></>
                 )}
 
-                {!resource.filePath && !resource.externalLink ? (
+                {(!resource.files || resource.files.length === 0) &&
+                !resource.filePath &&
+                !resource.externalLink ? (
                   <div className="p-4 bg-gray-50 rounded">
                     <div className="flex justify-between items-start mb-2">
                       <label className="block text-sm font-medium text-gray-700">
