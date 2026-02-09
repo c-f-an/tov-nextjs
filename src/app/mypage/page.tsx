@@ -10,18 +10,28 @@ import {
   Settings,
   LogOut,
   Download,
+  ChevronRight,
+  Calendar,
+  CreditCard,
+  MessageSquare,
+  Edit3,
+  Save,
+  X,
+  Mail,
+  Phone,
+  Church,
+  MapPin,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 import PageHeader from '@/presentation/components/common/PageHeader';
 
 const menuItems = [
-  { icon: User, label: "내 정보", href: "#profile" },
-  { icon: FileText, label: "상담 내역", href: "#consultations" },
-  { icon: Heart, label: "후원 내역", href: "#donations" },
-  { icon: Download, label: "다운로드 내역", href: "#downloads" },
-  { icon: Settings, label: "설정", href: "#settings" },
+  { icon: User, label: "내 정보", id: "profile" },
+  { icon: MessageSquare, label: "상담 내역", id: "consultations" },
+  { icon: Heart, label: "후원 내역", id: "donations" },
+  { icon: Download, label: "다운로드 내역", id: "downloads" },
+  { icon: Settings, label: "설정", id: "settings" },
 ];
 
 const consultationHistory = [
@@ -95,14 +105,12 @@ export default function MyPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<UserProfile>>({});
 
-  // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login");
     }
   }, [user, loading, router]);
 
-  // UserProfile 데이터 가져오기
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (user && accessToken) {
@@ -112,7 +120,7 @@ export default function MyPage() {
               'Authorization': `Bearer ${accessToken}`
             }
           });
-          
+
           if (response.ok) {
             const data = await response.json();
             setUserProfile(data.profile);
@@ -138,13 +146,12 @@ export default function MyPage() {
 
   const handleEditToggle = () => {
     if (isEditing) {
-      // 취소 시 원래 데이터로 복원
       setEditForm(userProfile || {});
     }
     setIsEditing(!isEditing);
   };
 
-  const handleInputChange = (field: keyof UserProfile, value: any) => {
+  const handleInputChange = (field: keyof UserProfile, value: string | boolean) => {
     setEditForm(prev => ({ ...prev, [field]: value }));
   };
 
@@ -177,11 +184,11 @@ export default function MyPage() {
 
   if (loading || !user) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-600">로딩 중...</p>
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-16">
+          <div className="flex flex-col justify-center items-center h-64">
+            <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-500 text-sm">로딩 중...</p>
           </div>
         </div>
       </div>
@@ -189,373 +196,487 @@ export default function MyPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Breadcrumb items={[{ label: '마이페이지' }]} />
-      <PageHeader 
-        title="마이페이지"
-        description="회원님의 활동 내역을 확인하실 수 있습니다."
-      />
+    <div className="min-h-screen bg-gray-50/50">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <Breadcrumb items={[{ label: '마이페이지' }]} />
+        <PageHeader
+          title="마이페이지"
+          description="회원님의 활동 내역을 확인하실 수 있습니다."
+        />
 
-      <div className="grid lg:grid-cols-4 gap-8">
-        {/* 사이드바 메뉴 */}
-        <div className="lg:col-span-1">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                <h3 className="font-semibold">{user?.name || "사용자"}</h3>
-                <p className="text-sm text-gray-600">{user?.email}</p>
+        {/* 모바일 프로필 + 탭 메뉴 */}
+        <div className="lg:hidden mt-6">
+          {/* 모바일 프로필 카드 */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg flex-shrink-0">
+                {user?.name?.charAt(0) || "U"}
               </div>
-              <nav className="space-y-1">
-                {menuItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeTab === item.href.slice(1);
-                  return (
-                    <button
-                      key={item.label}
-                      onClick={() => setActiveTab(item.href.slice(1))}
-                      className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
-                        isActive ? "bg-primary/10 text-primary font-semibold" : "hover:bg-gray-100"
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900">{user?.name || "사용자"}</h3>
+                <p className="text-sm text-gray-500 truncate">{user?.email}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                title="로그아웃"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* 모바일 탭 메뉴 */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-2 mb-6">
+            <div className="flex overflow-x-auto scrollbar-hide gap-1">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${isActive
+                      ? "bg-primary text-white shadow-sm"
+                      : "text-gray-600 hover:bg-gray-50"
                       }`}
-                    >
-                      <Icon className="h-5 w-5" />
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                })}
-                <button 
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 text-red-600"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span>로그아웃</span>
-                </button>
-              </nav>
-            </CardContent>
-          </Card>
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
-        {/* 콘텐츠 영역 */}
-        <div className="lg:col-span-3">
-          {activeTab === "profile" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>내 정보</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {profileLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                    <p className="text-gray-600">프로필 정보를 불러오는 중...</p>
+        <div className="flex flex-col lg:flex-row gap-6 mt-8">
+          {/* 데스크톱 사이드바 */}
+          <aside className="hidden lg:block lg:w-64 xl:w-72 flex-shrink-0 order-first">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
+              {/* 프로필 영역 */}
+              <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6">
+                <div className="flex flex-col items-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                    {user?.name?.charAt(0) || "U"}
                   </div>
-                ) : (
-                  <div className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          이름
-                        </label>
-                        <input
-                          type="text"
-                          value={user?.name || ""}
-                          className="w-full px-3 py-2 border rounded-lg bg-gray-100"
-                          readOnly
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          이메일
-                        </label>
-                        <input
-                          type="email"
-                          value={user?.email || ""}
-                          className="w-full px-3 py-2 border rounded-lg bg-gray-100"
-                          readOnly
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          교회명
-                        </label>
-                        <input
-                          type="text"
-                          value={isEditing ? editForm.churchName || "" : userProfile?.churchName || ""}
-                          onChange={(e) => handleInputChange('churchName', e.target.value)}
-                          className={`w-full px-3 py-2 border rounded-lg ${isEditing ? '' : 'bg-gray-100'}`}
-                          readOnly={!isEditing}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          직분
-                        </label>
-                        <input
-                          type="text"
-                          value={isEditing ? editForm.position || "" : userProfile?.position || ""}
-                          onChange={(e) => handleInputChange('position', e.target.value)}
-                          className={`w-full px-3 py-2 border rounded-lg ${isEditing ? '' : 'bg-gray-100'}`}
-                          readOnly={!isEditing}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          교단
-                        </label>
-                        <input
-                          type="text"
-                          value={isEditing ? editForm.denomination || "" : userProfile?.denomination || ""}
-                          onChange={(e) => handleInputChange('denomination', e.target.value)}
-                          className={`w-full px-3 py-2 border rounded-lg ${isEditing ? '' : 'bg-gray-100'}`}
-                          readOnly={!isEditing}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        주소
-                      </label>
-                      <input
-                        type="text"
-                        value={isEditing ? editForm.address || "" : userProfile?.address || ""}
-                        onChange={(e) => handleInputChange('address', e.target.value)}
-                        className={`w-full px-3 py-2 border rounded-lg mb-2 ${isEditing ? '' : 'bg-gray-100'}`}
-                        readOnly={!isEditing}
-                        placeholder="주소"
-                      />
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      {isEditing ? (
-                        <>
-                          <button 
-                            onClick={handleEditToggle}
-                            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
-                          >
-                            취소
-                          </button>
-                          <button 
-                            onClick={handleSaveProfile}
-                            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
-                          >
-                            저장
-                          </button>
-                        </>
-                      ) : (
-                        <button 
-                          onClick={handleEditToggle}
-                          className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
-                        >
-                          정보 수정
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === "consultations" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>상담 내역</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {consultationHistory.map((item) => (
-                    <div
-                      key={item.id}
-                      className="border rounded-lg p-4 hover:bg-gray-50"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h4 className="font-semibold">{item.title}</h4>
-                          <p className="text-sm text-gray-600">
-                            {item.type} • {item.category}
-                          </p>
-                        </div>
-                        <span
-                          className={`px-2 py-1 text-xs rounded ${
-                            item.status === "답변완료"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {item.status}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500">
-                          {item.date}
-                        </span>
-                        <button className="text-sm text-primary hover:text-primary/80">
-                          상세보기 →
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                  <h3 className="mt-4 font-semibold text-gray-900 text-lg">{user?.name || "사용자"}</h3>
+                  <p className="text-sm text-gray-500 mt-1">{user?.email}</p>
                 </div>
-                <div className="mt-6 text-center">
-                  <Link
-                    href="/consultation"
-                    className="inline-block px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+              </div>
+
+              {/* 메뉴 */}
+              <nav className="p-3">
+                <ul className="space-y-1">
+                  {menuItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = activeTab === item.id;
+                    return (
+                      <li key={item.id}>
+                        <button
+                          onClick={() => setActiveTab(item.id)}
+                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
+                            ? "bg-primary text-white shadow-md shadow-primary/20"
+                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            }`}
+                        >
+                          <Icon className="h-5 w-5" />
+                          <span>{item.label}</span>
+                          {isActive && <ChevronRight className="h-4 w-4 ml-auto" />}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <div className="border-t border-gray-100 mt-3 pt-3">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-all duration-200"
                   >
-                    새 상담 신청
-                  </Link>
+                    <LogOut className="h-5 w-5" />
+                    <span>로그아웃</span>
+                  </button>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </nav>
+            </div>
+          </aside>
 
-          {activeTab === "donations" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>후원 내역</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-sm text-gray-600">
-                        2024년 총 후원금액
-                      </p>
-                      <p className="text-2xl font-bold">190,000원</p>
+          {/* 콘텐츠 영역 */}
+          <main className="flex-1 min-w-0 order-last lg:order-none">
+            {/* 내 정보 */}
+            {activeTab === "profile" && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">내 정보</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">회원 정보를 확인하고 수정할 수 있습니다</p>
+                  </div>
+                  {!profileLoading && (
+                    isEditing ? (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleEditToggle}
+                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                          취소
+                        </button>
+                        <button
+                          onClick={handleSaveProfile}
+                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
+                        >
+                          <Save className="h-4 w-4" />
+                          저장
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleEditToggle}
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                      >
+                        <Edit3 className="h-4 w-4" />
+                        정보 수정
+                      </button>
+                    )
+                  )}
+                </div>
+                <div className="p-6">
+                  {profileLoading ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-3"></div>
+                      <p className="text-gray-500 text-sm">프로필 정보를 불러오는 중...</p>
                     </div>
-                    <button className="px-4 py-2 bg-white border rounded hover:bg-gray-50">
+                  ) : (
+                    <div className="space-y-6">
+                      {/* 기본 정보 섹션 */}
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">기본 정보</h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                              <User className="h-4 w-4 text-gray-400" />
+                              이름
+                            </label>
+                            <input
+                              type="text"
+                              value={user?.name || ""}
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 cursor-not-allowed"
+                              readOnly
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                              <Mail className="h-4 w-4 text-gray-400" />
+                              이메일
+                            </label>
+                            <input
+                              type="email"
+                              value={user?.email || ""}
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 cursor-not-allowed"
+                              readOnly
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 주소 정보 섹션 */}
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">주소 정보</h3>
+                        <div className="space-y-2">
+                          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                            <MapPin className="h-4 w-4 text-gray-400" />
+                            주소
+                          </label>
+                          <input
+                            type="text"
+                            value={isEditing ? editForm.address || "" : userProfile?.address || ""}
+                            onChange={(e) => handleInputChange('address', e.target.value)}
+                            placeholder="주소를 입력하세요"
+                            className={`w-full px-4 py-3 border rounded-xl transition-all duration-200 ${isEditing
+                              ? 'bg-white border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none'
+                              : 'bg-gray-50 border-gray-200 text-gray-600'
+                              }`}
+                            readOnly={!isEditing}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 상담 내역 */}
+            {activeTab === "consultations" && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="px-6 py-5 border-b border-gray-100">
+                  <h2 className="text-lg font-semibold text-gray-900">상담 내역</h2>
+                  <p className="text-sm text-gray-500 mt-0.5">진행한 상담 내역을 확인할 수 있습니다</p>
+                </div>
+                <div className="p-6">
+                  <div className="space-y-3">
+                    {consultationHistory.map((item) => (
+                      <div
+                        key={item.id}
+                        className="group p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-200 cursor-pointer"
+                      >
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${item.status === "답변완료"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-amber-100 text-amber-700"
+                                }`}>
+                                {item.status}
+                              </span>
+                              <span className="text-xs text-gray-400">{item.category}</span>
+                            </div>
+                            <h4 className="font-medium text-gray-900 group-hover:text-primary transition-colors">
+                              {item.title}
+                            </h4>
+                            <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3.5 w-3.5" />
+                                {item.date}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MessageSquare className="h-3.5 w-3.5" />
+                                {item.type}
+                              </span>
+                            </div>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+                    <Link
+                      href="/consultation"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      새 상담 신청
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 후원 내역 */}
+            {activeTab === "donations" && (
+              <div className="space-y-6">
+                {/* 후원 요약 카드 */}
+                <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-white shadow-lg shadow-primary/20">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <p className="text-white/70 text-sm mb-1">2024년 총 후원금액</p>
+                      <p className="text-3xl font-bold">190,000원</p>
+                    </div>
+                    <button className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-primary font-medium rounded-xl hover:bg-white/90 transition-colors">
+                      <FileText className="h-4 w-4" />
                       기부금 영수증 발급
                     </button>
                   </div>
                 </div>
-                <div className="space-y-3">
-                  {donationHistory.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center p-4 border rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium">{item.type}</p>
-                        <p className="text-sm text-gray-600">
-                          {item.date} • {item.method}
-                        </p>
-                      </div>
-                      <span className="font-semibold">{item.amount}원</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 text-center">
-                  <Link
-                    href="/donation"
-                    className="text-primary hover:text-primary/80 font-medium"
-                  >
-                    후원 관리 →
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
-          {activeTab === "downloads" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>다운로드 내역</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-gray-400" />
+                {/* 후원 내역 목록 */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="px-6 py-5 border-b border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-900">후원 내역</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">후원해 주셔서 감사합니다</p>
+                  </div>
+                  <div className="divide-y divide-gray-100">
+                    {donationHistory.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-5 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.type === "정기후원"
+                            ? "bg-blue-100 text-blue-600"
+                            : "bg-purple-100 text-purple-600"
+                            }`}>
+                            <Heart className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{item.type}</p>
+                            <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3.5 w-3.5" />
+                                {item.date}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <CreditCard className="h-3.5 w-3.5" />
+                                {item.method}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-lg font-semibold text-gray-900">{item.amount}원</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-5 border-t border-gray-100 text-center">
+                    <Link
+                      href="/donation"
+                      className="inline-flex items-center gap-1 text-primary font-medium hover:underline"
+                    >
+                      후원 관리
+                      <ChevronRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 다운로드 내역 */}
+            {activeTab === "downloads" && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="px-6 py-5 border-b border-gray-100">
+                  <h2 className="text-lg font-semibold text-gray-900">다운로드 내역</h2>
+                  <p className="text-sm text-gray-500 mt-0.5">다운로드한 자료를 다시 받을 수 있습니다</p>
+                </div>
+                <div className="divide-y divide-gray-100">
+                  <div className="flex items-center justify-between p-5 hover:bg-gray-50 transition-colors group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                        <FileText className="h-6 w-6 text-red-500" />
+                      </div>
                       <div>
-                        <p className="font-medium">
+                        <p className="font-medium text-gray-900 group-hover:text-primary transition-colors">
                           2024년 종교인 소득세 신고 가이드
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-1">
+                          <Calendar className="h-3.5 w-3.5" />
                           2024.03.10 다운로드
                         </p>
                       </div>
                     </div>
-                    <button className="text-sm text-primary hover:text-primary/80">
+                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors">
+                      <Download className="h-4 w-4" />
                       다시 받기
                     </button>
                   </div>
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-gray-400" />
+                  <div className="flex items-center justify-between p-5 hover:bg-gray-50 transition-colors group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <FileText className="h-6 w-6 text-blue-500" />
+                      </div>
                       <div>
-                        <p className="font-medium">
+                        <p className="font-medium text-gray-900 group-hover:text-primary transition-colors">
                           비영리법인 회계기준 실무 가이드
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-1">
+                          <Calendar className="h-3.5 w-3.5" />
                           2024.02.25 다운로드
                         </p>
                       </div>
                     </div>
-                    <button className="text-sm text-primary hover:text-primary/80">
+                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors">
+                      <Download className="h-4 w-4" />
                       다시 받기
                     </button>
                   </div>
                 </div>
-                <div className="mt-6 text-center">
+                <div className="p-5 border-t border-gray-100 text-center">
                   <Link
                     href="/resources"
-                    className="text-primary hover:text-primary/80 font-medium"
+                    className="inline-flex items-center gap-1 text-primary font-medium hover:underline"
                   >
-                    자료실 바로가기 →
+                    자료실 바로가기
+                    <ChevronRight className="h-4 w-4" />
                   </Link>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            )}
 
-          {activeTab === "settings" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>설정</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="font-semibold mb-3">알림 설정</h3>
-                    <div className="space-y-3">
-                      <label className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4"
-                          defaultChecked
-                        />
-                        <span>이메일 알림 받기</span>
-                      </label>
-                      <label className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4"
-                          defaultChecked
-                        />
-                        <span>SMS 알림 받기</span>
-                      </label>
-                      <label className="flex items-center gap-3">
-                        <input type="checkbox" className="w-4 h-4" />
-                        <span>마케팅 정보 수신 동의</span>
-                      </label>
+            {/* 설정 */}
+            {activeTab === "settings" && (
+              <div className="space-y-6">
+                {/* 알림 설정 */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="px-6 py-5 border-b border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-900">알림 설정</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">알림 수신 방법을 설정합니다</p>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Mail className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <p className="font-medium text-gray-900">이메일 알림</p>
+                          <p className="text-sm text-gray-500">상담 답변, 공지사항 등을 이메일로 받습니다</p>
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <input type="checkbox" className="sr-only peer" defaultChecked />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      </div>
+                    </label>
+                    <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Phone className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <p className="font-medium text-gray-900">SMS 알림</p>
+                          <p className="text-sm text-gray-500">중요한 알림을 문자로 받습니다</p>
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <input type="checkbox" className="sr-only peer" defaultChecked />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      </div>
+                    </label>
+                    <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Heart className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <p className="font-medium text-gray-900">마케팅 정보 수신</p>
+                          <p className="text-sm text-gray-500">이벤트, 프로모션 정보를 받습니다</p>
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <input type="checkbox" className="sr-only peer" />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* 계정 관리 */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="px-6 py-5 border-b border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-900">계정 관리</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">계정 보안 및 관리</p>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                      <div>
+                        <p className="font-medium text-gray-900">비밀번호 변경</p>
+                        <p className="text-sm text-gray-500">계정 보안을 위해 주기적으로 변경하세요</p>
+                      </div>
+                      <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        변경하기
+                      </button>
                     </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold mb-3">비밀번호 변경</h3>
-                    <button className="px-4 py-2 border rounded hover:bg-gray-50">
-                      비밀번호 변경하기
-                    </button>
+                </div>
+
+                {/* 회원 탈퇴 */}
+                <div className="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
+                  <div className="px-6 py-5 border-b border-red-100">
+                    <h2 className="text-lg font-semibold text-red-600">회원 탈퇴</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다</p>
                   </div>
-                  <div>
-                    <h3 className="font-semibold mb-3">회원 탈퇴</h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.
-                    </p>
-                    <button className="px-4 py-2 text-red-600 border border-red-600 rounded hover:bg-red-50">
+                  <div className="p-6">
+                    <button className="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
                       회원 탈퇴
                     </button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            )}
+          </main>
         </div>
       </div>
     </div>
