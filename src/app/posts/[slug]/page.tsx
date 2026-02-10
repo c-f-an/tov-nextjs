@@ -105,7 +105,7 @@ export default function CategoryPostsPage() {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "토브 소식", href: "/movement" }, { label: currentCategory?.name || "" }]}
+            items={[{ label: "토브 소식" }, { label: currentCategory?.name || "" }]}
             variant="light"
           />
         </PageHeader>

@@ -17,19 +17,19 @@ const categories = [
   { value: 'activity' as NewsCategory, label: '활동소식', icon: Calendar },
   { value: 'media' as NewsCategory, label: '언론보도', icon: Newspaper },
   { value: 'publication' as NewsCategory, label: '정기간행물', icon: Book },
-  { value: 'laws' as NewsCategory, label: '관계법령', icon: Gavel },
+  { value: 'laws' as NewsCategory, label: '관계법령 소식', icon: Gavel },
 ];
 
-export default function CategoryFilter({ 
-  selectedCategory, 
-  onCategoryChange 
+export default function CategoryFilter({
+  selectedCategory,
+  onCategoryChange
 }: CategoryFilterProps) {
   return (
     <div className="flex flex-wrap gap-2 justify-center">
       {categories.map((category) => {
         const Icon = category.icon;
         const isActive = selectedCategory === category.value;
-        
+
         return (
           <Button
             key={category.value}
