@@ -196,13 +196,19 @@ export default function MyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <Breadcrumb items={[{ label: '마이페이지' }]} />
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
         <PageHeader
-          title="마이페이지"
-          description="회원님의 활동 내역을 확인하실 수 있습니다."
-        />
+          title={<></>}
+          description=""
+          backgroundImage="/menu-header/header-bg-mypage.webp"
+          overlayColor="#00357f"
+          overlayOpacity={0}
+        >
+          <Breadcrumb items={[{ label: '마이페이지' }]}
+            variant="light"
+          />
+        </PageHeader>
 
         {/* 모바일 프로필 + 탭 메뉴 */}
         <div className="lg:hidden mt-6">
