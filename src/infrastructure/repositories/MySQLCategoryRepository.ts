@@ -68,9 +68,9 @@ export class MySQLCategoryRepository implements ICategoryRepository {
         category.isActive
       ]
     );
-    
+
     return new Category(
-      result.insertId,
+      (result as any).insertId,
       category.name,
       category.slug,
       category.description,
@@ -81,6 +81,54 @@ export class MySQLCategoryRepository implements ICategoryRepository {
       new Date(),
       new Date()
     );
+  }
+
+  async update(id: number, category: Partial<Category>): Promise<Category | null> {
+    const fields: string[] = [];
+    const values: any[] = [];
+
+    if (category.name !== undefined) {
+      fields.push('name = ?');
+      values.push(category.name);
+    }
+    if (category.slug !== undefined) {
+      fields.push('slug = ?');
+      values.push(category.slug);
+    }
+    if (category.description !== undefined) {
+      fields.push('description = ?');
+      values.push(category.description);
+    }
+    if (category.parentId !== undefined) {
+      fields.push('parent_id = ?');
+      values.push(category.parentId);
+    }
+    if (category.type !== undefined) {
+      fields.push('type = ?');
+      values.push(category.type);
+    }
+    if (category.sortOrder !== undefined) {
+      fields.push('sort_order = ?');
+      values.push(category.sortOrder);
+    }
+    if (category.isActive !== undefined) {
+      fields.push('is_active = ?');
+      values.push(category.isActive);
+    }
+
+    if (fields.length === 0) {
+      return this.findById(id);
+    }
+
+    fields.push('updated_at = NOW()');
+    values.push(id);
+
+    await query(
+      `UPDATE categories SET ${fields.join(', ')} WHERE id = ?`,
+      values
+    );
+
+    return this.findById(id);
   }
 
   async delete(id: number): Promise<void> {

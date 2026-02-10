@@ -2,6 +2,7 @@ import { Category } from '../entities/Category';
 
 interface ICategoryRepository {
   save(category: Category): Promise<Category>;
+  update(id: number, category: Partial<Category>): Promise<Category | null>;
   findById(id: number): Promise<Category | null>;
   findBySlug(slug: string): Promise<Category | null>;
   findAll(): Promise<Category[]>;
