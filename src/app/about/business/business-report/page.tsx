@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { ChevronLeft, FileText, Search } from "lucide-react";
+import { FileText, Search } from "lucide-react";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 import ReportCard, {
   Report,
 } from "@/presentation/components/report/ReportCard";
-import SearchBar from "@/presentation/components/news/SearchBar";
+import { Input } from "@/components/ui/input";
 import PageHeader from "@/presentation/components/common/PageHeader";
 
 
@@ -51,10 +50,11 @@ export default function BusinessReportListPage() {
 
     // 검색 필터
     if (searchQuery) {
+      const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (report) =>
-          report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          report.summary.toLowerCase().includes(searchQuery.toLowerCase())
+          report.title.toLowerCase().includes(query) ||
+          (report.summary?.toLowerCase().includes(query) ?? false)
       );
     }
 
@@ -66,78 +66,84 @@ export default function BusinessReportListPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-16">
-        <div className="container mx-auto px-4">
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+
+        <PageHeader
+          title={<></>}
+          description=""
+          backgroundImage="/menu-header/header-bg-about-business.webp"
+          overlayOpacity={0.6}
+        >
           <Breadcrumb
             items={[
-              { label: "About Us", href: "/about" },
+              { label: "About Us" },
               { label: "사업보고", href: "/about/business" },
               { label: "사업보고서" },
             ]}
-            className="text-white/80 mb-4"
+            variant="light"
           />
-          <PageHeader
-            title="사업보고서"
-            description="토브협회의 연도별 사업 활동과 성과를 확인하세요"
-          />
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-12">
-        {/* 뒤로가기 버튼 */}
-        <Link
-          href="/about/business"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          사업보고 메인으로 돌아가기
-        </Link>
+        </PageHeader>
 
         {/* 검색 및 필터 영역 */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <SearchBar
-                onSearch={setSearchQuery}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-8">
+          <div className="flex flex-col md:flex-row gap-3 items-stretch">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="보고서 제목이나 내용을 검색하세요..."
+                className="pl-10 h-10 w-full"
               />
             </div>
-            <div className="md:w-48">
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">전체 연도</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}년
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="h-10 px-4 border border-gray-200 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all md:w-40"
+            >
+              <option value="all">전체 연도</option>
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}년
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
         {/* 검색 결과 정보 */}
-        {(searchQuery || selectedYear !== "all") && (
-          <div className="mb-6">
-            <p className="text-gray-600">
-              {selectedYear !== "all" && `${selectedYear}년 `}
-              {searchQuery && `"${searchQuery}" 검색 결과: `}
-              {filteredReports.length}건
-            </p>
-          </div>
-        )}
+        <div className="flex items-center justify-between mb-6">
+          <p className="text-sm text-gray-500">
+            {searchQuery || selectedYear !== "all" ? (
+              <>
+                {selectedYear !== "all" && (
+                  <span className="font-medium text-gray-700">{selectedYear}년</span>
+                )}
+                {selectedYear !== "all" && searchQuery && " · "}
+                {searchQuery && (
+                  <>
+                    <span className="text-blue-600">&ldquo;{searchQuery}&rdquo;</span> 검색 결과
+                  </>
+                )}
+                {" · "}
+                <span className="font-semibold text-gray-700">{filteredReports.length}건</span>
+              </>
+            ) : (
+              <>
+                전체 <span className="font-semibold text-gray-700">{reports.length}건</span>
+              </>
+            )}
+          </p>
+        </div>
 
         {/* 보고서 목록 */}
         {loading ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex items-center justify-center py-20">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">보고서를 불러오는 중...</p>
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-500 text-sm">보고서를 불러오는 중...</p>
             </div>
           </div>
         ) : filteredReports.length > 0 ? (
@@ -147,9 +153,11 @@ export default function BusinessReportListPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">
+          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-gray-100">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <FileText className="h-8 w-8 text-gray-400" />
+            </div>
+            <p className="text-gray-500 text-center">
               {searchQuery || selectedYear !== "all"
                 ? "검색 결과가 없습니다."
                 : "등록된 사업보고서가 없습니다."}
@@ -157,6 +165,6 @@ export default function BusinessReportListPage() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }
