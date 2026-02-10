@@ -10,6 +10,7 @@ export class Resource {
     public readonly id: number,
     public categoryId: number,
     public title: string,
+    public slug: string,
     public description: string | null,
     public resourceType: ResourceType,
     public fileType: string | null,
@@ -36,6 +37,7 @@ export class Resource {
   static create(
     categoryId: number,
     title: string,
+    slug: string,
     resourceType: ResourceType = 'etc',
     description: string | null = null,
     createdBy: number | null = null
@@ -45,6 +47,7 @@ export class Resource {
       0, // ID will be assigned by database
       categoryId,
       title,
+      slug,
       description,
       resourceType,
       null, // fileType
@@ -69,6 +72,7 @@ export class Resource {
   update(data: Partial<{
     categoryId: number;
     title: string;
+    slug: string;
     description: string | null;
     resourceType: ResourceType;
     fileType: string | null;
@@ -84,6 +88,7 @@ export class Resource {
   }>, updatedBy: number | null = null): void {
     if (data.categoryId !== undefined) this.categoryId = data.categoryId;
     if (data.title !== undefined) this.title = data.title;
+    if (data.slug !== undefined) this.slug = data.slug;
     if (data.description !== undefined) this.description = data.description;
     if (data.resourceType !== undefined) this.resourceType = data.resourceType;
     if (data.fileType !== undefined) this.fileType = data.fileType;

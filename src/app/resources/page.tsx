@@ -145,7 +145,7 @@ export default async function ResourcesPage() {
                     <FileText className="h-5 w-5 text-gray-600" />
                   </div>
                   <div>
-                    <Link href={`/resources/item/${resource.id}`} className="hover:text-primary transition-colors">
+                    <Link href={`/resources/${resource.category?.slug}/${resource.slug}`} className="hover:text-primary transition-colors">
                       <h3 className="font-semibold">{resource.title}</h3>
                     </Link>
                     <p className="text-sm text-gray-600">

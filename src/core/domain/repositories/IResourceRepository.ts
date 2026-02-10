@@ -26,6 +26,7 @@ export interface PaginatedResult<T> {
 export interface IResourceRepository {
   findAll(filter?: ResourceFilter, pagination?: PaginationOptions): Promise<PaginatedResult<Resource>>;
   findById(id: number): Promise<Resource | null>;
+  findBySlug(slug: string, categorySlug: string): Promise<Resource | null>;
   findByCategoryId(categoryId: number, pagination?: PaginationOptions): Promise<PaginatedResult<Resource>>;
   findFeatured(limit?: number): Promise<Resource[]>;
   create(resource: Resource): Promise<Resource>;

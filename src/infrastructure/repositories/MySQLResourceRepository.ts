@@ -161,6 +161,39 @@ export class MySQLResourceRepository implements IResourceRepository {
     return resource;
   }
 
+  async findBySlug(slug: string, categorySlug: string): Promise<Resource | null> {
+    const [rows] = await pool.execute(
+      `SELECT r.*, rc.name as category_name, rc.slug as category_slug
+       FROM resources r
+       LEFT JOIN resource_categories rc ON r.category_id = rc.id
+       WHERE r.slug = ? AND rc.slug = ?`,
+      [slug, categorySlug]
+    );
+    const row = (rows as any[])[0];
+    if (!row) return null;
+
+    const resource = this.mapRowToEntity(row);
+
+    // Load files from resource_files table
+    const [fileRows] = await pool.execute(
+      'SELECT * FROM resource_files WHERE resource_id = ? ORDER BY sort_order ASC, created_at ASC',
+      [resource.id]
+    );
+    resource.files = (fileRows as any[]).map(fileRow => new ResourceFile(
+      fileRow.id,
+      fileRow.resource_id,
+      fileRow.file_path,
+      fileRow.original_filename,
+      fileRow.file_type,
+      fileRow.file_size,
+      fileRow.sort_order,
+      fileRow.download_count,
+      new Date(fileRow.created_at)
+    ));
+
+    return resource;
+  }
+
   async findByCategoryId(categoryId: number, pagination?: PaginationOptions): Promise<PaginatedResult<Resource>> {
     return this.findAll({ categoryId, isActive: true }, pagination);
   }
@@ -181,13 +214,14 @@ export class MySQLResourceRepository implements IResourceRepository {
   async create(resource: Resource): Promise<Resource> {
     const [result] = await pool.execute(
       `INSERT INTO resources
-       (category_id, title, description, resource_type, file_type, file_path, file_size,
+       (category_id, title, slug, description, resource_type, file_type, file_path, file_size,
         original_filename, thumbnail_path, external_link, external_link_title, download_count, view_count,
         is_featured, is_active, published_at, created_by, updated_by, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         resource.categoryId,
         resource.title,
+        resource.slug,
         resource.description,
         resource.resourceType,
         resource.fileType,
@@ -215,7 +249,7 @@ export class MySQLResourceRepository implements IResourceRepository {
   async update(resource: Resource): Promise<Resource> {
     await pool.execute(
       `UPDATE resources
-       SET category_id = ?, title = ?, description = ?, resource_type = ?,
+       SET category_id = ?, title = ?, slug = ?, description = ?, resource_type = ?,
            file_type = ?, file_path = ?, file_size = ?, original_filename = ?,
            thumbnail_path = ?, external_link = ?, external_link_title = ?, is_featured = ?, is_active = ?,
            published_at = ?, updated_by = ?, updated_at = NOW()
@@ -223,6 +257,7 @@ export class MySQLResourceRepository implements IResourceRepository {
       [
         resource.categoryId,
         resource.title,
+        resource.slug,
         resource.description,
         resource.resourceType,
         resource.fileType,
@@ -276,6 +311,7 @@ export class MySQLResourceRepository implements IResourceRepository {
       row.id,
       row.category_id,
       row.title,
+      row.slug || '',
       row.description,
       row.resource_type as ResourceType,
       row.file_type,

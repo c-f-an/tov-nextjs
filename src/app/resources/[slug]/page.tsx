@@ -157,7 +157,7 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
                         <CardContent className="p-0 flex flex-col flex-1">
                           {/* 콘텐츠 영역 */}
                           <div className="p-6 flex-1">
-                            <Link href={`/resources/item/${resource.id}`} className="group block">
+                            <Link href={`/resources/${category.slug}/${resource.slug}`} className="group block">
                               <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-primary transition-colors">
                                 {resource.title}
                               </h3>
