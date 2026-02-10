@@ -53,6 +53,7 @@ export async function GET(
     return NextResponse.json({
       id: post.id,
       title: post.title,
+      slug: post.slug,
       content: post.content,
       summary: post.excerpt,
       categoryId: post.category_id,
@@ -100,6 +101,7 @@ export async function PUT(
     const body = await request.json();
     const {
       title,
+      slug,
       categoryId,
       content,
       summary,
@@ -141,7 +143,7 @@ export async function PUT(
        WHERE id = ?`,
       [
         title,
-        title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/(^-|-$)/g, ''),
+        slug || title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/(^-|-$)/g, ''),
         categoryId || null,
         content,
         summary || null,

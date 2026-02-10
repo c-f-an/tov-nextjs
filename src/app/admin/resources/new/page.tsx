@@ -20,6 +20,7 @@ export default function NewResourcePage() {
   const [formData, setFormData] = useState({
     categoryId: "",
     title: "",
+    slug: "",
     description: "",
     resourceType: "etc",
     externalLink: "",
@@ -29,6 +30,7 @@ export default function NewResourcePage() {
     publishedAt: new Date().toISOString().split("T")[0],
   });
   const [files, setFiles] = useState<File[]>([]);
+  const [slugError, setSlugError] = useState("");
 
   useEffect(() => {
     if (!user || user.role !== "ADMIN") {
@@ -75,6 +77,16 @@ export default function NewResourcePage() {
 
     if (!formData.categoryId || !formData.title) {
       alert("카테고리와 제목은 필수 항목입니다.");
+      return;
+    }
+
+    if (!formData.slug.trim()) {
+      alert("Slug를 입력해주세요.");
+      return;
+    }
+
+    if (!/^[a-z0-9-]+$/.test(formData.slug)) {
+      alert("Slug는 영문 소문자, 숫자, 하이픈(-)만 사용할 수 있습니다.");
       return;
     }
 
@@ -217,6 +229,38 @@ export default function NewResourcePage() {
             className="w-full border rounded px-3 py-2"
             required
           />
+        </div>
+
+        {/* Slug */}
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Slug (URL 경로) *
+          </label>
+          <input
+            type="text"
+            value={formData.slug}
+            onChange={(e) => {
+              const value = e.target.value.toLowerCase();
+              // 영문, 숫자, 하이픈만 허용
+              if (/^[a-z0-9-]*$/.test(value)) {
+                setFormData({ ...formData, slug: value });
+                setSlugError("");
+              } else {
+                setSlugError("영문 소문자, 숫자, 하이픈(-)만 사용할 수 있습니다.");
+              }
+            }}
+            placeholder="예: tax-guide-2024"
+            className={`w-full border rounded px-3 py-2 ${slugError ? "border-red-500" : ""}`}
+            required
+          />
+          {slugError && (
+            <p className="mt-1 text-sm text-red-500">{slugError}</p>
+          )}
+          <p className="text-sm text-gray-500 mt-1">
+            URL에 사용될 고유 식별자입니다. 영문 소문자, 숫자, 하이픈(-)만 사용 가능합니다.
+            <br />
+            예시: /resources/<span className="font-medium text-blue-600">{formData.slug || "tax-guide-2024"}</span>
+          </p>
         </div>
 
         {/* 설명 */}

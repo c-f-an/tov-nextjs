@@ -164,6 +164,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       title,
+      slug,
       categoryId,
       content,
       summary,
@@ -207,7 +208,7 @@ export async function POST(request: NextRequest) {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         title,
-        title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/(^-|-$)/g, ''),
+        slug || title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/(^-|-$)/g, ''),
         categoryId,
         admin.id,
         content,

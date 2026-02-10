@@ -76,6 +76,7 @@ export async function PUT(
     resource.update({
       categoryId: body.categoryId,
       title: body.title,
+      slug: body.slug,
       description: body.description,
       resourceType: body.resourceType,
       fileType: body.fileType,

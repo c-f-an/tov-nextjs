@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
     const resource = Resource.create(
       body.categoryId,
       body.title,
+      body.slug || body.title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/(^-|-$)/g, ''),
       body.resourceType || 'etc',
       body.description,
       body.createdBy

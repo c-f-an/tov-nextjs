@@ -8,6 +8,7 @@ import { S3ThumbnailUpload } from '@/presentation/components/common/S3ThumbnailU
 
 interface PostFormData {
   title: string;
+  slug: string;
   categoryId: string;
   categoryType: string;
   content: string;
@@ -31,6 +32,7 @@ export default function NewPostPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
+    slug: '',
     categoryId: '',
     categoryType: '',
     content: '',
@@ -40,6 +42,7 @@ export default function NewPostPage() {
     status: 'draft',
     tags: []
   });
+  const [slugError, setSlugError] = useState('');
   const [tagInput, setTagInput] = useState('');
 
   // 카테고리 목록 가져오기
@@ -64,6 +67,16 @@ export default function NewPostPage() {
 
     if (!formData.title.trim()) {
       alert('제목을 입력해주세요.');
+      return;
+    }
+
+    if (!formData.slug.trim()) {
+      alert('Slug를 입력해주세요.');
+      return;
+    }
+
+    if (!/^[a-z0-9-]+$/.test(formData.slug)) {
+      alert('Slug는 영문 소문자, 숫자, 하이픈(-)만 사용할 수 있습니다.');
       return;
     }
 
@@ -193,6 +206,38 @@ export default function NewPostPage() {
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   disabled={isSubmitting}
                 />
+              </div>
+
+              {/* Slug */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Slug (URL 경로) *
+                </label>
+                <input
+                  type="text"
+                  value={formData.slug}
+                  onChange={(e) => {
+                    const value = e.target.value.toLowerCase();
+                    // 영문, 숫자, 하이픈만 허용
+                    if (/^[a-z0-9-]*$/.test(value)) {
+                      setFormData(prev => ({ ...prev, slug: value }));
+                      setSlugError('');
+                    } else {
+                      setSlugError('영문 소문자, 숫자, 하이픈(-)만 사용할 수 있습니다.');
+                    }
+                  }}
+                  placeholder="예: my-first-post"
+                  className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${slugError ? 'border-red-500' : ''}`}
+                  disabled={isSubmitting}
+                />
+                {slugError && (
+                  <p className="mt-1 text-sm text-red-500">{slugError}</p>
+                )}
+                <p className="mt-2 text-sm text-gray-500">
+                  URL에 사용될 고유 식별자입니다. 영문 소문자, 숫자, 하이픈(-)만 사용 가능합니다.
+                  <br />
+                  예시: /posts/notice/<span className="font-medium text-blue-600">{formData.slug || 'my-first-post'}</span>
+                </p>
               </div>
 
               {/* 요약 */}
