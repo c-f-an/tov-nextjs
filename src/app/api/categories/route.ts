@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    const container = getContainer();
     const createCategoryUseCase = container.getCreateCategoryUseCase();
     
     const category = await createCategoryUseCase.execute(body);

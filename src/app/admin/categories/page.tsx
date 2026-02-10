@@ -3,11 +3,23 @@
 import { useState, useEffect } from 'react'
 import { Plus, Edit2, Trash2, Save, X } from 'lucide-react'
 
+const CATEGORY_TYPES = [
+  { value: 'notice', label: '공지사항' },
+  { value: 'news', label: '뉴스' },
+  { value: 'publication', label: '발행물' },
+  { value: 'media', label: '미디어' },
+  { value: 'resource', label: '자료' },
+  { value: 'activity', label: '활동' },
+] as const
+
+type CategoryType = typeof CATEGORY_TYPES[number]['value']
+
 interface Category {
   id: number
   name: string
   slug: string
   description: string | null
+  type: CategoryType
   sortOrder: number
   isActive: boolean
   postCount: number
@@ -16,9 +28,9 @@ interface Category {
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [editingId, setEditingId] = useState<number | null>(null)
-  const [editForm, setEditForm] = useState({ name: '', description: '' })
+  const [editForm, setEditForm] = useState({ name: '', description: '', sortOrder: 0 })
   const [isAdding, setIsAdding] = useState(false)
-  const [newCategory, setNewCategory] = useState({ name: '', slug: '', description: '' })
+  const [newCategory, setNewCategory] = useState({ name: '', slug: '', description: '', type: 'news' as CategoryType, sortOrder: 1 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -50,7 +62,7 @@ export default function AdminCategoriesPage() {
 
   const handleEdit = (category: Category) => {
     setEditingId(category.id)
-    setEditForm({ name: category.name, description: category.description || '' })
+    setEditForm({ name: category.name, description: category.description || '', sortOrder: category.sortOrder })
   }
 
   const handleSave = async (id: number) => {
@@ -95,14 +107,13 @@ export default function AdminCategoriesPage() {
           body: JSON.stringify({
             ...newCategory,
             parentId: null,
-            sortOrder: categories.length + 1,
             isActive: true
           })
         })
         
         if (response.ok) {
           await fetchCategories()
-          setNewCategory({ name: '', slug: '', description: '' })
+          setNewCategory({ name: '', slug: '', description: '', type: 'news', sortOrder: 1 })
           setIsAdding(false)
         }
       } catch (error) {
@@ -125,7 +136,10 @@ export default function AdminCategoriesPage() {
         <h1 className="text-2xl font-bold">카테고리 관리</h1>
         <button
           onClick={() => setIsAdding(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/80"
+          disabled={isAdding}
+          className={`flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg ${
+            isAdding ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/90'
+          }`}
         >
           <Plus className="h-4 w-4" />
           새 카테고리
@@ -138,7 +152,9 @@ export default function AdminCategoriesPage() {
             <tr className="border-b">
               <th className="text-left p-4">카테고리명</th>
               <th className="text-left p-4">슬러그</th>
+              <th className="text-left p-4">타입</th>
               <th className="text-left p-4">설명</th>
+              <th className="text-center p-4">정렬순서</th>
               <th className="text-center p-4">게시물 수</th>
               <th className="text-center p-4">상태</th>
               <th className="text-center p-4">관리</th>
@@ -166,12 +182,32 @@ export default function AdminCategoriesPage() {
                   />
                 </td>
                 <td className="p-4">
+                  <select
+                    value={newCategory.type}
+                    onChange={(e) => setNewCategory({...newCategory, type: e.target.value as CategoryType})}
+                    className="w-full px-2 py-1 border rounded"
+                  >
+                    {CATEGORY_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-4">
                   <input
                     type="text"
                     value={newCategory.description}
                     onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
                     placeholder="설명"
                     className="w-full px-2 py-1 border rounded"
+                  />
+                </td>
+                <td className="p-4">
+                  <input
+                    type="number"
+                    value={newCategory.sortOrder}
+                    onChange={(e) => setNewCategory({...newCategory, sortOrder: parseInt(e.target.value) || 1})}
+                    className="w-16 px-2 py-1 border rounded text-center"
+                    min="1"
                   />
                 </td>
                 <td className="text-center p-4">0</td>
@@ -205,6 +241,9 @@ export default function AdminCategoriesPage() {
                   )}
                 </td>
                 <td className="p-4 text-sm text-gray-600">{category.slug}</td>
+                <td className="p-4 text-sm text-gray-600">
+                  {CATEGORY_TYPES.find(t => t.value === category.type)?.label || category.type}
+                </td>
                 <td className="p-4">
                   {editingId === category.id ? (
                     <input
@@ -215,6 +254,19 @@ export default function AdminCategoriesPage() {
                     />
                   ) : (
                     <span className="text-sm text-gray-600">{category.description || '-'}</span>
+                  )}
+                </td>
+                <td className="text-center p-4">
+                  {editingId === category.id ? (
+                    <input
+                      type="number"
+                      value={editForm.sortOrder}
+                      onChange={(e) => setEditForm({...editForm, sortOrder: parseInt(e.target.value) || 1})}
+                      className="w-16 px-2 py-1 border rounded text-center"
+                      min="1"
+                    />
+                  ) : (
+                    <span className="text-sm text-gray-600">{category.sortOrder}</span>
                   )}
                 </td>
                 <td className="text-center p-4">
