@@ -28,12 +28,19 @@ interface ResourceFile {
   fileSize: number;
 }
 
+interface ResourceTypeInfo {
+  id: number;
+  name: string;
+  code: string;
+  sortOrder: number;
+}
+
 interface Resource {
   id: number;
   categoryId: number;
   title: string;
   description: string | null;
-  resourceType: string;
+  resourceTypes?: ResourceTypeInfo[];
   fileType: string | null;
   originalFilename: string | null;
   fileSize: number | null;
@@ -182,17 +189,7 @@ export default function AdminResourcesPage() {
     return `${size.toFixed(1)} ${units[unitIndex]}`;
   };
 
-  const getResourceTypeLabel = (type: string) => {
-    const types: { [key: string]: string } = {
-      guide: '가이드',
-      form: '서식',
-      education: '교육자료',
-      law: '법령',
-      etc: '기타'
-    };
-    return types[type] || type;
-  };
-
+  
   // 인증 로딩 중일 때 로딩 표시
   if (authLoading) {
     return (
@@ -372,10 +369,21 @@ export default function AdminResourcesPage() {
                           {resource.category?.name || '-'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                          {getResourceTypeLabel(resource.resourceType)}
-                        </span>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {resource.resourceTypes && resource.resourceTypes.length > 0 ? (
+                            resource.resourceTypes.map((type) => (
+                              <span
+                                key={type.id}
+                                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
+                              >
+                                {type.name}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-xs text-gray-400">-</span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         {fileStatus.type === 'files' ? (

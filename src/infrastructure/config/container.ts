@@ -18,6 +18,7 @@ import { IFinancialReportRepository } from '@/core/domain/repositories/IFinancia
 import { IResourceRepository } from '@/core/domain/repositories/IResourceRepository';
 import { IResourceCategoryRepository } from '@/core/domain/repositories/IResourceCategoryRepository';
 import { IResourceFileRepository } from '@/core/domain/repositories/IResourceFileRepository';
+import { IResourceTypeRepository } from '@/core/domain/repositories/IResourceTypeRepository';
 
 // Services
 import { IAuthService } from '@/core/domain/services/IAuthService';
@@ -64,6 +65,7 @@ import { MySQLFinancialReportRepository } from '../repositories/MySQLFinancialRe
 import { MySQLResourceRepository } from '../repositories/MySQLResourceRepository';
 import { MySQLResourceCategoryRepository } from '../repositories/MySQLResourceCategoryRepository';
 import { MySQLResourceFileRepository } from '../repositories/MySQLResourceFileRepository';
+import { MySQLResourceTypeRepository } from '../repositories/MySQLResourceTypeRepository';
 
 // Services
 import { JwtAuthService } from '../services/JwtAuthService.server';
@@ -91,6 +93,7 @@ export class Container {
   private resourceRepository: IResourceRepository;
   private resourceCategoryRepository: IResourceCategoryRepository;
   private resourceFileRepository: IResourceFileRepository;
+  private resourceTypeRepository: IResourceTypeRepository;
 
   // Services
   private authService: IAuthService;
@@ -116,6 +119,7 @@ export class Container {
     this.resourceRepository = new MySQLResourceRepository();
     this.resourceCategoryRepository = new MySQLResourceCategoryRepository();
     this.resourceFileRepository = new MySQLResourceFileRepository();
+    this.resourceTypeRepository = new MySQLResourceTypeRepository();
 
     // Initialize services
     this.authService = new JwtAuthService(
@@ -205,6 +209,10 @@ export class Container {
 
   getResourceFileRepository(): IResourceFileRepository {
     return this.resourceFileRepository;
+  }
+
+  getResourceTypeRepository(): IResourceTypeRepository {
+    return this.resourceTypeRepository;
   }
 
   // Service getters

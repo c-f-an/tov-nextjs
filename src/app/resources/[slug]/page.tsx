@@ -1,26 +1,24 @@
 import Link from 'next/link'
-import { FileText, Download, BookOpen, ExternalLink } from 'lucide-react'
+import { FileText, Download, BookOpen, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
 import PageHeader from "@/presentation/components/common/PageHeader"
 import { getContainer } from '@/infrastructure/config/getContainer';
 import { notFound } from 'next/navigation';
 import { Resource } from '@/core/domain/entities/Resource';
-
-const resourceTypeGroups = {
-  'guide': { title: '가이드', icon: FileText },
-  'form': { title: '서식', icon: BookOpen },
-  'education': { title: '교육 자료', icon: BookOpen },
-  'law': { title: '법령 자료', icon: FileText },
-  'etc': { title: '기타 자료', icon: FileText }
-};
+import { ResourceType } from '@/core/domain/entities/ResourceType';
 
 // Force dynamic rendering to ensure DB queries run at runtime
 export const dynamic = "force-dynamic";
 
+const ITEMS_PER_PAGE = 10;
+
 interface PageProps {
   params: Promise<{
     slug: string;
+  }>;
+  searchParams: Promise<{
+    page?: string;
   }>;
 }
 
@@ -45,16 +43,22 @@ export async function generateStaticParams() {
   }
 }
 
-export default async function ResourceCategoryPage({ params }: PageProps) {
+export default async function ResourceCategoryPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const { page: pageParam } = await searchParams;
+  const currentPage = Math.max(1, parseInt(pageParam || '1') || 1);
 
   const container = getContainer();
   const categoryRepo = container.getResourceCategoryRepository();
   const resourceRepo = container.getResourceRepository();
+  const resourceTypeRepo = container.getResourceTypeRepository();
 
   // Get category by slug
   let category = null;
   let resources: Resource[] = [];
+  let availableTypes: ResourceType[] = [];
+  let totalItems = 0;
+  let totalPages = 1;
 
   // Skip database queries during build
   if (process.env.SKIP_DB_QUERIES !== "true") {
@@ -68,9 +72,14 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
 
       const result = await resourceRepo.findAll(
         { categoryId: category.id, isActive: true },
-        { page: 1, limit: 100, orderBy: 'resource_type,published_at', orderDirection: 'DESC' }
+        { page: currentPage, limit: ITEMS_PER_PAGE, orderBy: 'published_at', orderDirection: 'DESC' }
       );
       resources = result.items;
+      totalItems = result.total;
+      totalPages = result.totalPages;
+
+      // Get all available resource types
+      availableTypes = await resourceTypeRepo.findAll();
     } catch (error) {
       console.error('Error fetching resources:', error);
     }
@@ -81,15 +90,30 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
     notFound();
   }
 
-  // Group resources by type
-  const groupedResources = resources.reduce((acc: Record<string, Resource[]>, resource: Resource) => {
-    const type = resource.resourceType;
-    if (!acc[type]) {
-      acc[type] = [];
+  // Build type config from DB types
+  const typeConfig: Record<string, { title: string; icon: typeof FileText }> = {};
+  availableTypes.forEach(type => {
+    typeConfig[type.code] = {
+      title: type.name,
+      icon: ['guide', 'law', 'regulation', 'disclosure'].includes(type.code) ? FileText : BookOpen
+    };
+  });
+
+  // Group resources by type (a resource can appear in multiple groups)
+  const groupedResources: Record<string, Resource[]> = {};
+  resources.forEach((resource: Resource) => {
+    const types = resource.resourceTypes || [];
+    if (types.length === 0) {
+      // If no types, put in 'etc' group
+      if (!groupedResources['etc']) groupedResources['etc'] = [];
+      groupedResources['etc'].push(resource);
+    } else {
+      types.forEach(type => {
+        if (!groupedResources[type.code]) groupedResources[type.code] = [];
+        groupedResources[type.code].push(resource);
+      });
     }
-    acc[type].push(resource);
-    return acc;
-  }, {});
+  });
 
   const formatFileSize = (bytes: number | null) => {
     if (!bytes) return 'N/A';
@@ -109,6 +133,36 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
     return d.toLocaleDateString('ko-KR').replace(/\. /g, '.').replace(/\.$/, '');
   };
 
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -125,6 +179,18 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
           />
         </PageHeader>
 
+        {/* 자료 개수 표시 */}
+        {totalItems > 0 && (
+          <div className="mb-6 text-sm text-gray-600">
+            총 <span className="font-semibold text-primary">{totalItems}</span>개의 자료
+            {totalPages > 1 && (
+              <span className="ml-2">
+                (페이지 {currentPage} / {totalPages})
+              </span>
+            )}
+          </div>
+        )}
+
         {/* 자료 목록 */}
         <div className="space-y-12 mb-16">
           {resources.length === 0 ? (
@@ -134,19 +200,20 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
               </CardContent>
             </Card>
           ) : (
-            Object.entries(resourceTypeGroups).map(([type, config]) => {
-              const Icon = config.icon;
-              const typeResources = groupedResources[type] || [];
+            availableTypes.map((type) => {
+              const config = typeConfig[type.code];
+              const Icon = config?.icon || FileText;
+              const typeResources = groupedResources[type.code] || [];
 
               if (typeResources.length === 0) return null;
 
               return (
-                <div key={type} className="mb-4">
+                <div key={type.code} className="mb-4">
                   <h2 className="text-xl font-bold mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
                     <div className="p-2 bg-primary/10 rounded-lg">
                       <Icon className="h-5 w-5 text-primary" />
                     </div>
-                    {config.title}
+                    {type.name}
                     <span className="text-sm font-normal text-gray-500 ml-auto">
                       {typeResources.length}개 자료
                     </span>
@@ -166,6 +233,19 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
                               <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
                                 {resource.description.replace(/<[^>]*>/g, '')}
                               </p>
+                            )}
+                            {/* 자료 유형 */}
+                            {resource.resourceTypes && resource.resourceTypes.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mb-3">
+                                {resource.resourceTypes.map((t) => (
+                                  <span
+                                    key={t.id}
+                                    className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary"
+                                  >
+                                    {t.name}
+                                  </span>
+                                ))}
+                              </div>
                             )}
                             {/* 메타 정보 */}
                             <div className="flex flex-wrap gap-2 text-xs">
@@ -236,6 +316,64 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
             })
           )}
         </div>
+
+        {/* 페이지네이션 */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mb-16">
+            {/* 이전 버튼 */}
+            {currentPage > 1 ? (
+              <Link
+                href={`/resources/${slug}?page=${currentPage - 1}`}
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                이전
+              </Link>
+            ) : (
+              <span className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-300 bg-gray-50 border border-gray-100 rounded-lg cursor-not-allowed">
+                <ChevronLeft className="h-4 w-4" />
+                이전
+              </span>
+            )}
+
+            {/* 페이지 번호 */}
+            <div className="flex items-center gap-1">
+              {getPageNumbers().map((pageNum, idx) => (
+                pageNum === '...' ? (
+                  <span key={`ellipsis-${idx}`} className="px-3 py-2 text-gray-400">...</span>
+                ) : (
+                  <Link
+                    key={pageNum}
+                    href={`/resources/${slug}?page=${pageNum}`}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      currentPage === pageNum
+                        ? 'bg-primary text-white'
+                        : 'text-gray-600 bg-white border border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    {pageNum}
+                  </Link>
+                )
+              ))}
+            </div>
+
+            {/* 다음 버튼 */}
+            {currentPage < totalPages ? (
+              <Link
+                href={`/resources/${slug}?page=${currentPage + 1}`}
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                다음
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              <span className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-300 bg-gray-50 border border-gray-100 rounded-lg cursor-not-allowed">
+                다음
+                <ChevronRight className="h-4 w-4" />
+              </span>
+            )}
+          </div>
+        )}
 
         {/* 추가 안내 */}
         <div className="mt-12 bg-gradient-to-r from-primary/5 to-blue-50 rounded-2xl p-8 md:p-10 border border-primary/10">

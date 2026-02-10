@@ -12,6 +12,13 @@ interface ResourceCategory {
   slug: string;
 }
 
+interface ResourceType {
+  id: number;
+  name: string;
+  code: string;
+  sortOrder: number;
+}
+
 interface ResourceFile {
   id: number;
   resourceId: number;
@@ -29,7 +36,7 @@ interface Resource {
   categoryId: number;
   title: string;
   description: string | null;
-  resourceType: string;
+  resourceTypes?: ResourceType[];
   fileType: string | null;
   originalFilename: string | null;
   filePath: string | null;
@@ -54,6 +61,7 @@ export default function EditResourcePage() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [categories, setCategories] = useState<ResourceCategory[]>([]);
+  const [availableTypes, setAvailableTypes] = useState<ResourceType[]>([]);
   const [resource, setResource] = useState<Resource | null>(null);
   const [existingFiles, setExistingFiles] = useState<ResourceFile[]>([]);
   const [formData, setFormData] = useState({
@@ -61,7 +69,7 @@ export default function EditResourcePage() {
     title: "",
     slug: "",
     description: "",
-    resourceType: "etc",
+    resourceTypes: [] as string[],
     externalLink: "",
     externalLinkTitle: "",
     isFeatured: false,
@@ -77,6 +85,7 @@ export default function EditResourcePage() {
       return;
     }
     fetchCategories();
+    fetchResourceTypes();
     fetchResource();
   }, [user, resourceId]);
 
@@ -89,6 +98,18 @@ export default function EditResourcePage() {
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
+    }
+  };
+
+  const fetchResourceTypes = async () => {
+    try {
+      const response = await fetch("/api/resources/types");
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableTypes(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch resource types:", error);
     }
   };
 
@@ -112,7 +133,7 @@ export default function EditResourcePage() {
           title: data.title,
           slug: data.slug || "",
           description: data.description || "",
-          resourceType: data.resourceType,
+          resourceTypes: data.resourceTypes?.map((t: ResourceType) => t.code) || [],
           externalLink: data.externalLink || "",
           externalLinkTitle: data.externalLinkTitle || "",
           isFeatured: data.isFeatured,
@@ -134,9 +155,17 @@ export default function EditResourcePage() {
     }
   };
 
+  const handleTypeToggle = (code: string) => {
+    setFormData((prev) => {
+      const types = prev.resourceTypes.includes(code)
+        ? prev.resourceTypes.filter((t) => t !== code)
+        : [...prev.resourceTypes, code];
+      return { ...prev, resourceTypes: types };
+    });
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      // Copy files to array before resetting input
       const selectedFiles = Array.from(e.target.files);
       setNewFiles((prev) => [...prev, ...selectedFiles]);
       e.target.value = "";
@@ -191,7 +220,6 @@ export default function EditResourcePage() {
         const a = document.createElement("a");
         a.href = blobUrl;
 
-        // Get filename from Content-Disposition header or use default
         const contentDisposition = response.headers.get("Content-Disposition");
         let filename = "download";
         if (contentDisposition) {
@@ -239,7 +267,6 @@ export default function EditResourcePage() {
       return;
     }
 
-    // Check if there's at least one file or external link
     if (
       existingFiles.length === 0 &&
       newFiles.length === 0 &&
@@ -249,10 +276,14 @@ export default function EditResourcePage() {
       return;
     }
 
+    if (formData.resourceTypes.length === 0) {
+      alert("자료 유형을 하나 이상 선택해주세요.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Step 1: Update resource info first
       const resourceData = {
         ...formData,
         categoryId: parseInt(formData.categoryId),
@@ -271,7 +302,6 @@ export default function EditResourcePage() {
         throw new Error("자료 수정에 실패했습니다.");
       }
 
-      // Step 2: Upload new files if any
       if (newFiles.length > 0) {
         const uploadFormData = new FormData();
         newFiles.forEach((file) => {
@@ -333,48 +363,60 @@ export default function EditResourcePage() {
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
-        <div className="grid grid-cols-2 gap-6">
-          {/* 카테고리 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              카테고리 *
-            </label>
-            <select
-              value={formData.categoryId}
-              onChange={(e) =>
-                setFormData({ ...formData, categoryId: e.target.value })
-              }
-              className="w-full border rounded px-3 py-2"
-              required
-            >
-              <option value="">카테고리 선택</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* 카테고리 */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            카테고리 *
+          </label>
+          <select
+            value={formData.categoryId}
+            onChange={(e) =>
+              setFormData({ ...formData, categoryId: e.target.value })
+            }
+            className="w-full border rounded px-3 py-2"
+            required
+          >
+            <option value="">카테고리 선택</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          {/* 자료 유형 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              자료 유형
-            </label>
-            <select
-              value={formData.resourceType}
-              onChange={(e) =>
-                setFormData({ ...formData, resourceType: e.target.value })
-              }
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="guide">가이드</option>
-              <option value="form">서식</option>
-              <option value="education">교육자료</option>
-              <option value="law">법령</option>
-              <option value="etc">기타</option>
-            </select>
+        {/* 자료 유형 (다중 선택) */}
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            자료 유형 * (복수 선택 가능)
+          </label>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+            {availableTypes.map((type) => (
+              <label
+                key={type.id}
+                className={`flex items-center gap-2 p-2 border rounded cursor-pointer transition-colors ${
+                  formData.resourceTypes.includes(type.code)
+                    ? "bg-primary/10 border-primary text-primary"
+                    : "bg-white border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={formData.resourceTypes.includes(type.code)}
+                  onChange={() => handleTypeToggle(type.code)}
+                  className="sr-only"
+                />
+                <span className="text-sm">{type.name}</span>
+              </label>
+            ))}
           </div>
+          {formData.resourceTypes.length > 0 && (
+            <p className="mt-2 text-sm text-gray-500">
+              선택됨: {formData.resourceTypes.map((code) =>
+                availableTypes.find((t) => t.code === code)?.name
+              ).join(", ")}
+            </p>
+          )}
         </div>
 
         {/* 제목 */}
@@ -403,7 +445,6 @@ export default function EditResourcePage() {
             value={formData.slug}
             onChange={(e) => {
               const value = e.target.value.toLowerCase();
-              // 영문, 숫자, 하이픈만 허용
               if (/^[a-z0-9-]*$/.test(value)) {
                 setFormData({ ...formData, slug: value });
                 setSlugError("");
@@ -499,7 +540,6 @@ export default function EditResourcePage() {
             PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, ZIP, JPG, PNG 파일 가능
           </p>
 
-          {/* 새로 추가할 파일 목록 */}
           {newFiles.length > 0 && (
             <div className="mt-4 space-y-2">
               <p className="text-sm font-medium text-gray-700">

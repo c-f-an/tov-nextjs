@@ -2,7 +2,7 @@ import { Resource } from '../entities/Resource';
 
 export interface ResourceFilter {
   categoryId?: number;
-  resourceType?: string;
+  resourceTypes?: string[];  // Changed from single resourceType to array
   isFeatured?: boolean;
   isActive?: boolean;
   searchTerm?: string;

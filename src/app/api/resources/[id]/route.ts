@@ -48,7 +48,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // TODO: Add authentication check
     const { id } = await params;
     const resourceId = parseInt(id);
 
@@ -61,6 +60,7 @@ export async function PUT(
 
     const container = getContainer();
     const resourceRepository = container.getResourceRepository();
+    const resourceTypeRepository = container.getResourceTypeRepository();
 
     const resource = await resourceRepository.findById(resourceId);
 
@@ -78,7 +78,6 @@ export async function PUT(
       title: body.title,
       slug: body.slug,
       description: body.description,
-      resourceType: body.resourceType,
       fileType: body.fileType,
       filePath: body.filePath,
       fileSize: body.fileSize,
@@ -91,7 +90,23 @@ export async function PUT(
       publishedAt: body.publishedAt ? new Date(body.publishedAt) : null
     }, body.updatedBy);
 
-    const updated = await resourceRepository.update(resource);
+    await resourceRepository.update(resource);
+
+    // Update resource types if provided
+    if (body.resourceTypes && Array.isArray(body.resourceTypes)) {
+      if (body.resourceTypes.length > 0) {
+        // Find type IDs by codes
+        const types = await resourceTypeRepository.findByCodes(body.resourceTypes);
+        const typeIds = types.map(t => t.id);
+        await resourceTypeRepository.setResourceTypes(resourceId, typeIds);
+      } else {
+        // Clear all types if empty array provided
+        await resourceTypeRepository.clearResourceTypes(resourceId);
+      }
+    }
+
+    // Reload to include updated resource types
+    const updated = await resourceRepository.findById(resourceId);
 
     return NextResponse.json(updated);
   } catch (error) {

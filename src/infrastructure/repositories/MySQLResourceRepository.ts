@@ -1,6 +1,7 @@
 import { IResourceRepository, ResourceFilter, PaginationOptions, PaginatedResult } from '@/core/domain/repositories/IResourceRepository';
-import { Resource, ResourceType } from '@/core/domain/entities/Resource';
+import { Resource } from '@/core/domain/entities/Resource';
 import { ResourceFile } from '@/core/domain/entities/ResourceFile';
+import { ResourceType } from '@/core/domain/entities/ResourceType';
 import { pool } from '@/infrastructure/database/mysql';
 
 export class MySQLResourceRepository implements IResourceRepository {
@@ -11,9 +12,9 @@ export class MySQLResourceRepository implements IResourceRepository {
     const offset = (page - 1) * limit;
 
     // Whitelist allowed orderBy columns to prevent SQL injection
-    const allowedOrderColumns = ['created_at', 'updated_at', 'published_at', 'title', 'download_count', 'view_count', 'resource_type'];
+    const allowedOrderColumns = ['created_at', 'updated_at', 'published_at', 'title', 'download_count', 'view_count'];
 
-    // Handle multiple column ordering (e.g., "resource_type,published_at")
+    // Handle multiple column ordering (e.g., "published_at")
     let orderClauseColumns: string[] = [];
     if (pagination?.orderBy) {
       const orderColumns = pagination.orderBy.split(',').map(col => col.trim());
@@ -35,9 +36,15 @@ export class MySQLResourceRepository implements IResourceRepository {
         whereConditions.push('r.category_id = ?');
         params.push(filter.categoryId);
       }
-      if (filter.resourceType !== undefined) {
-        whereConditions.push('r.resource_type = ?');
-        params.push(filter.resourceType);
+      // Filter by resource types (using pivot table)
+      if (filter.resourceTypes && filter.resourceTypes.length > 0) {
+        const placeholders = filter.resourceTypes.map(() => '?').join(',');
+        whereConditions.push(`r.id IN (
+          SELECT DISTINCT rtm.resource_id FROM resource_type_map rtm
+          INNER JOIN resource_types rt ON rtm.type_id = rt.id
+          WHERE rt.code IN (${placeholders})
+        )`);
+        params.push(...filter.resourceTypes);
       }
       if (filter.isFeatured !== undefined) {
         whereConditions.push('r.is_featured = ?');
@@ -68,7 +75,6 @@ export class MySQLResourceRepository implements IResourceRepository {
 
     // Build the main query with placeholders or direct values
     let mainQuery: string;
-    let queryParams: any[];
 
     // Build query with direct LIMIT/OFFSET values to avoid mysql2 parameter issues
     mainQuery = `SELECT r.*, rc.name as category_name, rc.slug as category_slug
@@ -85,39 +91,11 @@ export class MySQLResourceRepository implements IResourceRepository {
 
     const items = (rows as any[]).map(row => this.mapRowToEntity(row));
 
-    // Load files for all resources in one query
+    // Load files and resource types for all resources
     if (items.length > 0) {
       const resourceIds = items.map(item => item.id);
-      const placeholders = resourceIds.map(() => '?').join(',');
-      const [fileRows] = await pool.execute(
-        `SELECT * FROM resource_files WHERE resource_id IN (${placeholders}) ORDER BY sort_order ASC, created_at ASC`,
-        resourceIds
-      );
-
-      // Group files by resource_id
-      const filesByResourceId = new Map<number, ResourceFile[]>();
-      for (const fileRow of fileRows as any[]) {
-        const resourceId = fileRow.resource_id;
-        if (!filesByResourceId.has(resourceId)) {
-          filesByResourceId.set(resourceId, []);
-        }
-        filesByResourceId.get(resourceId)!.push(new ResourceFile(
-          fileRow.id,
-          fileRow.resource_id,
-          fileRow.file_path,
-          fileRow.original_filename,
-          fileRow.file_type,
-          fileRow.file_size,
-          fileRow.sort_order,
-          fileRow.download_count,
-          new Date(fileRow.created_at)
-        ));
-      }
-
-      // Assign files to each resource
-      for (const item of items) {
-        item.files = filesByResourceId.get(item.id) || [];
-      }
+      await this.loadFilesForResources(items, resourceIds);
+      await this.loadResourceTypesForResources(items, resourceIds);
     }
 
     return {
@@ -141,22 +119,22 @@ export class MySQLResourceRepository implements IResourceRepository {
 
     const resource = this.mapRowToEntity(row);
 
-    // Load files from resource_files table
+    // Load files
     const [fileRows] = await pool.execute(
       'SELECT * FROM resource_files WHERE resource_id = ? ORDER BY sort_order ASC, created_at ASC',
       [id]
     );
-    resource.files = (fileRows as any[]).map(fileRow => new ResourceFile(
-      fileRow.id,
-      fileRow.resource_id,
-      fileRow.file_path,
-      fileRow.original_filename,
-      fileRow.file_type,
-      fileRow.file_size,
-      fileRow.sort_order,
-      fileRow.download_count,
-      new Date(fileRow.created_at)
-    ));
+    resource.files = (fileRows as any[]).map(fileRow => this.mapFileRowToEntity(fileRow));
+
+    // Load resource types
+    const [typeRows] = await pool.execute(
+      `SELECT rt.* FROM resource_types rt
+       INNER JOIN resource_type_map rtm ON rt.id = rtm.type_id
+       WHERE rtm.resource_id = ?
+       ORDER BY rt.sort_order ASC`,
+      [id]
+    );
+    resource.resourceTypes = (typeRows as any[]).map(typeRow => this.mapTypeRowToEntity(typeRow));
 
     return resource;
   }
@@ -174,22 +152,22 @@ export class MySQLResourceRepository implements IResourceRepository {
 
     const resource = this.mapRowToEntity(row);
 
-    // Load files from resource_files table
+    // Load files
     const [fileRows] = await pool.execute(
       'SELECT * FROM resource_files WHERE resource_id = ? ORDER BY sort_order ASC, created_at ASC',
       [resource.id]
     );
-    resource.files = (fileRows as any[]).map(fileRow => new ResourceFile(
-      fileRow.id,
-      fileRow.resource_id,
-      fileRow.file_path,
-      fileRow.original_filename,
-      fileRow.file_type,
-      fileRow.file_size,
-      fileRow.sort_order,
-      fileRow.download_count,
-      new Date(fileRow.created_at)
-    ));
+    resource.files = (fileRows as any[]).map(fileRow => this.mapFileRowToEntity(fileRow));
+
+    // Load resource types
+    const [typeRows] = await pool.execute(
+      `SELECT rt.* FROM resource_types rt
+       INNER JOIN resource_type_map rtm ON rt.id = rtm.type_id
+       WHERE rtm.resource_id = ?
+       ORDER BY rt.sort_order ASC`,
+      [resource.id]
+    );
+    resource.resourceTypes = (typeRows as any[]).map(typeRow => this.mapTypeRowToEntity(typeRow));
 
     return resource;
   }
@@ -208,22 +186,30 @@ export class MySQLResourceRepository implements IResourceRepository {
        LIMIT ?`,
       [1, 1, limit]
     );
-    return (rows as any[]).map(row => this.mapRowToEntity(row));
+
+    const items = (rows as any[]).map(row => this.mapRowToEntity(row));
+
+    // Load resource types for featured items
+    if (items.length > 0) {
+      const resourceIds = items.map(item => item.id);
+      await this.loadResourceTypesForResources(items, resourceIds);
+    }
+
+    return items;
   }
 
   async create(resource: Resource): Promise<Resource> {
     const [result] = await pool.execute(
       `INSERT INTO resources
-       (category_id, title, slug, description, resource_type, file_type, file_path, file_size,
+       (category_id, title, slug, description, file_type, file_path, file_size,
         original_filename, thumbnail_path, external_link, external_link_title, download_count, view_count,
         is_featured, is_active, published_at, created_by, updated_by, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         resource.categoryId,
         resource.title,
         resource.slug,
         resource.description,
-        resource.resourceType,
         resource.fileType,
         resource.filePath,
         resource.fileSize,
@@ -249,7 +235,7 @@ export class MySQLResourceRepository implements IResourceRepository {
   async update(resource: Resource): Promise<Resource> {
     await pool.execute(
       `UPDATE resources
-       SET category_id = ?, title = ?, slug = ?, description = ?, resource_type = ?,
+       SET category_id = ?, title = ?, slug = ?, description = ?,
            file_type = ?, file_path = ?, file_size = ?, original_filename = ?,
            thumbnail_path = ?, external_link = ?, external_link_title = ?, is_featured = ?, is_active = ?,
            published_at = ?, updated_by = ?, updated_at = NOW()
@@ -259,7 +245,6 @@ export class MySQLResourceRepository implements IResourceRepository {
         resource.title,
         resource.slug,
         resource.description,
-        resource.resourceType,
         resource.fileType,
         resource.filePath,
         resource.fileSize,
@@ -306,6 +291,56 @@ export class MySQLResourceRepository implements IResourceRepository {
     );
   }
 
+  // Helper methods for loading related data
+  private async loadFilesForResources(items: Resource[], resourceIds: number[]): Promise<void> {
+    const placeholders = resourceIds.map(() => '?').join(',');
+    const [fileRows] = await pool.execute(
+      `SELECT * FROM resource_files WHERE resource_id IN (${placeholders}) ORDER BY sort_order ASC, created_at ASC`,
+      resourceIds
+    );
+
+    // Group files by resource_id
+    const filesByResourceId = new Map<number, ResourceFile[]>();
+    for (const fileRow of fileRows as any[]) {
+      const resourceId = fileRow.resource_id;
+      if (!filesByResourceId.has(resourceId)) {
+        filesByResourceId.set(resourceId, []);
+      }
+      filesByResourceId.get(resourceId)!.push(this.mapFileRowToEntity(fileRow));
+    }
+
+    // Assign files to each resource
+    for (const item of items) {
+      item.files = filesByResourceId.get(item.id) || [];
+    }
+  }
+
+  private async loadResourceTypesForResources(items: Resource[], resourceIds: number[]): Promise<void> {
+    const placeholders = resourceIds.map(() => '?').join(',');
+    const [typeRows] = await pool.execute(
+      `SELECT rt.*, rtm.resource_id FROM resource_types rt
+       INNER JOIN resource_type_map rtm ON rt.id = rtm.type_id
+       WHERE rtm.resource_id IN (${placeholders})
+       ORDER BY rt.sort_order ASC`,
+      resourceIds
+    );
+
+    // Group types by resource_id
+    const typesByResourceId = new Map<number, ResourceType[]>();
+    for (const typeRow of typeRows as any[]) {
+      const resourceId = typeRow.resource_id;
+      if (!typesByResourceId.has(resourceId)) {
+        typesByResourceId.set(resourceId, []);
+      }
+      typesByResourceId.get(resourceId)!.push(this.mapTypeRowToEntity(typeRow));
+    }
+
+    // Assign types to each resource
+    for (const item of items) {
+      item.resourceTypes = typesByResourceId.get(item.id) || [];
+    }
+  }
+
   private mapRowToEntity(row: any): Resource {
     const resource = new Resource(
       row.id,
@@ -313,7 +348,6 @@ export class MySQLResourceRepository implements IResourceRepository {
       row.title,
       row.slug || '',
       row.description,
-      row.resource_type as ResourceType,
       row.file_type,
       row.file_path,
       row.file_size,
@@ -342,5 +376,28 @@ export class MySQLResourceRepository implements IResourceRepository {
     }
 
     return resource;
+  }
+
+  private mapFileRowToEntity(fileRow: any): ResourceFile {
+    return new ResourceFile(
+      fileRow.id,
+      fileRow.resource_id,
+      fileRow.file_path,
+      fileRow.original_filename,
+      fileRow.file_type,
+      fileRow.file_size,
+      fileRow.sort_order,
+      fileRow.download_count,
+      new Date(fileRow.created_at)
+    );
+  }
+
+  private mapTypeRowToEntity(typeRow: any): ResourceType {
+    return new ResourceType(
+      typeRow.id,
+      typeRow.name,
+      typeRow.code,
+      typeRow.sort_order
+    );
   }
 }

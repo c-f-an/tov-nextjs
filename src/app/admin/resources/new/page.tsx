@@ -12,17 +12,25 @@ interface ResourceCategory {
   slug: string;
 }
 
+interface ResourceType {
+  id: number;
+  name: string;
+  code: string;
+  sortOrder: number;
+}
+
 export default function NewResourcePage() {
   const router = useRouter();
   const { user, accessToken } = useAuth();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<ResourceCategory[]>([]);
+  const [resourceTypes, setResourceTypes] = useState<ResourceType[]>([]);
   const [formData, setFormData] = useState({
     categoryId: "",
     title: "",
     slug: "",
     description: "",
-    resourceType: "etc",
+    resourceTypes: [] as string[],
     externalLink: "",
     externalLinkTitle: "",
     isFeatured: false,
@@ -38,6 +46,7 @@ export default function NewResourcePage() {
       return;
     }
     fetchCategories();
+    fetchResourceTypes();
   }, [user]);
 
   const fetchCategories = async () => {
@@ -52,12 +61,31 @@ export default function NewResourcePage() {
     }
   };
 
+  const fetchResourceTypes = async () => {
+    try {
+      const response = await fetch("/api/resources/types");
+      if (response.ok) {
+        const data = await response.json();
+        setResourceTypes(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch resource types:", error);
+    }
+  };
+
+  const handleTypeToggle = (code: string) => {
+    setFormData((prev) => {
+      const types = prev.resourceTypes.includes(code)
+        ? prev.resourceTypes.filter((t) => t !== code)
+        : [...prev.resourceTypes, code];
+      return { ...prev, resourceTypes: types };
+    });
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      // Copy files to array before resetting input
       const newFiles = Array.from(e.target.files);
       setFiles((prev) => [...prev, ...newFiles]);
-      // Reset input to allow selecting the same file again
       e.target.value = "";
     }
   };
@@ -95,10 +123,14 @@ export default function NewResourcePage() {
       return;
     }
 
+    if (formData.resourceTypes.length === 0) {
+      alert("자료 유형을 하나 이상 선택해주세요.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Step 1: Create resource first (without file info)
       const resourceData = {
         ...formData,
         categoryId: parseInt(formData.categoryId),
@@ -120,7 +152,6 @@ export default function NewResourcePage() {
 
       const createdResource = await response.json();
 
-      // Step 2: Upload files if provided (with resource ID in filename)
       if (files.length > 0) {
         const uploadFormData = new FormData();
         files.forEach((file) => {
@@ -171,48 +202,60 @@ export default function NewResourcePage() {
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
-        <div className="grid grid-cols-2 gap-6">
-          {/* 카테고리 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              카테고리 *
-            </label>
-            <select
-              value={formData.categoryId}
-              onChange={(e) =>
-                setFormData({ ...formData, categoryId: e.target.value })
-              }
-              className="w-full border rounded px-3 py-2"
-              required
-            >
-              <option value="">카테고리 선택</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* 카테고리 */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            카테고리 *
+          </label>
+          <select
+            value={formData.categoryId}
+            onChange={(e) =>
+              setFormData({ ...formData, categoryId: e.target.value })
+            }
+            className="w-full border rounded px-3 py-2"
+            required
+          >
+            <option value="">카테고리 선택</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          {/* 자료 유형 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              자료 유형
-            </label>
-            <select
-              value={formData.resourceType}
-              onChange={(e) =>
-                setFormData({ ...formData, resourceType: e.target.value })
-              }
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="guide">가이드</option>
-              <option value="form">서식</option>
-              <option value="education">교육자료</option>
-              <option value="law">법령</option>
-              <option value="etc">기타</option>
-            </select>
+        {/* 자료 유형 (다중 선택) */}
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            자료 유형 * (복수 선택 가능)
+          </label>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+            {resourceTypes.map((type) => (
+              <label
+                key={type.id}
+                className={`flex items-center gap-2 p-2 border rounded cursor-pointer transition-colors ${
+                  formData.resourceTypes.includes(type.code)
+                    ? "bg-primary/10 border-primary text-primary"
+                    : "bg-white border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={formData.resourceTypes.includes(type.code)}
+                  onChange={() => handleTypeToggle(type.code)}
+                  className="sr-only"
+                />
+                <span className="text-sm">{type.name}</span>
+              </label>
+            ))}
           </div>
+          {formData.resourceTypes.length > 0 && (
+            <p className="mt-2 text-sm text-gray-500">
+              선택됨: {formData.resourceTypes.map((code) =>
+                resourceTypes.find((t) => t.code === code)?.name
+              ).join(", ")}
+            </p>
+          )}
         </div>
 
         {/* 제목 */}
@@ -241,7 +284,6 @@ export default function NewResourcePage() {
             value={formData.slug}
             onChange={(e) => {
               const value = e.target.value.toLowerCase();
-              // 영문, 숫자, 하이픈만 허용
               if (/^[a-z0-9-]*$/.test(value)) {
                 setFormData({ ...formData, slug: value });
                 setSlugError("");
@@ -294,7 +336,6 @@ export default function NewResourcePage() {
             PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, ZIP, JPG, PNG 파일 가능
           </p>
 
-          {/* 선택된 파일 목록 */}
           {files.length > 0 && (
             <div className="mt-4 space-y-2">
               <p className="text-sm font-medium text-gray-700">

@@ -122,10 +122,23 @@ export default async function ResourceDetailPage({ params }: PageProps) {
         <article className="bg-white rounded-2xl shadow-sm overflow-hidden">
           {/* 헤더 */}
           <div className="px-6 md:px-10 pt-8 pb-6 border-b border-gray-100">
-            <div className="flex items-center gap-2 mb-5">
+            <div className="flex flex-wrap items-center gap-2 mb-5">
               <span className="inline-block px-3 py-1.5 text-xs font-medium bg-[#00357f]/10 text-[#00357f] rounded-md">
                 {resource.category.name}
               </span>
+              {resource.resourceTypes && resource.resourceTypes.length > 0 && (
+                <>
+                  <span className="text-gray-300">|</span>
+                  {resource.resourceTypes.map((type: { id: number; name: string; code: string }) => (
+                    <span
+                      key={type.id}
+                      className="inline-block px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-700 rounded-md"
+                    >
+                      {type.name}
+                    </span>
+                  ))}
+                </>
+              )}
             </div>
 
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5 leading-tight">

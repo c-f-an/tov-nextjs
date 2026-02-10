@@ -1,10 +1,11 @@
 import { ResourceFile } from './ResourceFile';
-
-export type ResourceType = 'guide' | 'form' | 'education' | 'law' | 'etc';
+import { ResourceType } from './ResourceType';
 
 export class Resource {
   // Files relation (multiple files support)
   public files?: ResourceFile[];
+  // Resource types relation (multiple types support)
+  public resourceTypes?: ResourceType[];
 
   constructor(
     public readonly id: number,
@@ -12,7 +13,6 @@ export class Resource {
     public title: string,
     public slug: string,
     public description: string | null,
-    public resourceType: ResourceType,
     public fileType: string | null,
     public filePath: string | null,
     public fileSize: number | null,
@@ -38,7 +38,6 @@ export class Resource {
     categoryId: number,
     title: string,
     slug: string,
-    resourceType: ResourceType = 'etc',
     description: string | null = null,
     createdBy: number | null = null
   ): Resource {
@@ -49,7 +48,6 @@ export class Resource {
       title,
       slug,
       description,
-      resourceType,
       null, // fileType
       null, // filePath
       null, // fileSize
@@ -74,7 +72,6 @@ export class Resource {
     title: string;
     slug: string;
     description: string | null;
-    resourceType: ResourceType;
     fileType: string | null;
     filePath: string | null;
     fileSize: number | null;
@@ -90,7 +87,6 @@ export class Resource {
     if (data.title !== undefined) this.title = data.title;
     if (data.slug !== undefined) this.slug = data.slug;
     if (data.description !== undefined) this.description = data.description;
-    if (data.resourceType !== undefined) this.resourceType = data.resourceType;
     if (data.fileType !== undefined) this.fileType = data.fileType;
     if (data.filePath !== undefined) this.filePath = data.filePath;
     if (data.fileSize !== undefined) this.fileSize = data.fileSize;
@@ -117,6 +113,18 @@ export class Resource {
     this.fileType = fileType;
     this.fileSize = fileSize;
     this.updatedAt = new Date();
+  }
+
+  setResourceTypes(types: ResourceType[]): void {
+    this.resourceTypes = types;
+  }
+
+  getResourceTypeCodes(): string[] {
+    return this.resourceTypes?.map(t => t.code) || [];
+  }
+
+  hasResourceType(code: string): boolean {
+    return this.resourceTypes?.some(t => t.code === code) || false;
   }
 
   incrementDownloadCount(): void {
