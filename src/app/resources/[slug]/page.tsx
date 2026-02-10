@@ -120,7 +120,7 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "자료실", href: "/resources" }, { label: category?.name || "" }]}
+            items={[{ label: "자료실" }, { label: category?.name || "" }]}
             variant="light"
           />
         </PageHeader>
@@ -191,7 +191,7 @@ export default async function ResourceCategoryPage({ params }: PageProps) {
                           <div className="px-6 pb-6 pt-4 border-t border-gray-100 bg-gray-50/50">
                             {(resource.files && resource.files.length > 0) ? (
                               <div className="space-y-2">
-                                {resource.files.map((file: any) => (
+                                {resource.files.map((file: { id: number; originalFilename: string }) => (
                                   <Link
                                     key={file.id}
                                     href={`/api/resources/${resource.id}/download?fileId=${file.id}`}
