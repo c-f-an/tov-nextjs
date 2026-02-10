@@ -97,29 +97,31 @@ export default function SitemapPage() {
                 {section.title}
               </h2>
               <ul className="space-y-2">
-                {section.links.map((link, linkIndex) => (
-                  <li key={linkIndex}>
-                    <Link
-                      href={link.href}
-                      className="text-gray-600 hover:text-blue-600 hover:underline transition-colors duration-200 flex items-center"
-                    >
-                      <svg
-                        className="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                {section.links
+                  .filter((link) => link.href)
+                  .map((link, linkIndex) => (
+                    <li key={linkIndex}>
+                      <Link
+                        href={link.href!}
+                        className="text-gray-600 hover:text-blue-600 hover:underline transition-colors duration-200 flex items-center"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
+                        <svg
+                          className="w-4 h-4 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                        {link.name}
+                      </Link>
+                    </li>
+                  ))}
               </ul>
             </div>
           ))}
