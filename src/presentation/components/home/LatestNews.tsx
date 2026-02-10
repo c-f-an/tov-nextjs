@@ -14,6 +14,7 @@ interface LatestNewsProps {
 const defaultNewsItems = [
   {
     id: 1,
+    slug: '2024-religious-income-tax-guide',
     title: '2024년 종교인 소득세 신고 안내',
     date: '2024-01-15',
     category: 'notice',
@@ -23,6 +24,7 @@ const defaultNewsItems = [
   },
   {
     id: 2,
+    slug: 'nonprofit-transparency-seminar',
     title: '비영리단체 투명성 강화 세미나 성황리 개최',
     date: '2024-01-12',
     category: 'activity',
@@ -32,6 +34,7 @@ const defaultNewsItems = [
   },
   {
     id: 3,
+    slug: 'tov-kbs-news-introduction',
     title: '토브협회, KBS 뉴스에 소개',
     date: '2024-01-10',
     category: 'media',
@@ -74,6 +77,7 @@ export function LatestNews({ notices, news, latestNews }: LatestNewsProps) {
         .filter((item) => item.status === 'published')
         .map((item) => ({
           id: item.id,
+          slug: item.slug,
           title: item.title,
           date: item.publishedAt ? new Date(item.publishedAt).toLocaleDateString('ko-KR') : new Date(item.createdAt).toLocaleDateString('ko-KR'),
           category: item.category,
@@ -100,7 +104,7 @@ export function LatestNews({ notices, news, latestNews }: LatestNewsProps) {
           return (
             <Link
               key={item.id}
-              href={`/posts/${item.category}/${item.id}`}
+              href={`/posts/${item.category}/${item.slug}`}
               className="group"
             >
               <div className="bg-gray-50 rounded-lg p-6 h-full hover:shadow-md transition-shadow">

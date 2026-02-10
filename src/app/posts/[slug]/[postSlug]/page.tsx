@@ -40,7 +40,7 @@ function formatDate(date: string): string {
 export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const postId = params.id as string;
+  const postSlug = params.postSlug as string;
   const categorySlug = params.slug as string;
 
   const [post, setPost] = useState<Post | null>(null);
@@ -49,7 +49,7 @@ export default function PostDetailPage() {
   const loadPost = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/posts/${postId}`);
+      const response = await fetch(`/api/posts/by-slug/${postSlug}`);
       if (!response.ok) {
         throw new Error("Post not found");
       }
@@ -61,13 +61,13 @@ export default function PostDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [postId, router]);
+  }, [postSlug, router]);
 
   useEffect(() => {
-    if (postId) {
+    if (postSlug) {
       loadPost();
     }
-  }, [postId, loadPost]);
+  }, [postSlug, loadPost]);
 
   if (loading) {
     return (

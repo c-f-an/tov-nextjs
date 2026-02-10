@@ -143,7 +143,7 @@ export default function CategoryPostsPage() {
                 {posts.map((post) => (
                   <Link
                     key={post.id}
-                    href={`/posts/${post.categorySlug}/${post.id}`}
+                    href={`/posts/${post.categorySlug}/${post.slug}`}
                     className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden group"
                   >
                     {post.thumbnail && (
