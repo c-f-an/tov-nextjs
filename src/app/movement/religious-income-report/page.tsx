@@ -105,7 +105,7 @@ export default function ReligiousIncomeReportPage() {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "토브운동", href: "/movement" }, { label: "종교인 소득신고" }]}
+            items={[{ label: "토브운동" }, { label: "종교인 소득신고" }]}
             variant="light"
           />
         </PageHeader>

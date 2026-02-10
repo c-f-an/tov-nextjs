@@ -14,7 +14,7 @@ export default function GreetingPage() {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "About Us", href: "/about" }, { label: "토브협회 소개" }]}
+            items={[{ label: "About Us" }, { label: "토브협회 소개" }]}
             variant="light"
           />
         </PageHeader>

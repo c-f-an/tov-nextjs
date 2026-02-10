@@ -72,7 +72,7 @@ export default function FinancialReportPage() {
               </div>
             </div>
             <Link
-              href="/about/business/finance-report"
+              href="/donation/report/finance-report"
               className="flex items-center gap-1 text-green-600 hover:text-green-700 font-medium"
             >
               더보기 <ChevronRight className="h-4 w-4" />

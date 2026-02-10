@@ -30,7 +30,7 @@ export default function LocationPage() {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "About Us", href: "/about" }, { label: "오시는 길" }]}
+            items={[{ label: "About Us" }, { label: "오시는 길" }]}
             variant="light"
           />
         </PageHeader>

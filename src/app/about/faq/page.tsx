@@ -79,7 +79,7 @@ export default function FAQPage() {
         >
           <Breadcrumb
             items={[
-              { label: "About Us", href: "/about" },
+              { label: "About Us" },
               { label: "자주 묻는 질문" },
             ]}
             variant="light"

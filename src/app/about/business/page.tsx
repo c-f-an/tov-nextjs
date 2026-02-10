@@ -54,7 +54,7 @@ export default function BusinessPage() {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "About Us", href: "/about" }, { label: "사업보고" }]}
+            items={[{ label: "About Us" }, { label: "사업보고" }]}
             variant="light"
           />
         </PageHeader>

@@ -6,7 +6,7 @@ export default function MovementPage() {
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-16">
         <Breadcrumb
-          items={[{ label: "토브 운동", href: "/movement" }]}
+          items={[{ label: "토브 운동" }]}
         />
         <PageHeader
           title="토브운동"

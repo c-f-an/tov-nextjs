@@ -142,7 +142,7 @@ export default function FinancialEducationPage() {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "건강한 재정교육", href: "/movement" }, { label: "건강한 재정관리" }]}
+            items={[{ label: "건강한 재정교육" }, { label: "건강한 재정관리" }]}
             variant="light"
           />
         </PageHeader>

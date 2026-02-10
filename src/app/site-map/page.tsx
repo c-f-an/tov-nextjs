@@ -7,7 +7,7 @@ export default function SitemapPage() {
     {
       title: "About Us",
       links: [
-        { name: "About Us", href: "/about" },
+        { name: "About Us" },
         { name: "우리는", href: "/about/greeting" },
         { name: "함께하는이들", href: "/about/organization" },
         { name: "사업보고", href: "/about/business" },
@@ -18,7 +18,7 @@ export default function SitemapPage() {
     {
       title: "토브운동",
       links: [
-        { name: "토브운동", href: "/movement" },
+        { name: "토브운동" },
         { name: "건강한 재정관리", href: "/movement/financial-management" },
         { name: "건강한 재정교육", href: "/movement/financial-education" },
         { name: "결산서 공개 운동", href: "/movement/financial-disclosure" },
@@ -29,18 +29,18 @@ export default function SitemapPage() {
     {
       title: "토브 소식",
       links: [
-        { name: "토브 소식", href: "/posts" },
+        { name: "토브 소식" },
         { name: "공지사항", href: "/posts/notice" },
         { name: "활동소식", href: "/posts/activity" },
         { name: "언론보도", href: "/posts/media" },
         { name: "정기간행물", href: "/posts/publication" },
-        { name: "관계법령", href: "/posts/laws" },
+        { name: "관계법령 소식", href: "/posts/laws" },
       ],
     },
     {
       title: "자료실",
       links: [
-        { name: "자료실", href: "/resources" },
+        { name: "자료실" },
         { name: "종교인소득", href: "/resources/religious-income" },
         { name: "비영리재정", href: "/resources/nonprofit-finance" },
         { name: "결산공시", href: "/resources/settlement" },
@@ -49,7 +49,7 @@ export default function SitemapPage() {
     {
       title: "상담센터",
       links: [
-        { name: "상담센터", href: "/consultation" },
+        { name: "상담센터" },
         { name: "상담신청", href: "/consultation/apply" },
         { name: "상담안내", href: "/consultation/guide" },
       ],
@@ -57,7 +57,7 @@ export default function SitemapPage() {
     {
       title: "후원하기",
       links: [
-        { name: "후원하기", href: "/donation" },
+        { name: "후원하기" },
         { name: "후원안내", href: "/donation/guide" },
         { name: "후원신청", href: "/donation/apply" },
         { name: "재정보고", href: "/donation/report" },

@@ -118,7 +118,7 @@ export default function CategoryPostsPage() {
                 key={cat.id}
                 href={`/posts/${cat.slug}`}
                 className={`px-4 py-2 rounded-md whitespace-nowrap flex-shrink-0 md:flex-shrink ${cat.slug === categorySlug
-                  ? 'bg-primary text-primary-foreground hover:bg-blue-700'
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/75'
                   : 'bg-white text-gray-700 hover:bg-gray-100 border'
                   }`}
               >

@@ -109,16 +109,15 @@ export default function ReportDetailPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div
-        className={`bg-gradient-to-r ${
-          isBusinessReport
+        className={`bg-gradient-to-r ${isBusinessReport
             ? "from-blue-600 to-blue-700"
             : "from-green-600 to-green-700"
-        } text-white py-16`}
+          } text-white py-16`}
       >
         <div className="container mx-auto px-4">
           <Breadcrumb
             items={[
-              { label: "About Us", href: "/about" },
+              { label: "About Us" },
               { label: "사업보고", href: "/about/business" },
               {
                 label: isBusinessReport ? "사업보고서" : "재정보고서",
@@ -129,9 +128,8 @@ export default function ReportDetailPage() {
           />
           <div className="flex items-center gap-3 mb-4">
             <div
-              className={`p-3 ${
-                isBusinessReport ? "bg-blue-500/20" : "bg-green-500/20"
-              } rounded-lg`}
+              className={`p-3 ${isBusinessReport ? "bg-blue-500/20" : "bg-green-500/20"
+                } rounded-lg`}
             >
               <Icon className="h-8 w-8" />
             </div>

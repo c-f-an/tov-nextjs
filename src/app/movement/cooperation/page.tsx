@@ -13,7 +13,7 @@ export default function CooperationPage() {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "토브운동", href: "/movement" }, { label: "연대협력" }]}
+            items={[{ label: "토브운동" }, { label: "연대협력" }]}
             variant="light"
           />
         </PageHeader>

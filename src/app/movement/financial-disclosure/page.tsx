@@ -14,7 +14,7 @@ export default function FinancialDisclosurePage() {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "토브운동", href: "/movement" }, { label: "결산서 공개 운동" }]}
+            items={[{ label: "토브운동" }, { label: "결산서 공개 운동" }]}
             variant="light"
           />
         </PageHeader>

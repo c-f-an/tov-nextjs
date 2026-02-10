@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import PageHeader from "@/presentation/components/common/PageHeader";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 
@@ -45,13 +46,7 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (postId) {
-      loadPost();
-    }
-  }, [postId]);
-
-  const loadPost = async () => {
+  const loadPost = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`/api/posts/${postId}`);
@@ -66,7 +61,13 @@ export default function PostDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId, router]);
+
+  useEffect(() => {
+    if (postId) {
+      loadPost();
+    }
+  }, [postId, loadPost]);
 
   if (loading) {
     return (
@@ -95,7 +96,7 @@ export default function PostDetailPage() {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "토브 소식" }, { label: post.categoryName, href: "/posts/notice" }]}
+            items={[{ label: "토브 소식" }, { label: post.categoryName, href: "/posts/notice" }, { label: post.title }]}
             variant="light"
           />
         </PageHeader>
@@ -150,11 +151,14 @@ export default function PostDetailPage() {
           {/* 썸네일 */}
           {post.thumbnail && (
             <div className="px-6 md:px-10 pt-8">
-              <img
-                src={post.thumbnail}
-                alt={post.title}
-                className="w-full rounded-xl"
-              />
+              <div className="relative w-full aspect-video">
+                <Image
+                  src={post.thumbnail}
+                  alt={post.title}
+                  fill
+                  className="object-cover rounded-xl"
+                />
+              </div>
             </div>
           )}
 

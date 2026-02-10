@@ -122,7 +122,7 @@ export default function HealthyFinancialManagementPage() {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "토브운동", href: "/movement" }, { label: "건강한 재정관리" }]}
+            items={[{ label: "토브운동" }, { label: "건강한 재정관리" }]}
 
             variant="light"
           />

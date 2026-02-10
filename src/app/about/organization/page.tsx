@@ -67,7 +67,7 @@ export default function OrganizationPage() {
           overlayOpacity={0}
         >
           <Breadcrumb
-            items={[{ label: "About Us", href: "/about" }, { label: "조직도" }]}
+            items={[{ label: "About Us" }, { label: "조직도" }]}
             variant="light"
           />
         </PageHeader>
