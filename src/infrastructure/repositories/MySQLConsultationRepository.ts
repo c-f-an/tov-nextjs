@@ -10,8 +10,6 @@ interface ConsultationRow extends RowDataPacket {
   name: string;
   phone: string;
   email: string | null;
-  church_name: string | null;
-  position: string | null;
   consultation_type: ConsultationType;
   preferred_date: Date | null;
   preferred_time: string | null;
@@ -207,8 +205,6 @@ export class MySQLConsultationRepository implements IConsultationRepository {
     (consultation as any).name = row.name;
     (consultation as any).phone = row.phone;
     (consultation as any).email = row.email;
-    (consultation as any).churchName = row.church_name;
-    (consultation as any).position = row.position;
 
     return consultation;
   }

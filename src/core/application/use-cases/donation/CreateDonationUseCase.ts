@@ -10,12 +10,20 @@ interface CreateDonationRequest {
   receiptNumber?: string;
   purpose?: string;
   memo?: string;
+  message?: string;
+  cmsBank?: string;
+  cmsAccountNumber?: string;
+  cmsAccountHolder?: string;
+  cmsWithdrawalDay?: string;
 }
 export class CreateDonationUseCase {
   constructor(
     private donationRepository: IDonationRepository
   ) {}
   async execute(request: CreateDonationRequest): Promise<DonationDto> {
+    // Use message field as memo if available
+    const memo = request.message || request.memo || null;
+
     const donation = new Donation(
       0, // Will be assigned by database
       request.sponsorId,
@@ -25,7 +33,11 @@ export class CreateDonationUseCase {
       request.paymentDate,
       request.receiptNumber || null,
       request.purpose || null,
-      request.memo || null,
+      memo,
+      request.cmsBank || null,
+      request.cmsAccountNumber || null,
+      request.cmsAccountHolder || null,
+      request.cmsWithdrawalDay || null,
       new Date(),
       new Date()
     );

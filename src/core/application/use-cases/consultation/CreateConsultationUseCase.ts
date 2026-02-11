@@ -6,8 +6,6 @@ interface CreateConsultationRequest {
   name: string;
   phone: string;
   email?: string;
-  churchName?: string;
-  position?: string;
   consultationType: string;
   preferredDate?: Date;
   preferredTime?: string;
@@ -29,8 +27,6 @@ export class CreateConsultationUseCase {
       request.name,
       request.phone,
       request.email || null,
-      request.churchName || null,
-      request.position || null,
       request.consultationType,
       request.preferredDate || null,
       request.preferredTime || null,

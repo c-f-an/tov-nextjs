@@ -19,10 +19,18 @@ export async function GET(request: NextRequest) {
     }
 
     const profileRepository = container.getUserProfileRepository();
+    const userRepository = container.getUserRepository();
+
     const profile = await profileRepository.findByUserId(payload.userId);
+    const user = await userRepository.findById(payload.userId);
 
     if (!profile) {
-      return NextResponse.json({ profile: null }, { status: 200 });
+      return NextResponse.json({
+        profile: null,
+        name: user?.name || null,
+        email: user?.email || null,
+        phone: user?.phone || null
+      }, { status: 200 });
     }
 
     return NextResponse.json({
@@ -43,7 +51,10 @@ export async function GET(request: NextRequest) {
         termsAgreeDate: profile.termsAgreeDate,
         createdAt: profile.createdAt,
         updatedAt: profile.updatedAt
-      }
+      },
+      name: user?.name || null,
+      email: user?.email || null,
+      phone: user?.phone || null
     });
   } catch (error) {
     console.error('Error fetching user profile:', error);

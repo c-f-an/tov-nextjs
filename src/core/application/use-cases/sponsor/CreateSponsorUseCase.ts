@@ -11,6 +11,7 @@ interface CreateSponsorRequest {
   address?: string;
   postcode?: string;
   receiptRequired?: boolean;
+  residentRegistrationNumber?: string;
   privacyAgree: boolean;
 }
 export class CreateSponsorUseCase {
@@ -34,6 +35,7 @@ export class CreateSponsorUseCase {
       SponsorStatus.active,
       request.privacyAgree,
       request.receiptRequired || false,
+      request.residentRegistrationNumber || null,
       new Date(),
       new Date()
     );
