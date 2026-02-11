@@ -1,17 +1,17 @@
 import Link from 'next/link'
-import { FileText, Download, BookOpen, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
+import { FileText, Download, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
 import PageHeader from "@/presentation/components/common/PageHeader"
 import { getContainer } from '@/infrastructure/config/getContainer';
 import { notFound } from 'next/navigation';
 import { Resource } from '@/core/domain/entities/Resource';
-import { ResourceType } from '@/core/domain/entities/ResourceType';
+import { ResourceSearchForm } from '@/presentation/components/resources/ResourceSearchForm';
 
 // Force dynamic rendering to ensure DB queries run at runtime
 export const dynamic = "force-dynamic";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 12;
 
 interface PageProps {
   params: Promise<{
@@ -19,6 +19,7 @@ interface PageProps {
   }>;
   searchParams: Promise<{
     page?: string;
+    search?: string;
   }>;
 }
 
@@ -45,18 +46,17 @@ export async function generateStaticParams() {
 
 export default async function ResourceCategoryPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, search: searchQuery } = await searchParams;
   const currentPage = Math.max(1, parseInt(pageParam || '1') || 1);
+  const searchTerm = searchQuery?.trim() || '';
 
   const container = getContainer();
   const categoryRepo = container.getResourceCategoryRepository();
   const resourceRepo = container.getResourceRepository();
-  const resourceTypeRepo = container.getResourceTypeRepository();
 
   // Get category by slug
   let category = null;
   let resources: Resource[] = [];
-  let availableTypes: ResourceType[] = [];
   let totalItems = 0;
   let totalPages = 1;
 
@@ -71,15 +71,12 @@ export default async function ResourceCategoryPage({ params, searchParams }: Pag
       }
 
       const result = await resourceRepo.findAll(
-        { categoryId: category.id, isActive: true },
+        { categoryId: category.id, isActive: true, searchTerm: searchTerm || undefined },
         { page: currentPage, limit: ITEMS_PER_PAGE, orderBy: 'published_at', orderDirection: 'DESC' }
       );
       resources = result.items;
       totalItems = result.total;
       totalPages = result.totalPages;
-
-      // Get all available resource types
-      availableTypes = await resourceTypeRepo.findAll();
     } catch (error) {
       console.error('Error fetching resources:', error);
     }
@@ -89,31 +86,6 @@ export default async function ResourceCategoryPage({ params, searchParams }: Pag
   if (!category) {
     notFound();
   }
-
-  // Build type config from DB types
-  const typeConfig: Record<string, { title: string; icon: typeof FileText }> = {};
-  availableTypes.forEach(type => {
-    typeConfig[type.code] = {
-      title: type.name,
-      icon: ['guide', 'law', 'regulation', 'disclosure'].includes(type.code) ? FileText : BookOpen
-    };
-  });
-
-  // Group resources by type (a resource can appear in multiple groups)
-  const groupedResources: Record<string, Resource[]> = {};
-  resources.forEach((resource: Resource) => {
-    const types = resource.resourceTypes || [];
-    if (types.length === 0) {
-      // If no types, put in 'etc' group
-      if (!groupedResources['etc']) groupedResources['etc'] = [];
-      groupedResources['etc'].push(resource);
-    } else {
-      types.forEach(type => {
-        if (!groupedResources[type.code]) groupedResources[type.code] = [];
-        groupedResources[type.code].push(resource);
-      });
-    }
-  });
 
   const formatFileSize = (bytes: number | null) => {
     if (!bytes) return 'N/A';
@@ -131,6 +103,16 @@ export default async function ResourceCategoryPage({ params, searchParams }: Pag
     if (!date) return '';
     const d = new Date(date);
     return d.toLocaleDateString('ko-KR').replace(/\. /g, '.').replace(/\.$/, '');
+  };
+
+  // Build page URL with search params
+  const buildPageUrl = (page: number) => {
+    const params = new URLSearchParams();
+    params.set('page', page.toString());
+    if (searchTerm) {
+      params.set('search', searchTerm);
+    }
+    return `/resources/${slug}?${params.toString()}`;
   };
 
   // Generate page numbers to display
@@ -179,141 +161,160 @@ export default async function ResourceCategoryPage({ params, searchParams }: Pag
           />
         </PageHeader>
 
-        {/* 자료 개수 표시 */}
-        {totalItems > 0 && (
-          <div className="mb-6 text-sm text-gray-600">
-            총 <span className="font-semibold text-primary">{totalItems}</span>개의 자료
+        {/* 검색 영역 */}
+        <div className="mb-6">
+          <ResourceSearchForm categorySlug={slug} initialSearch={searchTerm} />
+        </div>
+
+        {/* 검색 결과 및 자료 개수 표시 */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            {searchTerm ? (
+              <>
+                <span className="font-medium text-primary">&quot;{searchTerm}&quot;</span> 검색 결과:{' '}
+                <span className="font-semibold text-primary">{totalItems}</span>개
+              </>
+            ) : (
+              totalItems > 0 && (
+                <>
+                  총 <span className="font-semibold text-primary">{totalItems}</span>개의 자료
+                </>
+              )
+            )}
             {totalPages > 1 && (
               <span className="ml-2">
                 (페이지 {currentPage} / {totalPages})
               </span>
             )}
           </div>
-        )}
+        </div>
 
         {/* 자료 목록 */}
-        <div className="space-y-12 mb-16">
+        <div className="mb-16">
           {resources.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <p className="text-gray-500">등록된 자료가 없습니다.</p>
+                {searchTerm ? (
+                  <>
+                    <p className="text-gray-500 mb-2">&quot;{searchTerm}&quot;에 대한 검색 결과가 없습니다.</p>
+                    <p className="text-sm text-gray-400">다른 검색어로 다시 시도해보세요.</p>
+                  </>
+                ) : (
+                  <p className="text-gray-500">등록된 자료가 없습니다.</p>
+                )}
               </CardContent>
             </Card>
           ) : (
-            availableTypes.map((type) => {
-              const config = typeConfig[type.code];
-              const Icon = config?.icon || FileText;
-              const typeResources = groupedResources[type.code] || [];
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {resources.map((resource: Resource) => (
+                <Card key={resource.id} className="hover:shadow-lg transition-all duration-300 flex flex-col border border-gray-100 bg-white rounded-xl overflow-hidden h-full">
+                  <CardContent className="p-0 flex flex-col flex-1">
+                    {/* 콘텐츠 영역 */}
+                    <div className="p-5 flex-1 flex flex-col">
+                      {/* 카테고리 + 자료 유형 + 날짜 */}
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {/* 카테고리 배지 */}
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
+                            {category.name}
+                          </span>
+                          {/* 구분선 */}
+                          {resource.resourceTypes && resource.resourceTypes.length > 0 && (
+                            <span className="text-gray-300 text-xs">|</span>
+                          )}
+                          {/* 자료 유형 배지 */}
+                          {resource.resourceTypes && resource.resourceTypes.length > 0 && (
+                            <>
+                              {resource.resourceTypes.slice(0, 2).map((t) => (
+                                <span
+                                  key={t.id}
+                                  className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600"
+                                >
+                                  {t.name}
+                                </span>
+                              ))}
+                              {resource.resourceTypes.length > 2 && (
+                                <span className="text-xs text-gray-400">+{resource.resourceTypes.length - 2}</span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-400 flex-shrink-0">
+                          {formatDate(resource.publishedAt)}
+                        </span>
+                      </div>
 
-              if (typeResources.length === 0) return null;
+                      {/* 제목 */}
+                      <Link href={`/resources/${category.slug}/${resource.slug}`} className="group block mb-2">
+                        <h3 className="font-bold text-base leading-snug line-clamp-2 group-hover:text-primary transition-colors min-h-[2.75rem]">
+                          {resource.title}
+                        </h3>
+                      </Link>
 
-              return (
-                <div key={type.code} className="mb-4">
-                  <h2 className="text-xl font-bold mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Icon className="h-5 w-5 text-primary" />
+                      {/* 설명 - 고정 높이 영역 */}
+                      <div className="min-h-[2.5rem] mb-3">
+                        <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
+                          {resource.description ? resource.description.replace(/<[^>]*>/g, '') : ''}
+                        </p>
+                      </div>
+
+                      {/* 파일 정보 */}
+                      <div className="flex items-center gap-2 text-xs text-gray-400 mt-auto">
+                        {resource.fileType && (
+                          <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                            {resource.fileType}
+                          </span>
+                        )}
+                        {resource.fileSize && (
+                          <span>{formatFileSize(resource.fileSize)}</span>
+                        )}
+                      </div>
                     </div>
-                    {type.name}
-                    <span className="text-sm font-normal text-gray-500 ml-auto">
-                      {typeResources.length}개 자료
-                    </span>
-                  </h2>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {typeResources.map((resource: Resource) => (
-                      <Card key={resource.id} className="hover:shadow-xl transition-all duration-300 h-full flex flex-col border border-gray-100 bg-white rounded-xl overflow-hidden">
-                        <CardContent className="p-0 flex flex-col flex-1">
-                          {/* 콘텐츠 영역 */}
-                          <div className="p-6 flex-1">
-                            <Link href={`/resources/${category.slug}/${resource.slug}`} className="group block">
-                              <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-primary transition-colors">
-                                {resource.title}
-                              </h3>
-                            </Link>
-                            {resource.description && (
-                              <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
-                                {resource.description.replace(/<[^>]*>/g, '')}
-                              </p>
-                            )}
-                            {/* 자료 유형 */}
-                            {resource.resourceTypes && resource.resourceTypes.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 mb-3">
-                                {resource.resourceTypes.map((t) => (
-                                  <span
-                                    key={t.id}
-                                    className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary"
-                                  >
-                                    {t.name}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                            {/* 메타 정보 */}
-                            <div className="flex flex-wrap gap-2 text-xs">
-                              {resource.fileType && (
-                                <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full font-medium">
-                                  {resource.fileType}
-                                </span>
-                              )}
-                              {resource.fileSize && (
-                                <span className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">
-                                  {formatFileSize(resource.fileSize)}
-                                </span>
-                              )}
-                              {resource.publishedAt && (
-                                <span className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">
-                                  {formatDate(resource.publishedAt)}
-                                </span>
-                              )}
-                            </div>
-                          </div>
 
-                          {/* 다운로드 버튼 영역 */}
-                          <div className="px-6 pb-6 pt-4 border-t border-gray-100 bg-gray-50/50">
-                            {(resource.files && resource.files.length > 0) ? (
-                              <div className="space-y-2">
-                                {resource.files.map((file: { id: number; originalFilename: string }) => (
-                                  <Link
-                                    key={file.id}
-                                    href={`/api/resources/${resource.id}/download?fileId=${file.id}`}
-                                    className="flex items-center justify-between gap-3 w-full px-4 py-3 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition-all hover:shadow-md"
-                                  >
-                                    <span className="truncate flex-1 text-left font-medium">{file.originalFilename}</span>
-                                    <Download className="h-4 w-4 flex-shrink-0" />
-                                  </Link>
-                                ))}
-                              </div>
-                            ) : resource.filePath ? (
-                              <Link
-                                href={`/api/resources/${resource.id}/download`}
-                                className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary/90 transition-all hover:shadow-md"
-                              >
-                                <Download className="h-4 w-4" />
-                                {resource.originalFilename || '다운로드'}
-                              </Link>
-                            ) : resource.externalLink ? (
-                              <Link
-                                href={resource.externalLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-all hover:shadow-md"
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                                외부 링크 이동
-                              </Link>
-                            ) : (
-                              <div className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed">
-                                <FileText className="h-4 w-4" />
-                                파일 준비중
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              );
-            })
+                    {/* 다운로드 버튼 영역 */}
+                    <div className="px-5 pb-5 pt-3 border-t border-gray-100 bg-gray-50/50 mt-auto">
+                      {(resource.files && resource.files.length > 0) ? (
+                        <div className="space-y-2">
+                          {resource.files.map((file: { id: number; originalFilename: string }) => (
+                            <Link
+                              key={file.id}
+                              href={`/api/resources/${resource.id}/download?fileId=${file.id}`}
+                              className="flex items-center justify-between gap-3 w-full px-4 py-3 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition-all hover:shadow-md"
+                            >
+                              <span className="truncate flex-1 text-left font-medium">{file.originalFilename}</span>
+                              <Download className="h-4 w-4 flex-shrink-0" />
+                            </Link>
+                          ))}
+                        </div>
+                      ) : resource.filePath ? (
+                        <Link
+                          href={`/api/resources/${resource.id}/download`}
+                          className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary/90 transition-all hover:shadow-md"
+                        >
+                          <Download className="h-4 w-4" />
+                          {resource.originalFilename || '다운로드'}
+                        </Link>
+                      ) : resource.externalLink ? (
+                        <Link
+                          href={resource.externalLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-all hover:shadow-md"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          외부 링크 이동
+                        </Link>
+                      ) : (
+                        <div className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed">
+                          <FileText className="h-4 w-4" />
+                          파일 준비중
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </div>
 
@@ -323,7 +324,7 @@ export default async function ResourceCategoryPage({ params, searchParams }: Pag
             {/* 이전 버튼 */}
             {currentPage > 1 ? (
               <Link
-                href={`/resources/${slug}?page=${currentPage - 1}`}
+                href={buildPageUrl(currentPage - 1)}
                 className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -344,12 +345,11 @@ export default async function ResourceCategoryPage({ params, searchParams }: Pag
                 ) : (
                   <Link
                     key={pageNum}
-                    href={`/resources/${slug}?page=${pageNum}`}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      currentPage === pageNum
-                        ? 'bg-primary text-white'
-                        : 'text-gray-600 bg-white border border-gray-200 hover:bg-gray-50'
-                    }`}
+                    href={buildPageUrl(pageNum as number)}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${currentPage === pageNum
+                      ? 'bg-primary text-white'
+                      : 'text-gray-600 bg-white border border-gray-200 hover:bg-gray-50'
+                      }`}
                   >
                     {pageNum}
                   </Link>
@@ -360,7 +360,7 @@ export default async function ResourceCategoryPage({ params, searchParams }: Pag
             {/* 다음 버튼 */}
             {currentPage < totalPages ? (
               <Link
-                href={`/resources/${slug}?page=${currentPage + 1}`}
+                href={buildPageUrl(currentPage + 1)}
                 className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 다음

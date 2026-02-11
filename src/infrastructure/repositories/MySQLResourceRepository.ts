@@ -55,15 +55,33 @@ export class MySQLResourceRepository implements IResourceRepository {
         params.push(Number(filter.isActive));
       }
       if (filter.searchTerm) {
-        whereConditions.push('(r.title LIKE ? OR r.description LIKE ?)');
-        params.push(`%${filter.searchTerm}%`, `%${filter.searchTerm}%`);
+        // Search across: category name, resource type name, title, description, original filename
+        whereConditions.push(`(
+          r.title LIKE ? OR
+          r.description LIKE ? OR
+          r.original_filename LIKE ? OR
+          rc.name LIKE ? OR
+          r.id IN (
+            SELECT DISTINCT rtm.resource_id FROM resource_type_map rtm
+            INNER JOIN resource_types rt ON rtm.type_id = rt.id
+            WHERE rt.name LIKE ?
+          ) OR
+          r.id IN (
+            SELECT DISTINCT rf.resource_id FROM resource_files rf
+            WHERE rf.original_filename LIKE ?
+          )
+        )`);
+        const searchPattern = `%${filter.searchTerm}%`;
+        params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
       }
     }
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
-    // Get total count
-    const countQuery = `SELECT COUNT(*) as total FROM resources r ${whereClause}`;
+    // Get total count (include category join for search)
+    const countQuery = `SELECT COUNT(*) as total FROM resources r
+     LEFT JOIN resource_categories rc ON r.category_id = rc.id
+     ${whereClause}`;
     const [countResult] = params.length > 0
       ? await pool.execute(countQuery, params)
       : await pool.query(countQuery);
