@@ -11,6 +11,8 @@ import {
   LogOut,
   Download,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Calendar,
   CreditCard,
   MessageSquare,
@@ -19,7 +21,6 @@ import {
   X,
   Mail,
   Phone,
-  Church,
   MapPin,
 } from "lucide-react";
 import { useAuth } from "@/presentation/contexts/AuthContext";
@@ -61,26 +62,24 @@ const consultationHistory = [
   },
 ];
 
-const donationHistory = [
-  {
-    date: "2024.03.01",
-    type: "정기후원",
-    amount: "30,000",
-    method: "신용카드",
-  },
-  {
-    date: "2024.02.01",
-    type: "정기후원",
-    amount: "30,000",
-    method: "신용카드",
-  },
-  {
-    date: "2024.01.15",
-    type: "일시후원",
-    amount: "100,000",
-    method: "계좌이체",
-  },
-];
+interface DonationItem {
+  id: number;
+  donation_type: 'regular' | 'one_time';
+  amount: number;
+  payment_method: string | null;
+  payment_date: Date;
+  cms_bank: string | null;
+  cms_account_number: string | null;
+  cms_account_holder: string | null;
+  cms_withdrawal_day: string | null;
+  memo: string | null;
+}
+
+interface DonationData {
+  donations: DonationItem[];
+  totalAmount: number;
+  year: number;
+}
 
 interface UserProfile {
   userId: number;
@@ -101,9 +100,13 @@ export default function MyPage() {
   const { user, logout, loading, accessToken } = useAuth();
   const router = useRouter();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [phone, setPhone] = useState<string | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<UserProfile>>({});
+  const [donationData, setDonationData] = useState<DonationData | null>(null);
+  const [donationLoading, setDonationLoading] = useState(true);
+  const [expandedDonations, setExpandedDonations] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (!loading && !user) {
@@ -124,6 +127,7 @@ export default function MyPage() {
           if (response.ok) {
             const data = await response.json();
             setUserProfile(data.profile);
+            setPhone(data.phone);
             setEditForm(data.profile || {});
           }
         } catch (error) {
@@ -137,6 +141,41 @@ export default function MyPage() {
     };
 
     fetchUserProfile();
+  }, [user, accessToken]);
+
+  useEffect(() => {
+    const fetchDonations = async () => {
+      if (user && accessToken) {
+        try {
+          console.log('[MyPage] Fetching donations for user:', user.id);
+          const response = await fetch('/api/user/donations', {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+
+          console.log('[MyPage] Donations API response status:', response.status);
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('[MyPage] Donations data received:', data);
+            setDonationData(data);
+          } else {
+            const errorData = await response.json();
+            console.error('[MyPage] Failed to fetch donations:', response.status, errorData);
+          }
+        } catch (error) {
+          console.error('[MyPage] Error fetching donations:', error);
+        } finally {
+          setDonationLoading(false);
+        }
+      } else {
+        console.log('[MyPage] User or accessToken not available');
+        setDonationLoading(false);
+      }
+    };
+
+    fetchDonations();
   }, [user, accessToken]);
 
   const handleLogout = async () => {
@@ -180,6 +219,18 @@ export default function MyPage() {
       console.error('Failed to update profile:', error);
       alert('프로필 업데이트 중 오류가 발생했습니다.');
     }
+  };
+
+  const toggleCMSInfo = (donationId: number) => {
+    setExpandedDonations(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(donationId)) {
+        newSet.delete(donationId);
+      } else {
+        newSet.add(donationId);
+      }
+      return newSet;
+    });
   };
 
   if (loading || !user) {
@@ -382,6 +433,19 @@ export default function MyPage() {
                               readOnly
                             />
                           </div>
+                          <div className="space-y-2">
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                              <Phone className="h-4 w-4 text-gray-400" />
+                              휴대폰 번호
+                            </label>
+                            <input
+                              type="tel"
+                              value={phone || ""}
+                              placeholder="휴대폰 번호 없음"
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 cursor-not-allowed"
+                              readOnly
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -476,8 +540,8 @@ export default function MyPage() {
                 <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-white shadow-lg shadow-primary/20">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                      <p className="text-white/70 text-sm mb-1">2024년 총 후원금액</p>
-                      <p className="text-3xl font-bold">190,000원</p>
+                      <p className="text-white/70 text-sm mb-1">{donationData?.year || new Date().getFullYear()}년 총 후원금액</p>
+                      <p className="text-3xl font-bold">{donationLoading ? '...' : (donationData?.totalAmount || 0).toLocaleString()}원</p>
                     </div>
                     <button className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-primary font-medium rounded-xl hover:bg-white/90 transition-colors">
                       <FileText className="h-4 w-4" />
@@ -492,46 +556,126 @@ export default function MyPage() {
                     <h2 className="text-lg font-semibold text-gray-900">후원 내역</h2>
                     <p className="text-sm text-gray-500 mt-0.5">후원해 주셔서 감사합니다</p>
                   </div>
-                  <div className="divide-y divide-gray-100">
-                    {donationHistory.map((item, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-5 hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.type === "정기후원"
-                            ? "bg-blue-100 text-blue-600"
-                            : "bg-purple-100 text-purple-600"
-                            }`}>
-                            <Heart className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{item.type}</p>
-                            <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-3.5 w-3.5" />
-                                {item.date}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <CreditCard className="h-3.5 w-3.5" />
-                                {item.method}
+
+                  {donationLoading ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-3"></div>
+                      <p className="text-gray-500 text-sm">후원 내역을 불러오는 중...</p>
+                    </div>
+                  ) : donationData?.donations && donationData.donations.length > 0 ? (
+                    <div className="divide-y divide-gray-100">
+                      {donationData.donations.map((item) => {
+                        const isRegular = item.donation_type === 'regular';
+                        const isCMS = isRegular && item.cms_bank;
+                        const paymentDate = new Date(item.payment_date);
+                        const formattedDate = `${paymentDate.getFullYear()}.${String(paymentDate.getMonth() + 1).padStart(2, '0')}.${String(paymentDate.getDate()).padStart(2, '0')}`;
+
+                        return (
+                          <div
+                            key={item.id}
+                            className="p-5 hover:bg-gray-50 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex items-start gap-4 flex-1">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${isRegular
+                                  ? "bg-blue-100 text-blue-600"
+                                  : "bg-purple-100 text-purple-600"
+                                  }`}>
+                                  <Heart className="h-5 w-5" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <p className="font-medium text-gray-900">
+                                      {isRegular ? '정기후원' : '일시후원'}
+                                    </p>
+                                    {isCMS && (
+                                      <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-blue-50 text-blue-700 rounded">
+                                        CMS
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                                    <span className="flex items-center gap-1">
+                                      <Calendar className="h-3.5 w-3.5" />
+                                      {formattedDate}
+                                    </span>
+                                    {item.payment_method && (
+                                      <span className="flex items-center gap-1">
+                                        <CreditCard className="h-3.5 w-3.5" />
+                                        {item.payment_method}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* CMS 계좌정보 표시 */}
+                                  {isCMS && (
+                                    <div className="mt-3">
+                                      <button
+                                        onClick={() => toggleCMSInfo(item.id)}
+                                        className="w-full p-3 bg-blue-50 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors"
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          <p className="text-xs font-semibold text-blue-900">CMS 자동이체 정보</p>
+                                          {expandedDonations.has(item.id) ? (
+                                            <ChevronUp className="h-4 w-4 text-blue-700" />
+                                          ) : (
+                                            <ChevronDown className="h-4 w-4 text-blue-700" />
+                                          )}
+                                        </div>
+                                      </button>
+                                      {expandedDonations.has(item.id) && (
+                                        <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                          <div className="space-y-1 text-xs text-blue-800">
+                                            <div className="flex gap-2">
+                                              <span className="font-medium min-w-[60px]">은행:</span>
+                                              <span>{item.cms_bank}</span>
+                                            </div>
+                                            {item.cms_account_number && (
+                                              <div className="flex gap-2">
+                                                <span className="font-medium min-w-[60px]">계좌번호:</span>
+                                                <span>{item.cms_account_number}</span>
+                                              </div>
+                                            )}
+                                            {item.cms_account_holder && (
+                                              <div className="flex gap-2">
+                                                <span className="font-medium min-w-[60px]">예금주:</span>
+                                                <span>{item.cms_account_holder}</span>
+                                              </div>
+                                            )}
+                                            {item.cms_withdrawal_day && (
+                                              <div className="flex gap-2">
+                                                <span className="font-medium min-w-[60px]">출금일:</span>
+                                                <span>매월 {item.cms_withdrawal_day}일</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {/* 메모 */}
+                                  {item.memo && (
+                                    <div className="mt-2 text-sm text-gray-600">
+                                      <span className="font-medium">메모:</span> {item.memo}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <span className="text-lg font-semibold text-gray-900 flex-shrink-0">
+                                {Number(item.amount).toLocaleString()}원
                               </span>
                             </div>
                           </div>
-                        </div>
-                        <span className="text-lg font-semibold text-gray-900">{item.amount}원</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-5 border-t border-gray-100 text-center">
-                    <Link
-                      href="/donation"
-                      className="inline-flex items-center gap-1 text-primary font-medium hover:underline"
-                    >
-                      후원 관리
-                      <ChevronRight className="h-4 w-4" />
-                    </Link>
-                  </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <Heart className="h-12 w-12 text-gray-300 mb-3" />
+                      <p className="text-gray-500 text-sm">후원 내역이 없습니다</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

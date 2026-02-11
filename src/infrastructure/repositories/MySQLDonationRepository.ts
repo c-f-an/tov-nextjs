@@ -133,10 +133,12 @@ export class MySQLDonationRepository implements IDonationRepository {
     const sponsorId = donation.sponsorId || donation.userId;
     const donationType = donation.donationType || donation.type || 'one_time';
     const paymentDate = donation.paymentDate || donation.startDate || new Date();
+    // Use message field as memo if available
+    const memo = donation.message || donation.memo || null;
 
     const result = await query(
-      `INSERT INTO donations (sponsor_id, donation_type, amount, payment_method, payment_date, receipt_number, purpose, memo, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      `INSERT INTO donations (sponsor_id, donation_type, amount, payment_method, payment_date, receipt_number, purpose, memo, cms_bank, cms_account_number, cms_account_holder, cms_withdrawal_day, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         sponsorId,
         donationType,
@@ -145,7 +147,11 @@ export class MySQLDonationRepository implements IDonationRepository {
         paymentDate,
         donation.receiptNumber || null,
         donation.purpose || null,
-        donation.memo || null
+        memo,
+        donation.cmsBank || null,
+        donation.cmsAccountNumber || null,
+        donation.cmsAccountHolder || null,
+        donation.cmsWithdrawalDay || null
       ]
     );
 

@@ -16,6 +16,7 @@ interface SponsorRow extends RowDataPacket {
   sponsor_status: SponsorStatus;
   privacy_agree: boolean;
   receipt_required: boolean;
+  resident_registration_number: string | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -49,8 +50,8 @@ export class MySQLSponsorRepository implements ISponsorRepository {
 
   async save(sponsor: Sponsor): Promise<Sponsor> {
     const result = await query<any>(
-      `INSERT INTO sponsors (user_id, sponsor_type, name, organization_name, phone, email, address, postcode, sponsor_status, privacy_agree, receipt_required, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      `INSERT INTO sponsors (user_id, sponsor_type, name, organization_name, phone, email, address, postcode, sponsor_status, privacy_agree, receipt_required, resident_registration_number, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         sponsor.userId,
         sponsor.sponsorType,
@@ -62,10 +63,11 @@ export class MySQLSponsorRepository implements ISponsorRepository {
         sponsor.postcode,
         sponsor.sponsorStatus,
         sponsor.privacyAgree,
-        sponsor.receiptRequired
+        sponsor.receiptRequired,
+        sponsor.residentRegistrationNumber
       ]
     );
-    
+
     return new Sponsor(
       result.insertId,
       sponsor.userId,
@@ -79,6 +81,7 @@ export class MySQLSponsorRepository implements ISponsorRepository {
       sponsor.sponsorStatus,
       sponsor.privacyAgree,
       sponsor.receiptRequired,
+      sponsor.residentRegistrationNumber,
       new Date(),
       new Date()
     );
@@ -102,6 +105,7 @@ export class MySQLSponsorRepository implements ISponsorRepository {
       row.sponsor_status,
       row.privacy_agree,
       row.receipt_required,
+      row.resident_registration_number,
       row.created_at,
       row.updated_at
     );

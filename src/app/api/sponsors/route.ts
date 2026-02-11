@@ -46,8 +46,8 @@ export async function POST(request: NextRequest) {
 
       // Create new sponsor directly for admin
       const result = await query(
-        `INSERT INTO sponsors (name, email, phone, sponsor_type, organization_name, sponsor_status, privacy_agree, receipt_required, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        `INSERT INTO sponsors (name, email, phone, sponsor_type, organization_name, sponsor_status, privacy_agree, receipt_required, resident_registration_number, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
           body.name,
           body.email || null,
@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
           body.organizationName || null,
           'active',
           1,  // privacy_agree
-          body.receiptRequired ? 1 : 0
+          body.receiptRequired ? 1 : 0,
+          body.residentRegistrationNumber || null
         ]
       );
 

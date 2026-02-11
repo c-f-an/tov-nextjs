@@ -14,6 +14,10 @@ export class Donation {
     public readonly receiptNumber: string | null,
     public readonly purpose: string | null,
     public readonly memo: string | null,
+    public readonly cmsBank: string | null,
+    public readonly cmsAccountNumber: string | null,
+    public readonly cmsAccountHolder: string | null,
+    public readonly cmsWithdrawalDay: string | null,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {}

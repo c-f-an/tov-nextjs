@@ -23,6 +23,7 @@ export class Sponsor {
     public readonly sponsorStatus: SponsorStatus,
     public readonly privacyAgree: boolean,
     public readonly receiptRequired: boolean,
+    public readonly residentRegistrationNumber: string | null,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {}
