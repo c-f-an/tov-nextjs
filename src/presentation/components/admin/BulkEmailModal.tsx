@@ -176,7 +176,7 @@ export function BulkEmailModal({
                 <div className="text-sm text-blue-800">
                   <p className="font-medium mb-1">템플릿 정보</p>
                   <p>선택한 템플릿에 맞는 기본 양식이 적용됩니다.</p>
-                  {content && <p>입력한 내용은 템플릿에 추가됩니다.</p>}
+                  {content ? <p>입력한 내용은 템플릿에 추가됩니다.</p> : null}
                   <p className="mt-1 font-medium">각 회원의 이름이 자동으로 포함됩니다.</p>
                 </div>
               </div>

@@ -38,7 +38,7 @@ export default function CategoryFilter({
             onClick={() => onCategoryChange(category.value)}
             className="flex items-center gap-2"
           >
-            {Icon && <Icon className="h-4 w-4" />}
+            {Icon ? <Icon className="h-4 w-4" /> : null}
             {category.label}
           </Button>
         );

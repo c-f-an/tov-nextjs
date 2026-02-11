@@ -288,7 +288,7 @@ export default function MyPage() {
                         >
                           <Icon className="h-5 w-5" />
                           <span>{item.label}</span>
-                          {isActive && <ChevronRight className="h-4 w-4 ml-auto" />}
+                          {isActive ? <ChevronRight className="h-4 w-4 ml-auto" /> : null}
                         </button>
                       </li>
                     );

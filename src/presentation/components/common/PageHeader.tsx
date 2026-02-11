@@ -44,7 +44,7 @@ export default function PageHeader({
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
               {title}
             </h1>
-            {description && <p className="text-base md:text-xl text-white/90">{description}</p>}
+            {description ? <p className="text-base md:text-xl text-white/90">{description}</p> : null}
           </div>
         </div>
       </div>
@@ -56,7 +56,7 @@ export default function PageHeader({
       <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
         {title}
       </h1>
-      {description && <p className="text-[#324CBB]">{description}</p>}
+      {description ? <p className="text-[#324CBB]">{description}</p> : null}
     </div>
   );
 }

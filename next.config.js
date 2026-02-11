@@ -15,6 +15,9 @@ const nextConfig = {
     keepAlive: true,
   },
 
+  // Optimize barrel imports for better bundle size
+  transpilePackages: ['lucide-react'],
+
   images: {
     remotePatterns: [
       {
