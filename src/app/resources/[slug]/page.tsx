@@ -147,7 +147,7 @@ export default async function ResourceCategoryPage({ params, searchParams }: Pag
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 py-8">
         <PageHeader
           title={<></>}
           description=""
