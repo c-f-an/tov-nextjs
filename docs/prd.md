@@ -23,11 +23,11 @@
 
 ### 2.1 기술 스택
 
-- **Frontend**: Next.js 14+ (App Router)
-- **Backend**: Node.js, Express.js
+- **Frontend**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4
+- **Backend**: Next.js API Routes, Node.js
 - **Database**: MySQL 8.0+
 - **Authentication**: JWT (Access/Refresh Token)
-- **Deployment**: Docker, Kubernetes
+- **Architecture**: Clean Architecture (DI Container - tsyringe)
 - **CDN**: CloudFront
 - **Storage**: AWS S3
 
