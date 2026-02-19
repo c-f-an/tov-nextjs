@@ -20,6 +20,14 @@ function LoginForm() {
     console.log('Login page useEffect:', { authLoading, user, redirect });
     if (!authLoading && user) {
       console.log('User is logged in, redirecting...', { role: user.role, redirect });
+
+      // Check if trying to access admin page without admin role
+      if (redirect.startsWith('/admin') && user.role !== 'ADMIN') {
+        console.log('User does not have admin access, redirecting to home');
+        window.location.href = '/';
+        return;
+      }
+
       // If user is admin and trying to access admin page, redirect there
       if (user.role === 'ADMIN' && redirect.startsWith('/admin')) {
         console.log('Redirecting to:', redirect);

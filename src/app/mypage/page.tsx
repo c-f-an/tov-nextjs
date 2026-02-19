@@ -116,7 +116,7 @@ export default function MyPage() {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (user && accessToken) {
+      if (!loading && user && accessToken) {
         try {
           const response = await fetch('/api/user/profile', {
             headers: {
@@ -135,17 +135,17 @@ export default function MyPage() {
         } finally {
           setProfileLoading(false);
         }
-      } else {
+      } else if (!loading) {
         setProfileLoading(false);
       }
     };
 
     fetchUserProfile();
-  }, [user, accessToken]);
+  }, [user, accessToken, loading]);
 
   useEffect(() => {
     const fetchDonations = async () => {
-      if (user && accessToken) {
+      if (!loading && user && accessToken) {
         try {
           console.log('[MyPage] Fetching donations for user:', user.id);
           const response = await fetch('/api/user/donations', {
@@ -169,14 +169,14 @@ export default function MyPage() {
         } finally {
           setDonationLoading(false);
         }
-      } else {
+      } else if (!loading) {
         console.log('[MyPage] User or accessToken not available');
         setDonationLoading(false);
       }
     };
 
     fetchDonations();
-  }, [user, accessToken]);
+  }, [user, accessToken, loading]);
 
   const handleLogout = async () => {
     await logout();

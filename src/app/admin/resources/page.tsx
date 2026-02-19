@@ -143,10 +143,11 @@ export default function AdminResourcesPage() {
 
   // 리소스 데이터 로드 (페이지, 카테고리, 검색어 변경 시)
   useEffect(() => {
-    if (!authLoading && user && user.role === 'ADMIN') {
+    if (!authLoading && user && user.role === 'ADMIN' && accessToken) {
       fetchResources();
     }
-  }, [authLoading, user, fetchResources]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, user, accessToken, page, selectedCategory, searchTerm]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
