@@ -43,7 +43,10 @@
       "Bash(du:*)",
       "Bash(ls:*)",
       "Bash(npm run lint:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm audit fix:*)",
+      "Bash(npm audit:*)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []
