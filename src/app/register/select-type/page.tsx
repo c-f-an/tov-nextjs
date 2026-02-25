@@ -2,34 +2,38 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Check } from 'lucide-react';
 
+const RECOMMEND_USER_TYPE = 2;
 const MEMBER_TYPES = [
   {
     userType: 2,
     label: '정회원',
-    description: '정기 후원을 통해 TOV를 지속적으로 응원하고 싶으신 분',
-    badge: '정기후원',
-    badgeColor: 'bg-blue-100 text-blue-700',
-    borderColor: 'border-blue-300 hover:border-blue-500',
-    buttonColor: 'bg-blue-600 hover:bg-blue-700',
+    features: [
+      '정기회비 납부',
+      '의결권 행사(이사회 승인)',
+      '협회 주요 사업 결정 참여',
+      '회원 전용 자료실 이용',
+    ],
   },
   {
     userType: 1,
     label: '후원회원',
-    description: '일시적인 후원으로 TOV의 활동을 응원하고 싶으신 분',
-    badge: '일시후원',
-    badgeColor: 'bg-green-100 text-green-700',
-    borderColor: 'border-green-300 hover:border-green-500',
-    buttonColor: 'bg-green-600 hover:bg-green-700',
+    features: [
+      '자유로운 후원금 납부',
+      '승인 절차 없이 즉시 가입',
+      '협회 소식지 정기 구독',
+      '기부금 영수증 발행',
+    ],
   },
   {
     userType: 0,
     label: '일반회원',
-    description: '후원 없이 TOV 회원으로 가입하고 싶으신 분',
-    badge: '비후원',
-    badgeColor: 'bg-gray-100 text-gray-600',
-    borderColor: 'border-gray-200 hover:border-gray-400',
-    buttonColor: 'bg-gray-600 hover:bg-gray-700',
+    features: [
+      '회비 및 후원금 없음',
+      '커뮤니티 활동 가능',
+      '자료실 이용',
+    ],
   },
 ];
 
@@ -41,48 +45,89 @@ export default function SelectMemberTypePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-lg">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          회원 종류 선택
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+    <div className="min-h-screen bg-muted">
+      {/* 타이틀 섹션 */}
+      <div className="pt-20 pb-12 text-center">
+        <h1 className="text-4xl font-extrabold text-foreground tracking-tight">회원가입</h1>
+        <p className="mt-3 text-base text-muted-foreground">
           가입하실 회원 종류를 선택해주세요.
         </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg px-4">
-        <div className="space-y-4">
-          {MEMBER_TYPES.map(({ userType, label, description, badge, badgeColor, borderColor, buttonColor }) => (
-            <button
-              key={userType}
-              onClick={() => handleSelect(userType)}
-              className={`w-full text-left bg-white rounded-xl border-2 p-6 shadow-sm transition-all cursor-pointer ${borderColor}`}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg font-bold text-gray-900">{label}</span>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${badgeColor}`}>
-                      {badge}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500">{description}</p>
-                </div>
-                <span className={`mt-1 flex-shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium text-white ${buttonColor}`}>
-                  선택
-                </span>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-1 text-sm text-muted-foreground">
           이미 계정이 있으신가요?{' '}
-          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link href="/login" className="font-semibold text-primary hover:underline">
             로그인
           </Link>
         </p>
+      </div>
+
+      {/* 카드 영역 */}
+      <div className="px-6 pb-24 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          {MEMBER_TYPES.map(({ userType, label, features }) => {
+            const highlight = userType === RECOMMEND_USER_TYPE;
+            return (
+              <div
+                key={userType}
+                className={[
+                  'relative flex flex-col rounded-2xl border',
+                  highlight
+                    ? 'bg-primary border-primary text-primary-foreground shadow-2xl -translate-y-2'
+                    : 'bg-white border-light text-foreground shadow-md',
+                ].join(' ')}
+              >
+                {/* 추천 배지 */}
+                {highlight && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <span className="bg-secondary text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-md whitespace-nowrap">
+                      추천
+                    </span>
+                  </div>
+                )}
+
+                {/* 헤더 */}
+                <div className={[
+                  'px-8 pt-10 pb-6 border-b',
+                  highlight ? 'border-white/20' : 'border-light',
+                ].join(' ')}>
+                  <h2 className="text-2xl font-bold">{label}</h2>
+                </div>
+
+                {/* 혜택 목록 */}
+                <ul className="flex-1 px-8 pt-7 pb-4 space-y-4">
+                  {features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-3 text-sm leading-relaxed">
+                      <span className={[
+                        'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full',
+                        highlight ? 'bg-white/20' : 'bg-secondary/10',
+                      ].join(' ')}>
+                        <Check className={[
+                          'h-3 w-3',
+                          highlight ? 'text-white' : 'text-secondary',
+                        ].join(' ')} />
+                      </span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* 버튼 */}
+                <div className="px-8 pt-8 pb-10">
+                  <button
+                    onClick={() => handleSelect(userType)}
+                    className={[
+                      'w-full rounded-xl py-3 text-sm font-semibold transition-all cursor-pointer',
+                      highlight
+                        ? 'bg-white text-primary hover:bg-gray-100'
+                        : 'border-2 border-primary text-primary hover:bg-primary hover:text-white',
+                    ].join(' ')}
+                  >
+                    가입하기
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
