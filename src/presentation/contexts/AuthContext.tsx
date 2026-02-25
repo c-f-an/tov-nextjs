@@ -9,6 +9,7 @@ interface User {
   name: string;
   role: string;
   isEmailVerified: boolean;
+  userType?: number;
 }
 
 interface AuthContextType {
@@ -28,6 +29,7 @@ interface RegisterData {
   phoneNumber?: string;
   churchName?: string;
   position?: string;
+  userType?: number;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -98,7 +100,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data = await response.json();
     setUser(data.user);
     setAccessToken(data.accessToken);
-    router.push('/dashboard');
+
+    // 정회원(2) 또는 후원회원(1)은 후원신청 페이지로 이동
+    const userType = data.user?.userType;
+    if (userType === 1 || userType === 2) {
+      router.push('/donation/apply');
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   const logout = async () => {

@@ -1,4 +1,4 @@
-import { User, LoginType } from '@/core/domain/entities/User';
+import { User, LoginType, UserType } from '@/core/domain/entities/User';
 import { UserProfile } from '@/core/domain/entities/UserProfile';
 import type { IUserRepository } from '@/core/domain/repositories/IUserRepository';
 import type { IUserProfileRepository } from '@/core/domain/repositories/IUserProfileRepository';
@@ -42,7 +42,8 @@ export class RegisterUseCase {
       phone: phoneNumber?.getValue(),
       username: null,
       loginType: LoginType.email,
-      avatarUrl: null
+      avatarUrl: null,
+      userType: dto.userType !== undefined ? (dto.userType as UserType) : UserType.NORMAL,
     });
 
     // Save user
@@ -92,7 +93,8 @@ export class RegisterUseCase {
         name: savedUser.name,
         role: savedUser.role,
         loginType: savedUser.loginType,
-        isEmailVerified: savedUser.isEmailVerified()
+        isEmailVerified: savedUser.isEmailVerified(),
+        userType: savedUser.userType,
       },
       tokens
     };

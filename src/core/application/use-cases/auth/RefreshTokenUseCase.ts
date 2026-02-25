@@ -47,7 +47,8 @@ export class RefreshTokenUseCase {
         name: user.name,
         role: user.role,
         loginType: user.loginType,
-        isEmailVerified: user.isEmailVerified()
+        isEmailVerified: user.isEmailVerified(),
+        userType: user.userType,
       },
       tokens
     };

@@ -24,7 +24,7 @@ FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null)
 # 제외 대상: 테스트 파일 자체, node_modules, .next, 설정 파일
 [[ "$FILE_PATH" =~ \.(test|spec)\.(ts|tsx|js|jsx)$ ]] && exit 0
 [[ "$FILE_PATH" =~ /(node_modules|\.next|dist|\.claude)/ ]] && exit 0
-[[ "$FILE_PATH" =~ /(tailwind|eslint|postcss|next\.config|vitest\.config|jest\.config)/ ]] && exit 0
+[[ "$BASENAME" =~ ^(tailwind|eslint|postcss|next\.config|vitest\.config|jest\.config) ]] && exit 0
 [[ "$FILE_PATH" =~ globals\.css$ ]] && exit 0
 
 # 파일명 파싱

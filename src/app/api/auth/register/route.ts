@@ -10,6 +10,7 @@ const registerSchema = z.object({
   phoneNumber: z.string().optional(),
   churchName: z.string().optional(),
   position: z.string().optional(),
+  userType: z.number().int().min(0).max(3).optional(),
 });
 
 export async function POST(request: NextRequest) {

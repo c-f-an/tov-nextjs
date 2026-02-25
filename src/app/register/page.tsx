@@ -1,10 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 
+const USER_TYPE_LABELS: Record<number, string> = {
+  0: "일반회원",
+  1: "후원회원",
+  2: "정회원",
+};
+
 export default function RegisterPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const rawType = searchParams.get("userType");
+  const userType = rawType !== null && ["0", "1", "2"].includes(rawType)
+    ? Number(rawType)
+    : null;
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -15,6 +30,12 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
+
+  useEffect(() => {
+    if (userType === null) {
+      router.replace("/register/select-type");
+    }
+  }, [userType, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -35,8 +56,8 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const { confirmPassword, ...registerData } = formData;
-      await register(registerData);
+      const { confirmPassword, ...rest } = formData;
+      await register({ ...rest, userType: userType ?? 0 });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
@@ -44,10 +65,15 @@ export default function RegisterPage() {
     }
   };
 
+  if (userType === null) return null;
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <p className="text-center text-sm text-blue-600 font-medium mb-1">
+          {USER_TYPE_LABELS[userType]} 가입
+        </p>
+        <h2 className="text-center text-3xl font-extrabold text-gray-900">
           회원가입
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">

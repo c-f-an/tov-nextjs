@@ -10,6 +10,7 @@ export interface RegisterDto {
   phoneNumber?: string;
   churchName?: string;
   position?: string;
+  userType?: number;
 }
 
 export interface RefreshTokenDto {
@@ -42,6 +43,7 @@ export interface AuthResponseDto {
     role: string;
     loginType: string;
     isEmailVerified: boolean;
+    userType?: number;
   };
   tokens: {
     accessToken: string;

@@ -7,12 +7,22 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AlertTriangle } from 'lucide-react';
 
-const NOTICE_ITEMS = [
+const BASE_NOTICE_ITEMS = [
   '후원등록 링크는 로그인해야 접근이 가능합니다.',
-  '일회성 결제를 원하시면 기간을 1달로 등록해주세요.',
   '후원 신청 후 처리까지 1~2일이 소요될 수 있습니다.',
   '후원 관련 문의사항은 사무국으로 연락해 주세요.',
 ];
+
+// userType: 2 = 정회원, 1 = 후원회원
+const USER_TYPE_NOTICE: Record<number, string> = {
+  2: '정기 결제 시에는 기간을 입력하지 않으셔도 됩니다.',
+  1: '일회성 결제는 기간을 1달로 등록해주세요. 아니면 정기결제로 등록됩니다.',
+};
+
+function getNoticeItems(userType?: number): string[] {
+  const typeNotice = userType !== undefined ? USER_TYPE_NOTICE[userType] : undefined;
+  return typeNotice ? [typeNotice, ...BASE_NOTICE_ITEMS] : BASE_NOTICE_ITEMS;
+}
 
 const QR_IMAGE_URL =
   'https://tov-homepage-resource-production.s3.ap-northeast-2.amazonaws.com/assets/cms-qrcode_20260225.png';
@@ -21,6 +31,7 @@ const DONATION_LINK =
 
 export default function DonationApplyPage() {
   const { user } = useAuth();
+  const noticeItems = getNoticeItems(user?.userType);
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -50,7 +61,7 @@ export default function DonationApplyPage() {
               </h2>
             </div>
             <ul className="space-y-3 pl-1">
-              {NOTICE_ITEMS.map((item, i) => (
+              {noticeItems.map((item: string, i: number) => (
                 <li key={i} className="flex items-start gap-2.5 text-amber-900">
                   <span className="mt-2 mr-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-500" />
                   <span className="text-sm leading-relaxed">{item}</span>
