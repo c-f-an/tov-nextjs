@@ -7,12 +7,11 @@ import { verifyAccessToken } from '@/lib/auth-utils';
 
 const consultationRepository = new MySQLConsultationRepository();
 
-async function getCurrentUserId(): Promise<number | undefined> {
+async function getCurrentUserPayload() {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
-  if (!accessToken) return undefined;
-  const payload = verifyAccessToken(accessToken, process.env.JWT_ACCESS_SECRET || 'default-access-secret');
-  return payload?.userId ?? undefined;
+  if (!accessToken) return null;
+  return verifyAccessToken(accessToken, process.env.JWT_ACCESS_SECRET || 'default-access-secret');
 }
 
 export async function GET(
@@ -20,7 +19,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = await getCurrentUserId();
+    const payload = await getCurrentUserPayload();
+    const isAdmin = payload?.role === 'ADMIN';
+    // 어드민은 전체 조회 가능, 일반 유저는 본인 상담만 조회
+    const userId = isAdmin ? undefined : (payload?.userId ?? undefined);
     const { id } = await params;
     const consultationId = parseInt(id);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/presentation/contexts/AuthContext';
@@ -95,13 +95,15 @@ const responseTypeLabels: Record<number, string> = {
 
 const ACTIVE_STATUSES = ['pending', 'assigned', 'in_progress'];
 
-export default function ConsultationDetailPage({ params }: { params: { id: string } }) {
+export default function ConsultationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: consultationId } = use(params);
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [consultation, setConsultation] = useState<ConsultationDetail | null>(null);
   const [responses, setResponses] = useState<ConsultationResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // 추가 질문 폼
   const [showQuestionForm, setShowQuestionForm] = useState(false);
@@ -109,27 +111,32 @@ export default function ConsultationDetailPage({ params }: { params: { id: strin
   const [isSubmittingQuestion, setIsSubmittingQuestion] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (!authLoading && user && consultationId) {
       fetchConsultation();
       fetchResponses();
+    } else if (!authLoading && !user) {
+      setIsLoading(false);
     }
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [authLoading, user, consultationId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchConsultation = async () => {
     try {
-      const response = await fetch(`/api/consultations/${params.id}`);
+      const response = await fetch(`/api/consultations/${consultationId}`);
       if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        console.error(`[Consultation] GET /api/consultations/${consultationId} → ${response.status}`, errData);
         if (response.status === 404) {
-          router.push('/consultation/list');
+          setFetchError('존재하지 않는 상담이거나 접근 권한이 없습니다.');
           return;
         }
-        throw new Error('Failed to fetch consultation');
+        setFetchError(errData.error || `오류가 발생했습니다. (${response.status})`);
+        return;
       }
       const data = await response.json();
       setConsultation(data);
     } catch (error) {
       console.error('Error fetching consultation:', error);
-      router.push('/consultation/list');
+      setFetchError('네트워크 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -137,7 +144,7 @@ export default function ConsultationDetailPage({ params }: { params: { id: strin
 
   const fetchResponses = async () => {
     try {
-      const response = await fetch(`/api/consultations/${params.id}/responses`);
+      const response = await fetch(`/api/consultations/${consultationId}/responses`);
       if (!response.ok) return;
       const data = await response.json();
       // 사용자에게는 공개(is_public=true)인 항목만 표시
@@ -152,7 +159,7 @@ export default function ConsultationDetailPage({ params }: { params: { id: strin
 
     setIsCancelling(true);
     try {
-      const response = await fetch(`/api/consultations/${params.id}`, {
+      const response = await fetch(`/api/consultations/${consultationId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'cancelled' }),
@@ -177,7 +184,7 @@ export default function ConsultationDetailPage({ params }: { params: { id: strin
 
     setIsSubmittingQuestion(true);
     try {
-      const response = await fetch(`/api/consultations/${params.id}/responses`, {
+      const response = await fetch(`/api/consultations/${consultationId}/responses`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -210,6 +217,16 @@ export default function ConsultationDetailPage({ params }: { params: { id: strin
     return resp.responderId === Number(user.id);
   };
 
+  if (authLoading || isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <p className="text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -223,11 +240,14 @@ export default function ConsultationDetailPage({ params }: { params: { id: strin
     );
   }
 
-  if (isLoading) {
+  if (fetchError) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center py-12">
-          <p className="text-gray-600">로딩 중...</p>
+          <p className="text-red-500 mb-4">{fetchError}</p>
+          <Link href="/consultation/list" className="inline-block px-6 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
+            목록으로 돌아가기
+          </Link>
         </div>
       </div>
     );

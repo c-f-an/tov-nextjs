@@ -106,7 +106,7 @@ export async function POST(
       responderName: user.email || undefined,
       responseType: body.responseType as ResponseType | undefined,
       content: body.content,
-      isPublic: body.isPublic ?? false,
+      isPublic: body.isPublic ?? true,
     });
 
     return NextResponse.json(response, { status: 201 });

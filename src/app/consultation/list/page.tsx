@@ -56,7 +56,7 @@ const inquiryCategoryLabels: Record<number, string> = {
 
 export default function ConsultationListPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,10 +64,10 @@ export default function ConsultationListPage() {
   const [selectedStatus, setSelectedStatus] = useState('');
 
   useEffect(() => {
-    if (user === null) {
+    if (!authLoading && user === null) {
       router.push('/login');
     }
-  }, [user, router]);
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     if (user) {

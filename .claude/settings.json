@@ -9,7 +9,9 @@
       "Bash(npx next lint*)",
       "Bash(npx eslint:*)",
       "Bash(npx:*)",
-      "Bash(node_modules/.bin/next lint:*)"
+      "Bash(node_modules/.bin/next lint:*)",
+      "Bash(./node_modules/.bin/next lint:*)",
+      "Bash(node_modules/.bin/next:*)"
     ],
     "additionalDirectories": [
       "/Users/hwayeonlee/Documents/GitHub/tov-nextjs/src/app/consultation"

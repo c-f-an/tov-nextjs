@@ -14,7 +14,9 @@ async function getCurrentUserPayload() {
 export async function GET(request: NextRequest) {
   try {
     const payload = await getCurrentUserPayload();
-    const userId = payload?.userId ?? undefined;
+    const isAdmin = payload?.role === 'ADMIN';
+    // 어드민은 전체 조회, 일반 유저는 본인 상담만 조회
+    const userId = isAdmin ? undefined : (payload?.userId ?? undefined);
     const searchParams = request.nextUrl.searchParams;
     const page = searchParams.get('page');
     const limit = searchParams.get('limit');

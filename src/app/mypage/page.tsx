@@ -22,6 +22,7 @@ import {
   Mail,
   Phone,
   MapPin,
+  Send,
 } from "lucide-react";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
@@ -43,6 +44,16 @@ interface ConsultationItem {
   preferredDate: string | null;
   createdAt: string;
   inquiryCategory: number | null;
+}
+
+interface ConsultationResponseItem {
+  id: number;
+  responseType: number;
+  content: string;
+  responderName: string | null;
+  responderId: number | null;
+  isPublic: boolean;
+  createdAt: string;
 }
 
 const consultationStatusLabels: Record<string, { label: string; color: string }> = {
@@ -111,6 +122,11 @@ export default function MyPage() {
   const [expandedDonations, setExpandedDonations] = useState<Set<number>>(new Set());
   const [consultations, setConsultations] = useState<ConsultationItem[]>([]);
   const [consultationsLoading, setConsultationsLoading] = useState(false);
+  const [expandedConsultations, setExpandedConsultations] = useState<Set<number>>(new Set());
+  const [consultationResponses, setConsultationResponses] = useState<Record<number, ConsultationResponseItem[]>>({});
+  const [loadingResponses, setLoadingResponses] = useState<Set<number>>(new Set());
+  const [questionContent, setQuestionContent] = useState<Record<number, string>>({});
+  const [submittingQuestions, setSubmittingQuestions] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (!loading && !user) {
@@ -195,6 +211,72 @@ export default function MyPage() {
       console.error('Failed to fetch consultations:', error);
     } finally {
       setConsultationsLoading(false);
+    }
+  };
+
+  const fetchConsultationResponses = async (id: number) => {
+    setLoadingResponses(prev => new Set(prev).add(id));
+    try {
+      const response = await fetch(`/api/consultations/${id}/responses`);
+      if (response.ok) {
+        const data = await response.json();
+        setConsultationResponses(prev => ({
+          ...prev,
+          [id]: data.filter((r: ConsultationResponseItem) => r.isPublic),
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch responses:', error);
+    } finally {
+      setLoadingResponses(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
+  const toggleConsultationExpand = async (id: number) => {
+    const newExpanded = new Set(expandedConsultations);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
+    } else {
+      newExpanded.add(id);
+      if (!consultationResponses[id]) {
+        await fetchConsultationResponses(id);
+      }
+    }
+    setExpandedConsultations(newExpanded);
+  };
+
+  const handleSubmitQuestion = async (consultationId: number) => {
+    const content = questionContent[consultationId]?.trim();
+    if (!content) {
+      alert('질문 내용을 입력해주세요.');
+      return;
+    }
+    setSubmittingQuestions(prev => new Set(prev).add(consultationId));
+    try {
+      const response = await fetch(`/api/consultations/${consultationId}/responses`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ responseType: 4, content, isPublic: true }),
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || '질문 등록에 실패했습니다.');
+      }
+      setQuestionContent(prev => ({ ...prev, [consultationId]: '' }));
+      await fetchConsultationResponses(consultationId);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '질문 등록에 실패했습니다.';
+      alert(message);
+    } finally {
+      setSubmittingQuestions(prev => {
+        const next = new Set(prev);
+        next.delete(consultationId);
+        return next;
+      });
     }
   };
 
@@ -538,36 +620,125 @@ export default function MyPage() {
                   ) : (
                     <>
                       <div className="space-y-3">
-                        {consultations.map((item) => (
-                          <Link
-                            key={item.id}
-                            href={`/consultation/${item.id}`}
-                            className="group block p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-200"
-                          >
-                            <div className="flex justify-between items-start gap-4">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                  <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${consultationStatusLabels[item.status]?.color || 'bg-gray-100 text-gray-700'}`}>
-                                    {consultationStatusLabels[item.status]?.label || item.status}
-                                  </span>
-                                  <span className="text-xs text-gray-400">
-                                    {consultationTypeLabels[item.consultationType] || item.consultationType}
-                                  </span>
-                                </div>
-                                <h4 className="font-medium text-gray-900 group-hover:text-primary transition-colors truncate">
-                                  {item.title}
-                                </h4>
-                                <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
-                                  <span className="flex items-center gap-1">
-                                    <Calendar className="h-3.5 w-3.5" />
-                                    {new Date(item.createdAt).toLocaleDateString('ko-KR')}
-                                  </span>
+                        {consultations.map((item) => {
+                          const isExpanded = expandedConsultations.has(item.id);
+                          const responses = consultationResponses[item.id] || [];
+                          const isActive = ['pending', 'assigned', 'in_progress'].includes(item.status);
+                          const isLoadingResp = loadingResponses.has(item.id);
+                          const isSubmitting = submittingQuestions.has(item.id);
+
+                          return (
+                            <div key={item.id} className="bg-gray-50 rounded-xl overflow-hidden">
+                              {/* 카드 헤더 - 클릭 시 Q&A 펼치기 */}
+                              <div
+                                className="group p-5 cursor-pointer hover:bg-gray-100 transition-all duration-200"
+                                onClick={() => toggleConsultationExpand(item.id)}
+                              >
+                                <div className="flex justify-between items-start gap-4">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                      <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${consultationStatusLabels[item.status]?.color || 'bg-gray-100 text-gray-700'}`}>
+                                        {consultationStatusLabels[item.status]?.label || item.status}
+                                      </span>
+                                      <span className="text-xs text-gray-400">
+                                        {consultationTypeLabels[item.consultationType] || item.consultationType}
+                                      </span>
+                                    </div>
+                                    <h4 className="font-medium text-gray-900 group-hover:text-primary transition-colors truncate">
+                                      {item.title}
+                                    </h4>
+                                    <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
+                                      <span className="flex items-center gap-1">
+                                        <Calendar className="h-3.5 w-3.5" />
+                                        {new Date(item.createdAt).toLocaleDateString('ko-KR')}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                    <Link
+                                      href={`/consultation/${item.id}`}
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="text-xs text-primary hover:underline px-2 py-1 rounded hover:bg-primary/10 transition-colors"
+                                    >
+                                      상세보기
+                                    </Link>
+                                    {isExpanded
+                                      ? <ChevronUp className="h-5 w-5 text-gray-400" />
+                                      : <ChevronDown className="h-5 w-5 text-gray-400" />
+                                    }
+                                  </div>
                                 </div>
                               </div>
-                              <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
+
+                              {/* 펼침: 질문/답변 인라인 */}
+                              {isExpanded && (
+                                <div className="border-t border-gray-200 bg-white p-5">
+                                  <h5 className="text-sm font-semibold text-gray-700 mb-3">질문 / 답변</h5>
+                                  {isLoadingResp ? (
+                                    <div className="flex justify-center py-6">
+                                      <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                                    </div>
+                                  ) : (
+                                    <div className="space-y-2">
+                                      {responses.length === 0 ? (
+                                        <p className="text-sm text-gray-400 text-center py-4">아직 등록된 답변이 없습니다.</p>
+                                      ) : (
+                                        responses.map((resp) => {
+                                          const isMyResp = resp.responderId === Number(user?.id);
+                                          const isQuestion = resp.responseType === 4;
+                                          return (
+                                            <div key={resp.id} className={`flex ${isMyResp ? 'justify-end' : 'justify-start'}`}>
+                                              <div className={`max-w-[85%] rounded-lg p-3 text-sm ${
+                                                isMyResp
+                                                  ? 'bg-blue-50 border border-blue-200'
+                                                  : isQuestion
+                                                    ? 'bg-gray-50 border border-gray-200'
+                                                    : 'bg-green-50 border border-green-200'
+                                              }`}>
+                                                <div className={`flex items-center gap-2 mb-1 ${isMyResp ? 'justify-end' : ''}`}>
+                                                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${
+                                                    isMyResp ? 'bg-blue-200 text-blue-800' : isQuestion ? 'bg-gray-200 text-gray-700' : 'bg-green-100 text-green-800'
+                                                  }`}>
+                                                    {isMyResp ? '내 질문' : isQuestion ? '질문' : '답변'}
+                                                  </span>
+                                                  <span className="text-xs text-gray-400">{new Date(resp.createdAt).toLocaleDateString('ko-KR')}</span>
+                                                </div>
+                                                <p className="text-gray-700 whitespace-pre-wrap">{resp.content}</p>
+                                              </div>
+                                            </div>
+                                          );
+                                        })
+                                      )}
+
+                                      {/* 추가 질문 폼 */}
+                                      {isActive && (
+                                        <div className="mt-4 pt-4 border-t border-gray-100">
+                                          <textarea
+                                            value={questionContent[item.id] || ''}
+                                            onChange={(e) => setQuestionContent(prev => ({ ...prev, [item.id]: e.target.value }))}
+                                            rows={3}
+                                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+                                            placeholder="추가로 궁금한 내용을 입력해주세요..."
+                                          />
+                                          <div className="flex justify-end mt-2">
+                                            <button
+                                              onClick={() => handleSubmitQuestion(item.id)}
+                                              disabled={isSubmitting || !questionContent[item.id]?.trim()}
+                                              className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                              <Send className="h-3.5 w-3.5" />
+                                              {isSubmitting ? '등록 중...' : '질문 등록'}
+                                            </button>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
-                          </Link>
-                        ))}
+                          );
+                        })}
                       </div>
                       <div className="mt-6 pt-6 border-t border-gray-100 text-center">
                         <Link
