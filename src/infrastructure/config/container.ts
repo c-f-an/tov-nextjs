@@ -6,6 +6,8 @@ import { IRefreshTokenRepository } from '@/core/domain/repositories/IRefreshToke
 import { ICategoryRepository } from '@/core/domain/repositories/ICategoryRepository';
 import { IPostRepository } from '@/core/domain/repositories/IPostRepository';
 import { IConsultationRepository } from '@/core/domain/repositories/IConsultationRepository';
+import { IConsultationResponseRepository } from '@/core/domain/repositories/IConsultationResponseRepository';
+import { IConsultationFollowupRepository } from '@/core/domain/repositories/IConsultationFollowupRepository';
 import { ISponsorRepository } from '@/core/domain/repositories/ISponsorRepository';
 import { IDonationRepository } from '@/core/domain/repositories/IDonationRepository';
 import { IAttachmentRepository } from '@/core/domain/repositories/IAttachmentRepository';
@@ -39,6 +41,10 @@ import { CreateConsultationUseCase } from '@/core/application/use-cases/consulta
 import { GetConsultationUseCase } from '@/core/application/use-cases/consultation/GetConsultationUseCase';
 import { GetConsultationsUseCase } from '@/core/application/use-cases/consultation/GetConsultationsUseCase';
 import { GetConsultationStatsUseCase } from '@/core/application/use-cases/consultation/GetConsultationStatsUseCase';
+import { CreateConsultationResponseUseCase } from '@/core/application/use-cases/consultation/CreateConsultationResponseUseCase';
+import { GetConsultationResponsesUseCase } from '@/core/application/use-cases/consultation/GetConsultationResponsesUseCase';
+import { CreateConsultationFollowupUseCase } from '@/core/application/use-cases/consultation/CreateConsultationFollowupUseCase';
+import { GetConsultationFollowupsUseCase } from '@/core/application/use-cases/consultation/GetConsultationFollowupsUseCase';
 import { CreateSponsorUseCase } from '@/core/application/use-cases/sponsor/CreateSponsorUseCase';
 import { CreateDonationUseCase } from '@/core/application/use-cases/donation/CreateDonationUseCase';
 import { GetDonationsUseCase } from '@/core/application/use-cases/donation/GetDonationsUseCase';
@@ -53,6 +59,8 @@ import { MySQLRefreshTokenRepository } from '../repositories/MySQLRefreshTokenRe
 import { MySQLCategoryRepository } from '../repositories/MySQLCategoryRepository';
 import { MySQLPostRepository } from '../repositories/MySQLPostRepository';
 import { MySQLConsultationRepository } from '../repositories/MySQLConsultationRepository';
+import { MySQLConsultationResponseRepository } from '../repositories/MySQLConsultationResponseRepository';
+import { MySQLConsultationFollowupRepository } from '../repositories/MySQLConsultationFollowupRepository';
 import { MySQLSponsorRepository } from '../repositories/MySQLSponsorRepository';
 import { MySQLDonationRepository } from '../repositories/MySQLDonationRepository';
 import { MySQLAttachmentRepository } from '../repositories/MySQLAttachmentRepository';
@@ -81,6 +89,8 @@ export class Container {
   private categoryRepository: ICategoryRepository;
   private postRepository: IPostRepository;
   private consultationRepository: IConsultationRepository;
+  private consultationResponseRepository: IConsultationResponseRepository;
+  private consultationFollowupRepository: IConsultationFollowupRepository;
   private sponsorRepository: ISponsorRepository;
   private donationRepository: IDonationRepository;
   private attachmentRepository: IAttachmentRepository;
@@ -107,6 +117,8 @@ export class Container {
     this.categoryRepository = new MySQLCategoryRepository();
     this.postRepository = MySQLPostRepository.getInstance();
     this.consultationRepository = new MySQLConsultationRepository();
+    this.consultationResponseRepository = new MySQLConsultationResponseRepository();
+    this.consultationFollowupRepository = new MySQLConsultationFollowupRepository();
     this.sponsorRepository = new MySQLSponsorRepository();
     this.donationRepository = new MySQLDonationRepository();
     this.attachmentRepository = new MySQLAttachmentRepository();
@@ -299,6 +311,30 @@ export class Container {
 
   getGetConsultationStatsUseCase(): GetConsultationStatsUseCase {
     return new GetConsultationStatsUseCase(this.consultationRepository);
+  }
+
+  getConsultationResponseRepository(): IConsultationResponseRepository {
+    return this.consultationResponseRepository;
+  }
+
+  getConsultationFollowupRepository(): IConsultationFollowupRepository {
+    return this.consultationFollowupRepository;
+  }
+
+  getCreateConsultationResponseUseCase(): CreateConsultationResponseUseCase {
+    return new CreateConsultationResponseUseCase(this.consultationRepository, this.consultationResponseRepository);
+  }
+
+  getGetConsultationResponsesUseCase(): GetConsultationResponsesUseCase {
+    return new GetConsultationResponsesUseCase(this.consultationResponseRepository);
+  }
+
+  getCreateConsultationFollowupUseCase(): CreateConsultationFollowupUseCase {
+    return new CreateConsultationFollowupUseCase(this.consultationRepository, this.consultationFollowupRepository);
+  }
+
+  getGetConsultationFollowupsUseCase(): GetConsultationFollowupsUseCase {
+    return new GetConsultationFollowupsUseCase(this.consultationFollowupRepository);
   }
 
   getGetMainBannersUseCase(): GetMainBannersUseCase {

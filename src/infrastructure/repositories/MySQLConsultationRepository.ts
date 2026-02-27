@@ -1,43 +1,49 @@
 import { IConsultationRepository, ConsultationFilters } from '@/core/domain/repositories/IConsultationRepository';
-import { Consultation, ConsultationStatus, ConsultationType } from '@/core/domain/entities/Consultation';
+import { Consultation, ConsultationStatus, InquiryChannel, InquiryCategory, PositionCode } from '@/core/domain/entities/Consultation';
 import { PaginatedResult, PaginationParams } from '@/core/domain/repositories/IPostRepository';
 import { query, queryOne } from '../database/mysql';
 import { RowDataPacket } from 'mysql2';
 
 interface ConsultationRow extends RowDataPacket {
-  id: string;
-  user_id: string | null;
+  id: number;
+  user_id: number | null;
   name: string;
+  name_public: number;
   phone: string;
+  phone_public: number;
   email: string | null;
-  consultation_type: ConsultationType;
+  church_name: string | null;
+  church_public: number;
+  position: string | null;
+  position_code: number | null;
+  consultation_type: string;
+  inquiry_channel: number | null;
+  inquiry_category: number | null;
+  category_detail: string | null;
   preferred_date: Date | null;
   preferred_time: string | null;
   title: string;
   content: string;
   status: ConsultationStatus;
-  assigned_to: string | null;
+  assigned_to: number | null;
   consultation_date: Date | null;
   consultation_notes: string | null;
-  privacy_agree: boolean;
+  privacy_agree: number;
   created_at: Date;
   updated_at: Date;
 }
 
 export class MySQLConsultationRepository implements IConsultationRepository {
-  async findById(id: string): Promise<Consultation | null> {
+  async findById(id: number): Promise<Consultation | null> {
     const row = await queryOne<ConsultationRow>(
       'SELECT * FROM consultations WHERE id = ?',
       [id]
     );
-    
     return row ? this.mapToConsultation(row) : null;
   }
 
-  async findByUserId(userId: string, pagination: PaginationParams): Promise<PaginatedResult<Consultation>> {
+  async findByUserId(userId: number, pagination: PaginationParams): Promise<PaginatedResult<Consultation>> {
     const offset = (pagination.page - 1) * pagination.limit;
-
-    // Execute COUNT and SELECT queries in parallel for better performance
     const [countResult, rows] = await Promise.all([
       query<any>('SELECT COUNT(*) as total FROM consultations WHERE user_id = ?', [userId]),
       query<ConsultationRow>(
@@ -46,28 +52,6 @@ export class MySQLConsultationRepository implements IConsultationRepository {
       )
     ]);
     const total = countResult[0].total;
-
-    return {
-      data: rows.map(row => this.mapToConsultation(row)),
-      total,
-      page: pagination.page,
-      totalPages: Math.ceil(total / pagination.limit)
-    };
-  }
-
-  async findByCounselorId(counselorId: string, pagination: PaginationParams): Promise<PaginatedResult<Consultation>> {
-    const offset = (pagination.page - 1) * pagination.limit;
-
-    // Execute COUNT and SELECT queries in parallel for better performance
-    const [countResult, rows] = await Promise.all([
-      query<any>('SELECT COUNT(*) as total FROM consultations WHERE counselor_id = ?', [counselorId]),
-      query<ConsultationRow>(
-        'SELECT * FROM consultations WHERE counselor_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-        [counselorId, Number(pagination.limit), Number(offset)]
-      )
-    ]);
-    const total = countResult[0].total;
-
     return {
       data: rows.map(row => this.mapToConsultation(row)),
       total,
@@ -77,52 +61,53 @@ export class MySQLConsultationRepository implements IConsultationRepository {
   }
 
   async findAll(filters: ConsultationFilters, pagination: PaginationParams): Promise<PaginatedResult<Consultation>> {
-    let whereConditions: string[] = [];
-    let params: any[] = [];
+    const conditions: string[] = [];
+    const params: any[] = [];
 
-    if (filters.userId) {
-      whereConditions.push('user_id = ?');
+    if (filters.userId !== undefined) {
+      conditions.push('user_id = ?');
       params.push(filters.userId);
     }
-
-    if (filters.counselorId) {
-      whereConditions.push('counselor_id = ?');
-      params.push(filters.counselorId);
+    if (filters.assignedTo !== undefined) {
+      conditions.push('assigned_to = ?');
+      params.push(filters.assignedTo);
     }
-
-    if (filters.type) {
-      whereConditions.push('type = ?');
-      params.push(filters.type);
-    }
-
     if (filters.status) {
-      whereConditions.push('status = ?');
+      conditions.push('status = ?');
       params.push(filters.status);
     }
-
+    if (filters.inquiryChannel !== undefined) {
+      conditions.push('inquiry_channel = ?');
+      params.push(filters.inquiryChannel);
+    }
+    if (filters.inquiryCategory !== undefined) {
+      conditions.push('inquiry_category = ?');
+      params.push(filters.inquiryCategory);
+    }
     if (filters.dateFrom) {
-      whereConditions.push('created_at >= ?');
+      conditions.push('created_at >= ?');
       params.push(filters.dateFrom);
     }
-
     if (filters.dateTo) {
-      whereConditions.push('created_at <= ?');
+      conditions.push('created_at <= ?');
       params.push(filters.dateTo);
     }
+    if (filters.keyword) {
+      conditions.push('MATCH(title, content) AGAINST(? IN BOOLEAN MODE)');
+      params.push(filters.keyword);
+    }
 
-    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     const offset = (pagination.page - 1) * pagination.limit;
 
-    // Execute COUNT and SELECT queries in parallel for better performance
     const [countResult, rows] = await Promise.all([
-      query<any>(`SELECT COUNT(*) as total FROM consultations ${whereClause}`, params),
+      query<any>(`SELECT COUNT(*) as total FROM consultations ${where}`, params),
       query<ConsultationRow>(
-        `SELECT * FROM consultations ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+        `SELECT * FROM consultations ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
         [...params, Number(pagination.limit), Number(offset)]
       )
     ]);
     const total = countResult[0].total;
-
     return {
       data: rows.map(row => this.mapToConsultation(row)),
       total,
@@ -131,46 +116,85 @@ export class MySQLConsultationRepository implements IConsultationRepository {
     };
   }
 
-  async save(consultation: Consultation): Promise<void> {
-    // Note: This implementation assumes the Consultation entity will be updated
-    // to include new fields matching the DB schema
-    await query(
-      `INSERT INTO consultations (id, user_id, name, phone, email, consultation_type, preferred_date, preferred_time, title, content, status, privacy_agree, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+  async save(consultation: Consultation): Promise<number> {
+    const result = await query<any>(
+      `INSERT INTO consultations
+        (user_id, name, name_public, phone, phone_public, email,
+         church_name, church_public, position, position_code,
+         consultation_type, inquiry_channel, inquiry_category, category_detail,
+         preferred_date, preferred_time, title, content, status,
+         assigned_to, consultation_date, consultation_notes,
+         privacy_agree, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
-        consultation.id,
-        consultation.userId || null,
-        consultation.name || '',
-        consultation.phone || '',
-        consultation.email || null,
-        consultation.type,
-        consultation.preferredDate || null,
-        consultation.preferredTime || null,
+        consultation.userId,
+        consultation.name,
+        consultation.namePublic ? 1 : 0,
+        consultation.phone,
+        consultation.phonePublic ? 1 : 0,
+        consultation.email,
+        consultation.churchName,
+        consultation.churchPublic ? 1 : 0,
+        consultation.position,
+        consultation.positionCode,
+        consultation.consultationType,
+        consultation.inquiryChannel,
+        consultation.inquiryCategory,
+        consultation.categoryDetail,
+        consultation.preferredDate,
+        consultation.preferredTime,
         consultation.title,
         consultation.content,
         consultation.status,
-        true // privacy_agree default
+        consultation.assignedTo,
+        consultation.consultationDate,
+        consultation.consultationNotes,
+        consultation.privacyAgree ? 1 : 0,
       ]
     );
+    return (result as any).insertId;
   }
 
   async update(consultation: Consultation): Promise<void> {
     await query(
       `UPDATE consultations
-       SET status = ?, consultation_notes = ?, assigned_to = ?,
-           consultation_date = ?, updated_at = NOW()
+       SET name = ?, name_public = ?, phone = ?, phone_public = ?,
+           email = ?, church_name = ?, church_public = ?,
+           position = ?, position_code = ?,
+           consultation_type = ?, inquiry_channel = ?, inquiry_category = ?,
+           category_detail = ?, preferred_date = ?, preferred_time = ?,
+           title = ?, content = ?, status = ?,
+           assigned_to = ?, consultation_date = ?, consultation_notes = ?,
+           updated_at = NOW()
        WHERE id = ?`,
       [
+        consultation.name,
+        consultation.namePublic ? 1 : 0,
+        consultation.phone,
+        consultation.phonePublic ? 1 : 0,
+        consultation.email,
+        consultation.churchName,
+        consultation.churchPublic ? 1 : 0,
+        consultation.position,
+        consultation.positionCode,
+        consultation.consultationType,
+        consultation.inquiryChannel,
+        consultation.inquiryCategory,
+        consultation.categoryDetail,
+        consultation.preferredDate,
+        consultation.preferredTime,
+        consultation.title,
+        consultation.content,
         consultation.status,
-        consultation.consultationNote || null,
-        consultation.counselorId || null,
-        consultation.completedAt || null,
-        consultation.id
+        consultation.assignedTo,
+        consultation.consultationDate,
+        consultation.consultationNotes,
+        consultation.id,
       ]
     );
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: number): Promise<void> {
     await query('DELETE FROM consultations WHERE id = ?', [id]);
   }
 
@@ -183,29 +207,33 @@ export class MySQLConsultationRepository implements IConsultationRepository {
   }
 
   private mapToConsultation(row: ConsultationRow): Consultation {
-    // Map DB row to Consultation entity with available fields
-    const consultation = new Consultation(
+    return new Consultation(
       row.id,
-      row.user_id || '',
+      row.user_id,
+      row.name,
+      row.name_public === 1,
+      row.phone,
+      row.phone_public === 1,
+      row.email,
+      row.church_name,
+      row.church_public === 1,
+      row.position,
+      row.position_code as PositionCode | null,
       row.consultation_type,
-      row.status,
+      row.inquiry_channel as InquiryChannel | null,
+      row.inquiry_category as InquiryCategory | null,
+      row.category_detail,
+      row.preferred_date,
+      row.preferred_time,
       row.title,
       row.content,
-      row.preferred_date || new Date(),
-      row.preferred_time || '',
+      row.status,
+      row.assigned_to,
+      row.consultation_date,
+      row.consultation_notes,
+      row.privacy_agree === 1,
       row.created_at,
-      row.updated_at,
-      row.assigned_to || undefined,
-      undefined, // attachments not in current schema
-      row.consultation_notes || undefined,
-      row.consultation_date || undefined
+      row.updated_at
     );
-
-    // Add additional fields from DB that are not in entity
-    (consultation as any).name = row.name;
-    (consultation as any).phone = row.phone;
-    (consultation as any).email = row.email;
-
-    return consultation;
   }
 }

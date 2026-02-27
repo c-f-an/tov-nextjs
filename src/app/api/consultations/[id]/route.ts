@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getContainer } from '@/infrastructure/config/getContainer';
-import { withAuth } from '@/presentation/middleware/authMiddleware';
 import { MySQLConsultationRepository } from '@/infrastructure/repositories/MySQLConsultationRepository';
 import { ConsultationStatus } from '@/core/domain/entities/Consultation';
 import { cookies } from 'next/headers';
@@ -8,13 +7,22 @@ import { verifyAccessToken } from '@/lib/auth-utils';
 
 const consultationRepository = new MySQLConsultationRepository();
 
+async function getCurrentUserId(): Promise<number | undefined> {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
+  if (!accessToken) return undefined;
+  const payload = verifyAccessToken(accessToken, process.env.JWT_ACCESS_SECRET || 'default-access-secret');
+  return payload?.userId ?? undefined;
+}
+
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await withAuth(request);
-    const consultationId = parseInt(params.id);
+    const userId = await getCurrentUserId();
+    const { id } = await params;
+    const consultationId = parseInt(id);
 
     if (isNaN(consultationId)) {
       return NextResponse.json(
@@ -25,7 +33,7 @@ export async function GET(
 
     const container = getContainer();
     const getConsultationUseCase = container.getGetConsultationUseCase();
-    const consultation = await getConsultationUseCase.execute(consultationId, user?.id);
+    const consultation = await getConsultationUseCase.execute(consultationId, userId);
 
     if (!consultation) {
       return NextResponse.json(
@@ -81,7 +89,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
-    const consultation = await consultationRepository.findById(id);
+    const consultation = await consultationRepository.findById(parseInt(id));
 
     if (!consultation) {
       return NextResponse.json(
@@ -90,29 +98,25 @@ export async function PATCH(
       );
     }
 
-    // Update fields
-    if (body.status) {
-      consultation.status = body.status as ConsultationStatus;
+    let updated = consultation;
+
+    if (body.status === ConsultationStatus.completed && consultation.status !== ConsultationStatus.completed) {
+      updated = updated.complete(body.consultationNotes ?? consultation.consultationNotes ?? '');
+    } else if (body.status === ConsultationStatus.cancelled) {
+      updated = updated.cancel();
+    } else if (body.status) {
+      updated = updated.withStatus(body.status as ConsultationStatus);
     }
 
-    if (body.consultationNote !== undefined) {
-      consultation.consultationNote = body.consultationNote;
+    if (body.assignedTo !== undefined) {
+      updated = updated.assign(body.assignedTo);
     }
 
-    if (body.counselorId !== undefined) {
-      consultation.counselorId = body.counselorId;
-    }
-
-    // If status is changed to completed, set completedAt
-    if (body.status === 'completed' && !consultation.completedAt) {
-      consultation.completedAt = new Date();
-    }
-
-    await consultationRepository.update(consultation);
+    await consultationRepository.update(updated);
 
     return NextResponse.json({
       success: true,
-      consultation
+      consultation: updated
     });
   } catch (error) {
     console.error('Error updating consultation:', error);

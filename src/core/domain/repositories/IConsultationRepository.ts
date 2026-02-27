@@ -1,24 +1,23 @@
-import { Consultation, ConsultationStatus, ConsultationType } from '../entities/Consultation';
+import { Consultation, ConsultationStatus, InquiryCategory, InquiryChannel } from '../entities/Consultation';
 import { PaginatedResult, PaginationParams } from './IPostRepository';
 
-interface ConsultationFilters {
-  userId?: string;
-  counselorId?: string;
-  type?: ConsultationType;
+export interface ConsultationFilters {
+  userId?: number;
+  assignedTo?: number;
   status?: ConsultationStatus;
+  inquiryChannel?: InquiryChannel;
+  inquiryCategory?: InquiryCategory;
   dateFrom?: Date;
   dateTo?: Date;
+  keyword?: string;
 }
 
-interface IConsultationRepository {
-  findById(id: string): Promise<Consultation | null>;
-  findByUserId(userId: string, pagination: PaginationParams): Promise<PaginatedResult<Consultation>>;
-  findByCounselorId(counselorId: string, pagination: PaginationParams): Promise<PaginatedResult<Consultation>>;
+export interface IConsultationRepository {
+  findById(id: number): Promise<Consultation | null>;
+  findByUserId(userId: number, pagination: PaginationParams): Promise<PaginatedResult<Consultation>>;
   findAll(filters: ConsultationFilters, pagination: PaginationParams): Promise<PaginatedResult<Consultation>>;
-  save(consultation: Consultation): Promise<void>;
+  save(consultation: Consultation): Promise<number>;
   update(consultation: Consultation): Promise<void>;
-  delete(id: string): Promise<void>;
+  delete(id: number): Promise<void>;
   countByStatus(status: ConsultationStatus): Promise<number>;
 }
-
-export type { IConsultationRepository, ConsultationFilters };

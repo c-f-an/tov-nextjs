@@ -23,7 +23,7 @@ export class GetConsultationsUseCase {
 
     const result = await this.consultationRepository.findAll(
       {
-        userId: request.userId?.toString(),
+        userId: request.userId,
         status: request.status
       },
       {
