@@ -141,7 +141,7 @@ export async function GET(
         "Content-Type, Authorization"
       );
 
-      return new NextResponse(fileData.body, {
+      return new NextResponse(fileData.body as BodyInit, {
         status: 200,
         headers,
       });

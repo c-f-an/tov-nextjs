@@ -88,7 +88,7 @@ export class MySQLUserRepository implements IUserRepository {
       );
       
       return new User(
-        result.insertId,
+        (result as any).insertId,
         user.email,
         user.name,
         user.role,
@@ -124,6 +124,11 @@ export class MySQLUserRepository implements IUserRepository {
         user.id
       ]
     );
+  }
+
+  async findAll(): Promise<User[]> {
+    const rows = await query<UserRow>('SELECT * FROM users ORDER BY created_at DESC');
+    return rows.map(row => this.mapToUser(row));
   }
 
   async delete(id: number): Promise<void> {

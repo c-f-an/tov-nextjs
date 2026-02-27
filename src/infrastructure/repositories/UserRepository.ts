@@ -2,9 +2,9 @@ import { User } from '@/core/domain/entities/User';
 import { IUserRepository } from '@/core/domain/repositories/IUserRepository';
 
 export class UserRepository implements IUserRepository {
-  private users: Map<string, User> = new Map();
+  private users: Map<number, User> = new Map();
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: number): Promise<User | null> {
     return this.users.get(id) || null;
   }
 
@@ -17,15 +17,16 @@ export class UserRepository implements IUserRepository {
     return null;
   }
 
-  async save(user: User): Promise<void> {
+  async save(user: User): Promise<User> {
     this.users.set(user.id, user);
+    return user;
   }
 
   async update(user: User): Promise<void> {
     this.users.set(user.id, user);
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: number): Promise<void> {
     this.users.delete(id);
   }
 

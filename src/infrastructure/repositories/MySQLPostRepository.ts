@@ -1,4 +1,4 @@
-import { IPostRepository, PostFilters, PaginationParams, PaginatedResult } from '@/core/domain/repositories/IPostRepository';
+import { IPostRepository, PostFilters, PaginationParams, PaginatedResult, SearchPostsParams, SearchPostsResult } from '@/core/domain/repositories/IPostRepository';
 import { Post, PostStatus } from '@/core/domain/entities/Post';
 import { query, queryOne } from '../database/mysql';
 import { RowDataPacket } from 'mysql2';
@@ -33,12 +33,12 @@ export class MySQLPostRepository implements IPostRepository {
     return MySQLPostRepository.instance;
   }
 
-  async findById(id: string): Promise<Post | null> {
+  async findById(id: number): Promise<Post | null> {
     const row = await queryOne<PostRow>(
       'SELECT * FROM posts WHERE id = ?',
-      [parseInt(id)]
+      [id]
     );
-    
+
     return row ? this.mapToPost(row) : null;
   }
 
@@ -47,7 +47,7 @@ export class MySQLPostRepository implements IPostRepository {
       'SELECT * FROM posts WHERE slug = ?',
       [slug]
     );
-    
+
     return row ? this.mapToPost(row) : null;
   }
 
@@ -67,7 +67,7 @@ export class MySQLPostRepository implements IPostRepository {
 
     if (filters.authorId) {
       whereConditions.push('user_id = ?');
-      params.push(parseInt(filters.authorId));
+      params.push(filters.authorId);
     }
 
     if (filters.search) {
@@ -75,7 +75,6 @@ export class MySQLPostRepository implements IPostRepository {
       params.push(`%${filters.search}%`, `%${filters.search}%`);
     }
 
-    // Handle includeNotices filter
     if (filters.includeNotices === false) {
       whereConditions.push('is_notice = 0');
     }
@@ -83,7 +82,6 @@ export class MySQLPostRepository implements IPostRepository {
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
     const offset = (pagination.page - 1) * pagination.limit;
 
-    // Execute COUNT and SELECT queries in parallel for better performance
     const [countResult, rows] = await Promise.all([
       query<any>(`SELECT COUNT(*) as total FROM posts ${whereClause}`, params),
       query<PostRow>(
@@ -104,8 +102,8 @@ export class MySQLPostRepository implements IPostRepository {
     };
   }
 
-  async save(post: Post): Promise<void> {
-    await query(
+  async save(post: Post): Promise<Post> {
+    const result = await query<any>(
       `INSERT INTO posts (category_id, user_id, title, slug, content, excerpt, featured_image, status, is_notice, is_featured, view_count, published_at, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
@@ -123,13 +121,15 @@ export class MySQLPostRepository implements IPostRepository {
         post.publishedAt
       ]
     );
+    const savedPost = await this.findById((result as any).insertId);
+    return savedPost!;
   }
 
   async update(post: Post): Promise<void> {
     await query(
-      `UPDATE posts 
-       SET category_id = ?, user_id = ?, title = ?, slug = ?, content = ?, excerpt = ?, 
-           featured_image = ?, status = ?, is_notice = ?, is_featured = ?, view_count = ?, 
+      `UPDATE posts
+       SET category_id = ?, user_id = ?, title = ?, slug = ?, content = ?, excerpt = ?,
+           featured_image = ?, status = ?, is_notice = ?, is_featured = ?, view_count = ?,
            published_at = ?, updated_at = NOW()
        WHERE id = ?`,
       [
@@ -150,15 +150,40 @@ export class MySQLPostRepository implements IPostRepository {
     );
   }
 
-  async delete(id: string): Promise<void> {
-    await query('DELETE FROM posts WHERE id = ?', [parseInt(id)]);
+  async delete(id: number): Promise<void> {
+    await query('DELETE FROM posts WHERE id = ?', [id]);
   }
 
-  async incrementViewCount(id: string): Promise<void> {
+  async incrementViewCount(id: number): Promise<void> {
     await query(
       'UPDATE posts SET view_count = view_count + 1 WHERE id = ?',
-      [parseInt(id)]
+      [id]
     );
+  }
+
+  async searchPosts(params: SearchPostsParams): Promise<SearchPostsResult> {
+    const whereConditions: string[] = ['(title LIKE ? OR content LIKE ?)'];
+    const queryParams: any[] = [`%${params.query}%`, `%${params.query}%`];
+
+    if (params.categoryId) {
+      whereConditions.push('category_id = ?');
+      queryParams.push(params.categoryId);
+    }
+
+    const whereClause = `WHERE ${whereConditions.join(' AND ')}`;
+
+    const [countResult, rows] = await Promise.all([
+      query<any>(`SELECT COUNT(*) as total FROM posts ${whereClause}`, queryParams),
+      query<PostRow>(
+        `SELECT * FROM posts ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+        [...queryParams, params.limit, params.offset]
+      )
+    ]);
+
+    return {
+      posts: rows.map(row => this.mapToPost(row)),
+      total: countResult[0].total
+    };
   }
 
   private mapToPost(row: PostRow): Post {

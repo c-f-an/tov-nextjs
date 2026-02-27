@@ -44,7 +44,7 @@ describe('User.create()', () => {
 });
 
 describe('User 헬퍼 메서드', () => {
-  const makeUser = (overrides: Partial<ConstructorParameters<typeof User>[0]> = {}) =>
+  const makeUser = (_overrides: Record<string, unknown> = {}) =>
     new User(
       1,
       'test@example.com',

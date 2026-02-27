@@ -1,4 +1,4 @@
-import { User } from '@/core/domain/entities/User';
+import { User, LoginType } from '@/core/domain/entities/User';
 import type { IUserRepository } from '@/core/domain/repositories/IUserRepository';
 import { CreateUserDto } from '../dto/CreateUserDto';
 
@@ -15,10 +15,9 @@ export class CreateUserUseCase {
     const user = User.create({
       email: dto.email,
       name: dto.name,
+      loginType: LoginType.email,
     });
 
-    await this.userRepository.save(user);
-    
-    return user;
+    return await this.userRepository.save(user);
   }
 }

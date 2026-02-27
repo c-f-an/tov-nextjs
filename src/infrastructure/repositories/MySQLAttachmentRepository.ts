@@ -53,7 +53,7 @@ export class MySQLAttachmentRepository implements IAttachmentRepository {
     );
     
     return new Attachment(
-      result.insertId,
+      (result as any).insertId,
       attachment.attachableType,
       attachment.attachableId,
       attachment.filename,

@@ -78,7 +78,7 @@ export class MySQLFinancialReportRepository implements IFinancialReportRepositor
     );
     
     return new FinancialReport(
-      result.insertId,
+      (result as any).insertId,
       report.reportYear,
       report.reportMonth,
       report.title,
@@ -94,7 +94,7 @@ export class MySQLFinancialReportRepository implements IFinancialReportRepositor
 
   async delete(id: number): Promise<boolean> {
     const result = await query<any>('DELETE FROM financial_reports WHERE id = ?', [id]);
-    return result.affectedRows > 0;
+    return (result as any).affectedRows > 0;
   }
 
   private mapToFinancialReport(row: FinancialReportRow): FinancialReport {

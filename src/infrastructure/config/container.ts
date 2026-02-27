@@ -274,7 +274,7 @@ export class Container {
   }
 
   getCreatePostUseCase(): CreatePostUseCase {
-    return new CreatePostUseCase(this.postRepository, this.categoryRepository);
+    return new CreatePostUseCase(this.postRepository);
   }
 
   getGetPostUseCase(): GetPostUseCase {
@@ -302,7 +302,7 @@ export class Container {
   }
 
   getCreateDonationUseCase(): CreateDonationUseCase {
-    return new CreateDonationUseCase(this.donationRepository, this.sponsorRepository);
+    return new CreateDonationUseCase(this.donationRepository);
   }
 
   getGetDonationsUseCase(): GetDonationsUseCase {

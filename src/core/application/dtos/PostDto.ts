@@ -12,8 +12,8 @@ export class PostDto {
   viewCount: number;
   isNotice: boolean;
   attachmentUrls: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | null;
+  updatedAt: Date | null;
   category?: CategoryDto;
   user?: UserDto;
 
@@ -44,8 +44,8 @@ export class PostDto {
       viewCount: post.viewCount,
       isNotice: post.isNotice,
       attachmentUrls: post.attachmentUrls,
-      createdAt: post.createdAt,
-      updatedAt: post.updatedAt,
+      createdAt: post.createdAt ?? null,
+      updatedAt: post.updatedAt ?? null,
       category: includeRelations?.category,
       user: includeRelations?.user
     });

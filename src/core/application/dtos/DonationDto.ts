@@ -1,49 +1,66 @@
-import { Donation, DonationType } from '@/core/domain/entities/DonationNew';
-import { SponsorDto } from './SponsorDto';
+import { Donation, DonationType, DonationStatus, PaymentMethod } from '@/core/domain/entities/Donation';
 
 export class DonationDto {
-  id: number;
-  sponsorId: number;
-  donationType: DonationType;
+  id: string;
+  userId: string;
+  type: DonationType;
+  status: DonationStatus;
   amount: number;
-  paymentMethod: string | null;
-  paymentDate: Date;
-  receiptNumber: string | null;
-  purpose: string | null;
-  memo: string | null;
+  paymentMethod: PaymentMethod;
+  paymentDay?: number;
+  startDate: Date;
+  endDate?: Date;
+  lastPaymentDate?: Date;
+  nextPaymentDate?: Date;
+  totalAmount: number;
+  paymentCount: number;
+  receiptRequired: boolean;
+  receiptEmail?: string;
+  receiptPhone?: string;
   createdAt: Date;
   updatedAt: Date;
-  sponsor?: SponsorDto;
 
   constructor(data: DonationDto) {
     this.id = data.id;
-    this.sponsorId = data.sponsorId;
-    this.donationType = data.donationType;
+    this.userId = data.userId;
+    this.type = data.type;
+    this.status = data.status;
     this.amount = data.amount;
     this.paymentMethod = data.paymentMethod;
-    this.paymentDate = data.paymentDate;
-    this.receiptNumber = data.receiptNumber;
-    this.purpose = data.purpose;
-    this.memo = data.memo;
+    this.paymentDay = data.paymentDay;
+    this.startDate = data.startDate;
+    this.endDate = data.endDate;
+    this.lastPaymentDate = data.lastPaymentDate;
+    this.nextPaymentDate = data.nextPaymentDate;
+    this.totalAmount = data.totalAmount;
+    this.paymentCount = data.paymentCount;
+    this.receiptRequired = data.receiptRequired;
+    this.receiptEmail = data.receiptEmail;
+    this.receiptPhone = data.receiptPhone;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
-    this.sponsor = data.sponsor;
   }
 
-  static fromEntity(donation: Donation, includeRelations?: { sponsor?: SponsorDto }): DonationDto {
+  static fromEntity(donation: Donation): DonationDto {
     return new DonationDto({
       id: donation.id,
-      sponsorId: donation.sponsorId,
-      donationType: donation.donationType,
+      userId: donation.userId,
+      type: donation.type,
+      status: donation.status,
       amount: donation.amount,
       paymentMethod: donation.paymentMethod,
-      paymentDate: donation.paymentDate,
-      receiptNumber: donation.receiptNumber,
-      purpose: donation.purpose,
-      memo: donation.memo,
+      paymentDay: donation.paymentDay,
+      startDate: donation.startDate,
+      endDate: donation.endDate,
+      lastPaymentDate: donation.lastPaymentDate,
+      nextPaymentDate: donation.nextPaymentDate,
+      totalAmount: donation.totalAmount,
+      paymentCount: donation.paymentCount,
+      receiptRequired: donation.receiptRequired,
+      receiptEmail: donation.receiptEmail,
+      receiptPhone: donation.receiptPhone,
       createdAt: donation.createdAt,
       updatedAt: donation.updatedAt,
-      sponsor: includeRelations?.sponsor
     });
   }
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getContainer } from '@/infrastructure/config/getContainer';
-import { withAuth } from '@/presentation/middleware/authMiddleware';
+import { verifyAdminRequest } from '@/lib/auth-admin';
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await withAuth(request);
+    const user = await verifyAdminRequest(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },

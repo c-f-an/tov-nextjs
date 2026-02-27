@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminRequest, logAdminAction } from "@/lib/auth-admin";
 import { MySQLUserRepository } from "@/infrastructure/repositories/MySQLUserRepository";
+import { User, UserRole, UserStatus, LoginType, UserType } from "@/core/domain/entities/User";
 // SendGrid 서비스 (유료)
 // import { emailService } from "@/lib/email/email-service";
 // 무료 이메일 서비스 (Gmail, Naver, Outlook 등)
 import { freeEmailService as emailService } from "@/lib/email/free-email-service";
 import bcrypt from "bcryptjs";
 
-const userRepository = new MySQLUserRepository();
+const userRepository = MySQLUserRepository.getInstance();
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,18 +25,15 @@ export async function POST(request: NextRequest) {
       name,
       email,
       phone,
-      churchName,
-      position,
-      denomination,
       role = "USER",
       status = "active",
       sendWelcomeEmail = false,
     } = body;
 
     // Validate required fields
-    if (!username || !password || !name || !email) {
+    if (!password || !name || !email) {
       return NextResponse.json(
-        { error: "Username, password, name, and email are required" },
+        { error: "Password, name, and email are required" },
         { status: 400 }
       );
     }
@@ -44,15 +42,6 @@ export async function POST(request: NextRequest) {
     if (password.length < 8) {
       return NextResponse.json(
         { error: "Password must be at least 8 characters long" },
-        { status: 400 }
-      );
-    }
-
-    // Check if username already exists
-    const existingUser = await userRepository.findByUsername(username);
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "Username already exists" },
         { status: 400 }
       );
     }
@@ -69,22 +58,18 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const newUser = await userRepository.create({
-      username,
+    // Create user entity and save
+    const userEntity = User.create({
+      username: username || null,
       password: hashedPassword,
       name,
       email,
       phone: phone || null,
-      churchName: churchName || null,
-      position: position || null,
-      denomination: denomination || null,
-      role,
-      status,
-      loginType: "email",
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      loginType: LoginType.email,
+      avatarUrl: null,
     });
+
+    const newUser = await userRepository.save(userEntity);
 
     // Send welcome email if requested
     if (sendWelcomeEmail && email) {
@@ -113,7 +98,8 @@ export async function POST(request: NextRequest) {
         status,
         sendWelcomeEmail,
       },
-      request
+      request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined,
+      request.headers.get("user-agent") || undefined
     );
 
     return NextResponse.json({
@@ -125,9 +111,9 @@ export async function POST(request: NextRequest) {
         name: newUser.name,
         email: newUser.email,
         phone: newUser.phone,
-        churchName: newUser.churchName,
-        position: newUser.position,
-        denomination: newUser.denomination,
+        churchName: null,
+        position: null,
+        denomination: null,
         role: newUser.role,
         status: newUser.status,
         createdAt: newUser.createdAt,

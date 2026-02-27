@@ -44,7 +44,7 @@ export default function AdminProfilePage() {
           phone: data.profile?.phone || '',
           department: data.profile?.churchName || '사무국',
           position: data.profile?.position || '시스템 관리자',
-          joinDate: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('ko-KR').replace(/\. /g, '.').replace('.', '') : ''
+          joinDate: ''
         })
       }
     } catch (error) {

@@ -6,7 +6,7 @@ import { verifyAdminRequest, logAdminAction } from "@/lib/auth-admin";
 import { freeEmailService as emailService } from "@/lib/email/free-email-service";
 import { MySQLUserRepository } from "@/infrastructure/repositories/MySQLUserRepository";
 
-const userRepository = new MySQLUserRepository();
+const userRepository = MySQLUserRepository.getInstance();
 
 export async function POST(request: NextRequest) {
   try {

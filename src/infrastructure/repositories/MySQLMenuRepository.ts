@@ -85,7 +85,7 @@ export class MySQLMenuRepository implements IMenuRepository {
     );
     
     return new Menu(
-      result.insertId,
+      (result as any).insertId,
       menu.parentId,
       menu.name,
       menu.url,

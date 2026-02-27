@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Transform settings into an object
-    const settingsMap = {};
+    const settingsMap: Record<string, { value: unknown; type: string; description: string }> = {};
     for (const setting of settings as any[]) {
       let value = setting.setting_value;
       
@@ -83,7 +83,7 @@ export async function PUT(request: NextRequest) {
     // Update each setting
     const updatedSettings = [];
     for (const [key, data] of Object.entries(settings)) {
-      if (typeof data !== 'object' || !('value' in data)) {
+      if (typeof data !== 'object' || data === null || !('value' in data)) {
         continue;
       }
 

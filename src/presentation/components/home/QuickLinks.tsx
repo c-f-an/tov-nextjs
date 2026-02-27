@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { QuickLink } from "@/core/domain/entities/QuickLink";
 
@@ -143,9 +144,9 @@ const defaultQuickLinks = [
 ];
 
 // Icon mapping based on icon name or title
-function getIcon(iconName?: string | null, title?: string): JSX.Element {
+function getIcon(iconName?: string | null, title?: string): React.ReactElement {
   // Map icon names to SVG components
-  const iconMap: Record<string, JSX.Element> = {
+  const iconMap: Record<string, React.ReactElement> = {
     document: (
       <svg
         className="w-8 h-8"

@@ -4,10 +4,11 @@ import { getContainer } from '@/infrastructure/config/getContainer';
 // GET /api/resources/categories/[id] - Get single category
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const categoryId = parseInt(params.id);
+    const { id: paramId } = await params;
+    const categoryId = parseInt(paramId);
 
     if (isNaN(categoryId)) {
       return NextResponse.json(
@@ -41,11 +42,12 @@ export async function GET(
 // PUT /api/resources/categories/[id] - Update category (Admin only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // TODO: Add authentication check
-    const categoryId = parseInt(params.id);
+    const { id: paramId } = await params;
+    const categoryId = parseInt(paramId);
 
     if (isNaN(categoryId)) {
       return NextResponse.json(
@@ -92,11 +94,12 @@ export async function PUT(
 // DELETE /api/resources/categories/[id] - Delete category (Admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // TODO: Add authentication check
-    const categoryId = parseInt(params.id);
+    const { id: paramId } = await params;
+    const categoryId = parseInt(paramId);
 
     if (isNaN(categoryId)) {
       return NextResponse.json(

@@ -13,7 +13,7 @@ export class GetQuickLinksUseCase {
     try {
       let quickLinks: QuickLink[];
       if (input?.activeOnly) {
-        quickLinks = await this.quickLinkRepository.findActive();
+        quickLinks = await this.quickLinkRepository.findAll(true);
       } else {
         quickLinks = await this.quickLinkRepository.findAll();
       }

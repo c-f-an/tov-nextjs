@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     const isImage = imageTypes.includes(fileType);
 
-    let uploadBuffer = buffer;
+    let uploadBuffer: Buffer = buffer;
     let uploadContentType = fileType;
     let finalFileName = file.name;
 

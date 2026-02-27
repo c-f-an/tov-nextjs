@@ -5,6 +5,7 @@ import { TovActivities } from "@/presentation/components/home/TovActivities";
 import { ConsultationBanner } from "@/presentation/components/home/ConsultationBanner";
 import { FinancialReport } from "@/presentation/components/home/FinancialReport";
 import { getContainer } from "@/infrastructure/config/getContainer";
+import { PostStatus } from "@/core/domain/entities/Post";
 
 // Force dynamic rendering to ensure DB queries run at runtime
 export const dynamic = "force-dynamic";
@@ -45,7 +46,7 @@ export default async function Home() {
       container.getGetPostsUseCase().execute({
         limit: 3,
         page: 1,
-        status: "published",
+        status: PostStatus.published,
       }).catch(error => {
         console.error("Error fetching latest posts:", error);
         return null;

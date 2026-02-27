@@ -23,6 +23,7 @@ export class CreatePostUseCase {
       status: PostStatus.published,
       viewCount: 0,
       isNotice: request.isNotice || false,
+      isFeatured: false,
       attachmentUrls: request.attachmentUrls || [],
       createdAt: new Date(),
       updatedAt: new Date()

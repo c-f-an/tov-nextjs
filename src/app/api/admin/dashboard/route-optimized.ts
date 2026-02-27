@@ -1,23 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pool } from '@/infrastructure/database/mysql';
-import { verifyJWT } from '@/lib/auth';
+import { verifyAdminRequest } from '@/lib/auth-admin';
 import { performance } from 'perf_hooks';
 
 export async function GET(request: NextRequest) {
   const startTime = performance.now();
-  
+
   try {
     // Verify authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+    const adminUser = await verifyAdminRequest(request);
+    if (!adminUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    const payload = await verifyJWT(token);
-    
-    if (!payload || payload.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Execute all queries in parallel for better performance

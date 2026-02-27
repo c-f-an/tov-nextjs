@@ -56,7 +56,7 @@ export class MySQLNewsletterSubscriberRepository implements INewsletterSubscribe
     );
     
     return new NewsletterSubscriber(
-      result.insertId,
+      (result as any).insertId,
       subscriber.email,
       subscriber.name,
       subscriber.isActive,

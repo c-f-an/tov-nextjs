@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
       recentConsultations: consultationRows
     };
 
-    console.log('Returning response with posts:', response.recentPosts?.length, 'consultations:', response.recentConsultations?.length);
+    console.log('Returning response with posts:', (response.recentPosts as unknown[])?.length, 'consultations:', (response.recentConsultations as unknown[])?.length);
 
     return NextResponse.json(response);
   } catch (error) {

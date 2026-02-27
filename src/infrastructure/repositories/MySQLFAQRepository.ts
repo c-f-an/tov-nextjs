@@ -66,7 +66,7 @@ export class MySQLFAQRepository implements IFAQRepository {
     );
     
     return new FAQ(
-      result.insertId,
+      (result as any).insertId,
       faq.category,
       faq.question,
       faq.answer,

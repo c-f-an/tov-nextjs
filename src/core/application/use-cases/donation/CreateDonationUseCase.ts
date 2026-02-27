@@ -1,47 +1,36 @@
-import { Donation, DonationType } from '@/core/domain/entities/DonationNew';
+import { Donation, DonationType, DonationStatus, PaymentMethod } from '@/core/domain/entities/Donation';
 import type { IDonationRepository } from '@/core/domain/repositories/IDonationRepository';
 import { DonationDto } from '../../dtos/DonationDto';
 interface CreateDonationRequest {
-  sponsorId: number;
+  userId: string;
   donationType: DonationType;
   amount: number;
-  paymentMethod?: string;
-  paymentDate: Date;
-  receiptNumber?: string;
-  purpose?: string;
-  memo?: string;
-  message?: string;
-  cmsBank?: string;
-  cmsAccountNumber?: string;
-  cmsAccountHolder?: string;
-  cmsWithdrawalDay?: string;
+  paymentMethod: PaymentMethod;
+  paymentDay?: number;
+  startDate: Date;
+  endDate?: Date;
+  receiptRequired?: boolean;
+  receiptEmail?: string;
+  receiptPhone?: string;
 }
 export class CreateDonationUseCase {
   constructor(
     private donationRepository: IDonationRepository
   ) {}
   async execute(request: CreateDonationRequest): Promise<DonationDto> {
-    // Use message field as memo if available
-    const memo = request.message || request.memo || null;
-
-    const donation = new Donation(
-      0, // Will be assigned by database
-      request.sponsorId,
-      request.donationType,
-      request.amount,
-      request.paymentMethod || null,
-      request.paymentDate,
-      request.receiptNumber || null,
-      request.purpose || null,
-      memo,
-      request.cmsBank || null,
-      request.cmsAccountNumber || null,
-      request.cmsAccountHolder || null,
-      request.cmsWithdrawalDay || null,
-      new Date(),
-      new Date()
-    );
-    const savedDonation = await this.donationRepository.save(donation);
-    return DonationDto.fromEntity(savedDonation);
+    const donation = Donation.create({
+      userId: request.userId,
+      type: request.donationType,
+      amount: request.amount,
+      paymentMethod: request.paymentMethod,
+      startDate: request.startDate,
+      paymentDay: request.paymentDay,
+      endDate: request.endDate,
+      receiptRequired: request.receiptRequired ?? false,
+      receiptEmail: request.receiptEmail,
+      receiptPhone: request.receiptPhone,
+    });
+    await this.donationRepository.save(donation);
+    return DonationDto.fromEntity(donation);
   }
 }

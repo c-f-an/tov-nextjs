@@ -64,7 +64,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     // 게시글 가져오기
     const posts = await query<
-      { id: number; slug: string; updated_at: Date; category_slug: string }[]
+      { id: number; slug: string; updated_at: Date; category_slug: string }
     >(`
       SELECT p.id, p.slug, p.updated_at, c.slug as category_slug
       FROM posts p
@@ -86,7 +86,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // 비즈니스 보고서 가져오기 (reports 테이블 사용)
     const businessReports = await query<
-      { id: number; type: string; updated_at: Date }[]
+      { id: number; type: string; updated_at: Date }
     >(`
       SELECT id, type, updated_at
       FROM reports

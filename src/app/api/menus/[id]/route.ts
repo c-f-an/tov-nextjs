@@ -1,17 +1,16 @@
 import { getContainer } from '@/infrastructure/config/getContainer';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { IMenuRepository } from '@/core/domain/repositories/IMenuRepository';
-import { IAuthService } from '@/core/domain/services/IAuthService';
 import { MenuType, LinkTarget } from '@/core/domain/entities/Menu';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const menuId = parseInt(params.id);
-    
+    const { id } = await params;
+    const menuId = parseInt(id);
+
     if (isNaN(menuId)) {
       return NextResponse.json(
         { error: 'Invalid menu ID' },
@@ -66,9 +65,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Check authentication
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -76,6 +76,7 @@ export async function PUT(
     }
 
     const token = authHeader.substring(7);
+    const container = getContainer();
     const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
@@ -83,8 +84,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const menuId = parseInt(params.id);
-    
+    const menuId = parseInt(id);
+
     if (isNaN(menuId)) {
       return NextResponse.json(
         { error: 'Invalid menu ID' },
@@ -154,9 +155,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Check authentication
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -164,6 +166,7 @@ export async function DELETE(
     }
 
     const token = authHeader.substring(7);
+    const container = getContainer();
     const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
@@ -171,8 +174,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const menuId = parseInt(params.id);
-    
+    const menuId = parseInt(id);
+
     if (isNaN(menuId)) {
       return NextResponse.json(
         { error: 'Invalid menu ID' },

@@ -28,7 +28,7 @@ export class SearchPostsUseCase {
       limit
     });
     return {
-      posts: posts.map(PostDto.fromEntity),
+      posts: posts.map(post => PostDto.fromEntity(post)),
       total,
       page,
       totalPages: Math.ceil(total / limit),

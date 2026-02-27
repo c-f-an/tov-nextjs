@@ -4,6 +4,8 @@ import { FileText, Calculator, Receipt, Scale, Download } from 'lucide-react'
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb"
 import PageHeader from '@/presentation/components/common/PageHeader'
 import { getContainer } from '@/infrastructure/config/getContainer';
+import { ResourceCategory } from '@/core/domain/entities/ResourceCategory';
+import { Resource } from '@/core/domain/entities/Resource';
 
 const iconMap: { [key: string]: any } = {
   'Calculator': Calculator,
@@ -52,8 +54,8 @@ export default async function ResourcesPage() {
   const resourceRepo = container.getResourceRepository();
 
   // Get categories from database
-  let categories = [];
-  let featuredResources = [];
+  let categories: ResourceCategory[] = [];
+  let featuredResources: Resource[] = [];
 
   // Skip database queries during build
   if (process.env.SKIP_DB_QUERIES !== "true") {

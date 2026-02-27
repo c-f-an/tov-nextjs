@@ -53,7 +53,7 @@ export class MySQLQuickLinkRepository implements IQuickLinkRepository {
     );
     
     return new QuickLink(
-      result.insertId,
+      (result as any).insertId,
       quickLink.title,
       quickLink.icon,
       quickLink.linkUrl,

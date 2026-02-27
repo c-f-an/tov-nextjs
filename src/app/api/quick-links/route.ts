@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
+    const container = getContainer();
     const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 

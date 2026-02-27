@@ -65,7 +65,7 @@ export class User implements IUser {
     public readonly updatedAt?: Date | null
   ) {}
 
-  static create(params: Omit<IUser, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'emailVerifiedAt' | 'lastLoginAt' | 'lastLoginIp' | 'rememberToken' | 'role'> & { userType?: UserType }): User {
+  static create(params: Omit<IUser, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'emailVerifiedAt' | 'lastLoginAt' | 'lastLoginIp' | 'rememberToken' | 'role' | 'userType'> & { userType?: UserType }): User {
     return new User(
       0, // Auto-increment ID will be assigned by database
       params.email,

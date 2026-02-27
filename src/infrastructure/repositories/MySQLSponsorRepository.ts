@@ -69,7 +69,7 @@ export class MySQLSponsorRepository implements ISponsorRepository {
     );
 
     return new Sponsor(
-      result.insertId,
+      (result as any).insertId,
       sponsor.userId,
       sponsor.sponsorType,
       sponsor.name,

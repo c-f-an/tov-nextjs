@@ -3,11 +3,12 @@ import { getContainer } from '@/infrastructure/config/getContainer';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const faqId = parseInt(params.id);
-    
+    const { id } = await params;
+    const faqId = parseInt(id);
+
     if (isNaN(faqId)) {
       return NextResponse.json(
         { error: 'Invalid FAQ ID' },
@@ -54,9 +55,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Check authentication
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -64,6 +66,7 @@ export async function PUT(
     }
 
     const token = authHeader.substring(7);
+    const container = getContainer();
     const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
@@ -71,8 +74,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const faqId = parseInt(params.id);
-    
+    const faqId = parseInt(id);
+
     if (isNaN(faqId)) {
       return NextResponse.json(
         { error: 'Invalid FAQ ID' },
@@ -81,7 +84,6 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const container = getContainer();
     const faqRepository = container.getFAQRepository();
     const faq = await faqRepository.findById(faqId);
 
@@ -137,9 +139,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Check authentication
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -147,6 +150,7 @@ export async function DELETE(
     }
 
     const token = authHeader.substring(7);
+    const container = getContainer();
     const authService = container.getAuthService();
     const payload = await authService.verifyAccessToken(token);
 
@@ -154,8 +158,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const faqId = parseInt(params.id);
-    
+    const faqId = parseInt(id);
+
     if (isNaN(faqId)) {
       return NextResponse.json(
         { error: 'Invalid FAQ ID' },
@@ -163,7 +167,6 @@ export async function DELETE(
       );
     }
 
-    const container = getContainer();
     const faqRepository = container.getFAQRepository();
     const faq = await faqRepository.findById(faqId);
 

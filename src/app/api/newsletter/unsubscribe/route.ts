@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const container = getContainer();
     const subscriberRepository = container.getNewsletterSubscriberRepository();
     const subscriber = await subscriberRepository.findByEmail(email);
 

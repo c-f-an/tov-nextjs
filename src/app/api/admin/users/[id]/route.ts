@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminRequest, logAdminAction } from "@/lib/auth-admin";
 import { MySQLUserRepository } from "@/infrastructure/repositories/MySQLUserRepository";
-import { formatDate } from "@/lib/utils/date";
+import { User } from "@/core/domain/entities/User";
 
-const userRepository = new MySQLUserRepository();
+const userRepository = MySQLUserRepository.getInstance();
 
 // GET /api/admin/users/[id] - Get single user details
 export async function GET(
@@ -47,14 +47,14 @@ export async function GET(
       name: user.name,
       email: user.email,
       phone: user.phone,
-      churchName: user.churchName,
-      position: user.position,
-      denomination: user.denomination,
+      churchName: null,
+      position: null,
+      denomination: null,
       status: user.status,
       role: user.role,
       userType: user.userType,
       loginType: user.loginType,
-      adminNote: user.adminNote || "",
+      adminNote: "",
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       lastLoginAt: user.lastLoginAt,
@@ -94,12 +94,9 @@ export async function PATCH(
       name,
       email,
       phone,
-      churchName,
-      position,
       status,
       role,
       userType,
-      adminNote,
     } = body;
 
     // Fetch existing user
@@ -108,41 +105,37 @@ export async function PATCH(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Prepare update data
-    const updateData: any = {
-      username: username || existingUser.username,
-      name: name || existingUser.name,
-      email: email || existingUser.email,
-      phone: phone || existingUser.phone,
-      churchName: churchName || existingUser.churchName,
-      position: position || existingUser.position,
-      status: status || existingUser.status,
-      role: role || existingUser.role,
-      userType: userType !== undefined ? userType : existingUser.userType,
-      adminNote: adminNote !== undefined ? adminNote : existingUser.adminNote,
-      updatedAt: new Date(),
-    };
+    // Build updated User entity
+    const updatedUserEntity = new User(
+      existingUser.id,
+      email || existingUser.email,
+      name || existingUser.name,
+      role || existingUser.role,
+      status || existingUser.status,
+      existingUser.loginType,
+      userType !== undefined ? userType : existingUser.userType,
+      username !== undefined ? username : existingUser.username,
+      existingUser.password,
+      phone !== undefined ? phone : existingUser.phone,
+      existingUser.emailVerifiedAt,
+      existingUser.rememberToken,
+      existingUser.avatarUrl,
+      existingUser.lastLoginAt,
+      existingUser.lastLoginIp,
+      existingUser.createdAt,
+      new Date()
+    );
 
     // Update user
-    await userRepository.update(userId, updateData);
+    await userRepository.update(updatedUserEntity);
 
     // Log admin action with changes
-    const changes: any = {};
-    Object.keys(updateData).forEach((key) => {
-      if (updateData[key] !== existingUser[key as keyof typeof existingUser]) {
-        changes[key] = {
-          old: existingUser[key as keyof typeof existingUser],
-          new: updateData[key],
-        };
-      }
-    });
-
     await logAdminAction(
       adminUser.id,
       "UPDATE_USER",
       "users",
       userId,
-      { action: "update_user", userId, changes },
+      { action: "update_user", userId },
       request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined,
       request.headers.get("user-agent") || undefined
     );
@@ -158,14 +151,14 @@ export async function PATCH(
         name: updatedUser!.name,
         email: updatedUser!.email,
         phone: updatedUser!.phone,
-        churchName: updatedUser!.churchName,
-        position: updatedUser!.position,
-        denomination: updatedUser!.denomination,
+        churchName: null,
+        position: null,
+        denomination: null,
         status: updatedUser!.status,
         role: updatedUser!.role,
         userType: updatedUser!.userType,
         loginType: updatedUser!.loginType,
-        adminNote: updatedUser!.adminNote,
+        adminNote: "",
         createdAt: updatedUser!.createdAt,
         updatedAt: updatedUser!.updatedAt,
         lastLoginAt: updatedUser!.lastLoginAt,
@@ -205,10 +198,26 @@ export async function DELETE(
     }
 
     // Soft delete by updating status
-    await userRepository.update(userId, {
-      status: "deleted",
-      updatedAt: new Date(),
-    });
+    const deletedUserEntity = new User(
+      user.id,
+      user.email,
+      user.name,
+      user.role,
+      "deleted" as any,
+      user.loginType,
+      user.userType,
+      user.username,
+      user.password,
+      user.phone,
+      user.emailVerifiedAt,
+      user.rememberToken,
+      user.avatarUrl,
+      user.lastLoginAt,
+      user.lastLoginIp,
+      user.createdAt,
+      new Date()
+    );
+    await userRepository.update(deletedUserEntity);
 
     // Log admin action
     await logAdminAction(

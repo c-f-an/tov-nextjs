@@ -319,12 +319,11 @@ export function Header() {
           <nav className="hidden lg:flex items-center space-x-4">
             {menuItems.map((item) => (
               <div key={item.href} className="relative group">
-                <p
-                  href={item.href}
+                <span
                   className="text-base text-gray-700 hover:text-primary font-semibold py-6 block"
                 >
                   {item.title}
-                </p>
+                </span>
                 {item.submenu && item.submenu.length > 0 && (
                   <div className="absolute left-0 top-full w-48 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div className="py-2">

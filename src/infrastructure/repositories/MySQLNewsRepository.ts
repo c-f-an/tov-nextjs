@@ -118,7 +118,7 @@ export class MySQLNewsRepository implements INewsRepository {
   }
 
   async findById(id: number): Promise<News | null> {
-    const rows = await query<NewsRow[]>('SELECT * FROM news WHERE id = ?', [id]);
+    const rows = await query<NewsRow>('SELECT * FROM news WHERE id = ?', [id]);
     if (rows.length === 0) return null;
     return this.mapRowToNews(rows[0]);
   }
@@ -152,7 +152,7 @@ export class MySQLNewsRepository implements INewsRepository {
 
     // Count total items
     const countSql = `SELECT COUNT(*) as total FROM news ${whereClause}`;
-    const countResult = await query<any[]>(countSql, queryParams);
+    const countResult = await query<any>(countSql, queryParams);
     const total = countResult[0].total;
 
     // Get paginated items
@@ -163,7 +163,7 @@ export class MySQLNewsRepository implements INewsRepository {
       LIMIT ? OFFSET ?
     `;
 
-    const rows = await query<NewsRow[]>(sql, [...queryParams, limit, offset]);
+    const rows = await query<NewsRow>(sql, [...queryParams, limit, offset]);
     const items = rows.map(row => this.mapRowToNews(row));
 
     return {

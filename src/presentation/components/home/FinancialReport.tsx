@@ -29,7 +29,17 @@ export function FinancialReport({ report }: FinancialReportProps) {
   };
   
   // Use DB report if available, otherwise use default data
-  const displayData = report ? {
+  const displayData: {
+    year: number;
+    month?: number | null;
+    totalIncome: number;
+    totalExpense: number;
+    balance: number;
+    title?: string | null;
+    content?: string | null;
+    incomeBreakdown?: { category: string; amount: number; percentage: number }[];
+    expenseBreakdown?: { category: string; amount: number; percentage: number }[];
+  } = report ? {
     year: report.reportYear,
     month: report.reportMonth,
     totalIncome: report.totalIncome || 0,

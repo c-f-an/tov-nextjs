@@ -71,11 +71,11 @@ export async function verifyAdminRequest(request: NextRequest): Promise<AdminUse
 export async function logAdminAction(
   adminId: number,
   action: string,
-  entityType?: string,
-  entityId?: number,
+  entityType?: string | null,
+  entityId?: number | string | null,
   details?: any,
-  ipAddress?: string,
-  userAgent?: string
+  ipAddress?: string | null,
+  userAgent?: string | null
 ) {
   try {
     await query(

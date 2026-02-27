@@ -28,11 +28,11 @@ export class JwtAuthService implements IAuthService {
     const jti = crypto.randomUUID();
     
     const accessToken = jwt.sign({ ...payload, jti }, this.accessTokenSecret, {
-      expiresIn: this.accessTokenExpiresIn
+      expiresIn: this.accessTokenExpiresIn as any
     });
 
     const refreshToken = jwt.sign({ ...payload, jti }, this.refreshTokenSecret, {
-      expiresIn: this.refreshTokenExpiresIn
+      expiresIn: this.refreshTokenExpiresIn as any
     });
 
     // Hash the refresh token before storing

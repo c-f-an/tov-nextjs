@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminRequest, logAdminAction } from "@/lib/auth-admin";
 import { MySQLUserRepository } from "@/infrastructure/repositories/MySQLUserRepository";
+import { User } from "@/core/domain/entities/User";
 
-const userRepository = new MySQLUserRepository();
+const userRepository = MySQLUserRepository.getInstance();
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -18,7 +19,6 @@ export async function PATCH(request: NextRequest) {
       action,
       status,
       role,
-      adminNote,
     } = body;
 
     // Validate input
@@ -52,8 +52,7 @@ export async function PATCH(request: NextRequest) {
           continue;
         }
 
-        let updateData: any = {};
-        let actionType = "";
+        let updatedUser: User | null = null;
 
         switch (action) {
           case "UPDATE_STATUS":
@@ -62,8 +61,13 @@ export async function PATCH(request: NextRequest) {
               results.errors.push(`Status is required for user ${userId}`);
               continue;
             }
-            updateData.status = status;
-            actionType = "BULK_UPDATE_STATUS";
+            updatedUser = new User(
+              user.id, user.email, user.name, user.role, status,
+              user.loginType, user.userType, user.username, user.password,
+              user.phone, user.emailVerifiedAt, user.rememberToken,
+              user.avatarUrl, user.lastLoginAt, user.lastLoginIp,
+              user.createdAt, new Date()
+            );
             break;
 
           case "UPDATE_ROLE":
@@ -72,18 +76,23 @@ export async function PATCH(request: NextRequest) {
               results.errors.push(`Role is required for user ${userId}`);
               continue;
             }
-            updateData.role = role;
-            actionType = "BULK_UPDATE_ROLE";
-            break;
-
-          case "UPDATE_ADMIN_NOTE":
-            updateData.adminNote = adminNote || "";
-            actionType = "BULK_UPDATE_ADMIN_NOTE";
+            updatedUser = new User(
+              user.id, user.email, user.name, role, user.status,
+              user.loginType, user.userType, user.username, user.password,
+              user.phone, user.emailVerifiedAt, user.rememberToken,
+              user.avatarUrl, user.lastLoginAt, user.lastLoginIp,
+              user.createdAt, new Date()
+            );
             break;
 
           case "DELETE":
-            updateData.status = "deleted";
-            actionType = "BULK_DELETE";
+            updatedUser = new User(
+              user.id, user.email, user.name, user.role, "deleted" as any,
+              user.loginType, user.userType, user.username, user.password,
+              user.phone, user.emailVerifiedAt, user.rememberToken,
+              user.avatarUrl, user.lastLoginAt, user.lastLoginIp,
+              user.createdAt, new Date()
+            );
             break;
 
           default:
@@ -92,9 +101,10 @@ export async function PATCH(request: NextRequest) {
             continue;
         }
 
-        updateData.updatedAt = new Date();
-        await userRepository.update(userId, updateData);
-        results.success++;
+        if (updatedUser) {
+          await userRepository.update(updatedUser);
+          results.success++;
+        }
       } catch (error) {
         results.failed++;
         results.errors.push(`Failed to update user ${userId}`);
@@ -116,7 +126,8 @@ export async function PATCH(request: NextRequest) {
         status,
         role,
       },
-      request
+      request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined,
+      request.headers.get("user-agent") || undefined
     );
 
     return NextResponse.json({
@@ -169,10 +180,14 @@ export async function DELETE(request: NextRequest) {
         }
 
         // Soft delete by updating status
-        await userRepository.update(userId, {
-          status: "deleted",
-          updatedAt: new Date(),
-        });
+        const deletedUser = new User(
+          user.id, user.email, user.name, user.role, "deleted" as any,
+          user.loginType, user.userType, user.username, user.password,
+          user.phone, user.emailVerifiedAt, user.rememberToken,
+          user.avatarUrl, user.lastLoginAt, user.lastLoginIp,
+          user.createdAt, new Date()
+        );
+        await userRepository.update(deletedUser);
 
         results.success++;
       } catch (error) {
@@ -194,7 +209,8 @@ export async function DELETE(request: NextRequest) {
         successCount: results.success,
         failedCount: results.failed,
       },
-      request
+      request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined,
+      request.headers.get("user-agent") || undefined
     );
 
     return NextResponse.json({

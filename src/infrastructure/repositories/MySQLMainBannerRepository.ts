@@ -79,7 +79,7 @@ export class MySQLMainBannerRepository implements IMainBannerRepository {
     );
 
     return new MainBanner(
-      result.insertId,
+      (result as any).insertId,
       banner.title,
       banner.subtitle,
       banner.description,

@@ -7,9 +7,10 @@ const quickLinkRepository = new MySQLQuickLinkRepository();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const admin = await verifyAdminRequest(request);
     if (!admin) {
       return NextResponse.json(
@@ -18,7 +19,7 @@ export async function GET(
       );
     }
 
-    const quickLink = await quickLinkRepository.findById(parseInt(params.id));
+    const quickLink = await quickLinkRepository.findById(parseInt(id));
 
     if (!quickLink) {
       return NextResponse.json(
@@ -51,9 +52,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const admin = await verifyAdminRequest(request);
     if (!admin) {
       return NextResponse.json(
@@ -72,7 +74,7 @@ export async function PUT(
       );
     }
 
-    const existingQuickLink = await quickLinkRepository.findById(parseInt(params.id));
+    const existingQuickLink = await quickLinkRepository.findById(parseInt(id));
 
     if (!existingQuickLink) {
       return NextResponse.json(
@@ -82,7 +84,7 @@ export async function PUT(
     }
 
     const updatedQuickLink = new QuickLink(
-      parseInt(params.id),
+      parseInt(id),
       title,
       icon || null,
       linkUrl,
@@ -100,7 +102,7 @@ export async function PUT(
       admin.id,
       'UPDATE_QUICK_LINK',
       'quick_links',
-      parseInt(params.id),
+      parseInt(id),
       { title, linkUrl, isActive },
       request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
       request.headers.get('user-agent')
@@ -131,9 +133,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const admin = await verifyAdminRequest(request);
     if (!admin) {
       return NextResponse.json(
@@ -142,7 +145,7 @@ export async function DELETE(
       );
     }
 
-    const existingQuickLink = await quickLinkRepository.findById(parseInt(params.id));
+    const existingQuickLink = await quickLinkRepository.findById(parseInt(id));
 
     if (!existingQuickLink) {
       return NextResponse.json(
@@ -151,14 +154,14 @@ export async function DELETE(
       );
     }
 
-    await quickLinkRepository.delete(parseInt(params.id));
+    await quickLinkRepository.delete(parseInt(id));
 
     // Log admin action
     await logAdminAction(
       admin.id,
       'DELETE_QUICK_LINK',
       'quick_links',
-      parseInt(params.id),
+      parseInt(id),
       { title: existingQuickLink.title },
       request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
       request.headers.get('user-agent')

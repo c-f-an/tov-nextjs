@@ -7,10 +7,11 @@ import path from 'path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const attachmentId = parseInt(params.id);
+    const { id } = await params;
+    const attachmentId = parseInt(id);
     
     if (isNaN(attachmentId)) {
       return NextResponse.json(
@@ -44,7 +45,7 @@ export async function GET(
     headers.set('Content-Disposition', `attachment; filename="${attachment.originalFilename}"`);
     headers.set('Content-Length', attachment.size?.toString() || '0');
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(new Uint8Array(fileBuffer), {
       status: 200,
       headers
     });

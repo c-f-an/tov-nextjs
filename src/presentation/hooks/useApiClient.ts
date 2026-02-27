@@ -21,9 +21,9 @@ export function useApiClient() {
     const { skipAuth = false, headers = {}, ...restOptions } = options;
 
     const makeRequest = async (token: string | null) => {
-      const requestHeaders: HeadersInit = {
+      const requestHeaders: Record<string, string> = {
         'Content-Type': 'application/json',
-        ...headers,
+        ...(headers as Record<string, string>),
       };
 
       if (!skipAuth && token) {
