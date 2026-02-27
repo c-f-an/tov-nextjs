@@ -1,11 +1,12 @@
 /**
  * 답변 유형
- * 1:답변 2:전문가/기관연결 3:추가확인후재답변
+ * 1:답변 2:전문가/기관연결 3:추가확인후재답변 4:추가질문
  */
 export enum ResponseType {
   ANSWER = 1,
   REFERRAL = 2,
   FOLLOWUP = 3,
+  QUESTION = 4,
 }
 
 export interface IConsultationResponse {

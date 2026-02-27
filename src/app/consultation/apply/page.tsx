@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 import { Breadcrumb } from "@/presentation/components/common/Breadcrumb";
 import PageHeader from "@/presentation/components/common/PageHeader";
@@ -14,6 +13,27 @@ const consultationTypes = [
   { value: "other", label: "기타" },
 ];
 
+const positionCodes = [
+  { value: 1, label: "위임목사(담임목사)" },
+  { value: 2, label: "부목사" },
+  { value: 3, label: "전도사(강도사)" },
+  { value: 4, label: "사모(목회자가족)" },
+  { value: 5, label: "장로" },
+  { value: 6, label: "권사" },
+  { value: 7, label: "집사" },
+  { value: 8, label: "재정담당자" },
+  { value: 99, label: "기타" },
+];
+
+const inquiryCategories = [
+  { value: 1, label: "P-TAX(종교인소득세)" },
+  { value: 2, label: "교회재정" },
+  { value: 3, label: "정관/규칙" },
+  { value: 4, label: "비영리회계" },
+  { value: 5, label: "결산공시" },
+  { value: 99, label: "기타" },
+];
+
 export default function ConsultationApplyPage() {
   const router = useRouter();
   const { user, accessToken } = useAuth();
@@ -22,12 +42,17 @@ export default function ConsultationApplyPage() {
     name: user?.name || "",
     phone: "",
     email: user?.email || "",
+    churchName: "",
+    positionCode: "" as "" | number,
     consultationType: "",
+    inquiryCategory: "" as "" | number,
+    categoryDetail: "",
     preferredDate: "",
     preferredTime: "",
     title: "",
     content: "",
     privacyAgree: false,
+    inquiryChannel: 5, // 홈페이지 상담 신청폼
   });
 
   // Fetch user profile and populate form data
@@ -83,9 +108,10 @@ export default function ConsultationApplyPage() {
 
       alert("상담 신청이 완료되었습니다. 담당자가 곧 연락드리겠습니다.");
       router.push("/consultation/list");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error submitting consultation:", error);
-      alert(error.message || "상담 신청에 실패했습니다.");
+      const message = error instanceof Error ? error.message : "상담 신청에 실패했습니다.";
+      alert(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -176,6 +202,52 @@ export default function ConsultationApplyPage() {
                   />
                 </div>
 
+                <div>
+                  <label
+                    htmlFor="churchName"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    교회/단체명
+                  </label>
+                  <input
+                    type="text"
+                    id="churchName"
+                    value={formData.churchName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, churchName: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="소속 교회 또는 단체명을 입력해주세요"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="positionCode"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    직분
+                  </label>
+                  <select
+                    id="positionCode"
+                    value={formData.positionCode}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        positionCode: e.target.value ? Number(e.target.value) : "",
+                      })
+                    }
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">선택해주세요 (선택)</option>
+                    {positionCodes.map((pos) => (
+                      <option key={pos.value} value={pos.value}>
+                        {pos.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
               </div>
             </div>
 
@@ -210,6 +282,45 @@ export default function ConsultationApplyPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="inquiryCategory"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    문의 분류
+                  </label>
+                  <select
+                    id="inquiryCategory"
+                    value={formData.inquiryCategory}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        inquiryCategory: e.target.value ? Number(e.target.value) : "",
+                        categoryDetail: e.target.value !== "99" ? "" : formData.categoryDetail,
+                      })
+                    }
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">선택해주세요 (선택)</option>
+                    {inquiryCategories.map((cat) => (
+                      <option key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </option>
+                    ))}
+                  </select>
+                  {formData.inquiryCategory === 99 && (
+                    <textarea
+                      value={formData.categoryDetail}
+                      onChange={(e) =>
+                        setFormData({ ...formData, categoryDetail: e.target.value })
+                      }
+                      className="w-full mt-2 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      rows={2}
+                      placeholder="기타 문의 분류를 입력해주세요"
+                    />
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

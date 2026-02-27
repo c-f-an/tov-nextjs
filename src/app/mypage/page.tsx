@@ -35,32 +35,34 @@ const menuItems = [
   { icon: Settings, label: "설정", id: "settings" },
 ];
 
-const consultationHistory = [
-  {
-    id: 1,
-    date: "2024.03.15",
-    type: "온라인 상담",
-    category: "종교인 소득세",
-    status: "답변완료",
-    title: "비과세 소득 범위 문의",
-  },
-  {
-    id: 2,
-    date: "2024.02.28",
-    type: "전화 상담",
-    category: "법인세",
-    status: "답변완료",
-    title: "수익사업 판정 기준",
-  },
-  {
-    id: 3,
-    date: "2024.02.10",
-    type: "방문 상담",
-    category: "회계",
-    status: "답변완료",
-    title: "재무제표 작성 방법",
-  },
-];
+interface ConsultationItem {
+  id: number;
+  title: string;
+  consultationType: string;
+  status: string;
+  preferredDate: string | null;
+  createdAt: string;
+  inquiryCategory: number | null;
+}
+
+const consultationStatusLabels: Record<string, { label: string; color: string }> = {
+  pending: { label: '대기중', color: 'bg-yellow-100 text-yellow-800' },
+  assigned: { label: '배정됨', color: 'bg-blue-100 text-blue-800' },
+  in_progress: { label: '진행중', color: 'bg-purple-100 text-purple-800' },
+  completed: { label: '완료', color: 'bg-green-100 text-green-800' },
+  cancelled: { label: '취소', color: 'bg-gray-100 text-gray-800' },
+};
+
+const consultationTypeLabels: Record<string, string> = {
+  'dispute-consultation': '재정분쟁 상담',
+  'financial-management': '재정운영의 실제',
+  'articles-of-incorporation': '정관과 규칙',
+  'religious-income': '종교인 소득세',
+  'nonprofit-accounting': '비영리 회계',
+  'settlement-disclosure': '결산 공시',
+  'general': '일반 상담',
+  'other': '기타',
+};
 
 interface DonationItem {
   id: number;
@@ -107,6 +109,8 @@ export default function MyPage() {
   const [donationData, setDonationData] = useState<DonationData | null>(null);
   const [donationLoading, setDonationLoading] = useState(true);
   const [expandedDonations, setExpandedDonations] = useState<Set<number>>(new Set());
+  const [consultations, setConsultations] = useState<ConsultationItem[]>([]);
+  const [consultationsLoading, setConsultationsLoading] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -177,6 +181,28 @@ export default function MyPage() {
 
     fetchDonations();
   }, [user, accessToken, loading]);
+
+  const fetchConsultations = async () => {
+    if (!user) return;
+    setConsultationsLoading(true);
+    try {
+      const response = await fetch('/api/consultations?page=1&limit=10');
+      if (response.ok) {
+        const data = await response.json();
+        setConsultations(data.consultations || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch consultations:', error);
+    } finally {
+      setConsultationsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'consultations' && user) {
+      fetchConsultations();
+    }
+  }, [activeTab, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogout = async () => {
     await logout();
@@ -479,56 +505,81 @@ export default function MyPage() {
             {/* 상담 내역 */}
             {activeTab === "consultations" && (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="px-6 py-5 border-b border-gray-100">
-                  <h2 className="text-lg font-semibold text-gray-900">상담 내역</h2>
-                  <p className="text-sm text-gray-500 mt-0.5">진행한 상담 내역을 확인할 수 있습니다</p>
+                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">상담 내역</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">신청한 상담 내역을 확인할 수 있습니다</p>
+                  </div>
+                  <Link
+                    href="/consultation/list"
+                    className="text-sm text-primary hover:underline flex items-center gap-1"
+                  >
+                    전체 보기 <ChevronRight className="h-4 w-4" />
+                  </Link>
                 </div>
                 <div className="p-6">
-                  <div className="space-y-3">
-                    {consultationHistory.map((item) => (
-                      <div
-                        key={item.id}
-                        className="group p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-200 cursor-pointer"
+                  {consultationsLoading ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-3"></div>
+                      <p className="text-gray-500 text-sm">상담 내역을 불러오는 중...</p>
+                    </div>
+                  ) : consultations.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <MessageSquare className="h-12 w-12 text-gray-300 mb-3" />
+                      <p className="text-gray-500 text-sm mb-4">상담 신청 내역이 없습니다</p>
+                      <Link
+                        href="/consultation/apply"
+                        className="inline-flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary/90 transition-colors"
                       >
-                        <div className="flex justify-between items-start gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${item.status === "답변완료"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-amber-100 text-amber-700"
-                                }`}>
-                                {item.status}
-                              </span>
-                              <span className="text-xs text-gray-400">{item.category}</span>
+                        <MessageSquare className="h-4 w-4" />
+                        상담 신청하기
+                      </Link>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-3">
+                        {consultations.map((item) => (
+                          <Link
+                            key={item.id}
+                            href={`/consultation/${item.id}`}
+                            className="group block p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-200"
+                          >
+                            <div className="flex justify-between items-start gap-4">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                  <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${consultationStatusLabels[item.status]?.color || 'bg-gray-100 text-gray-700'}`}>
+                                    {consultationStatusLabels[item.status]?.label || item.status}
+                                  </span>
+                                  <span className="text-xs text-gray-400">
+                                    {consultationTypeLabels[item.consultationType] || item.consultationType}
+                                  </span>
+                                </div>
+                                <h4 className="font-medium text-gray-900 group-hover:text-primary transition-colors truncate">
+                                  {item.title}
+                                </h4>
+                                <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="h-3.5 w-3.5" />
+                                    {new Date(item.createdAt).toLocaleDateString('ko-KR')}
+                                  </span>
+                                </div>
+                              </div>
+                              <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
                             </div>
-                            <h4 className="font-medium text-gray-900 group-hover:text-primary transition-colors">
-                              {item.title}
-                            </h4>
-                            <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-3.5 w-3.5" />
-                                {item.date}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <MessageSquare className="h-3.5 w-3.5" />
-                                {item.type}
-                              </span>
-                            </div>
-                          </div>
-                          <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                        </div>
+                          </Link>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <div className="mt-6 pt-6 border-t border-gray-100 text-center">
-                    <Link
-                      href="/consultation"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20"
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                      새 상담 신청
-                    </Link>
-                  </div>
+                      <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+                        <Link
+                          href="/consultation/apply"
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          새 상담 신청
+                        </Link>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             )}

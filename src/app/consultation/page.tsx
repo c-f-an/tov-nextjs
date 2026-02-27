@@ -11,7 +11,6 @@ import {
   Mail,
   MessageCircle,
   Calendar,
-  Clock,
   Users,
   HelpCircle,
   FileText,
@@ -83,9 +82,8 @@ export default function ConsultationPage() {
         {consultationTypes.map((type) => {
           const Icon = type.icon;
           return (
-            <Link href={type.link}>
+            <Link key={type.title} href={type.link}>
               <Card
-                key={type.title}
                 className="hover:shadow-lg transition-shadow"
               >
                 <CardHeader>

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { ConsultationDetailModal } from '@/presentation/components/admin/ConsultationDetailModal';
+import { CreateConsultationModal } from '@/presentation/components/admin/CreateConsultationModal';
 import { formatDate } from '@/lib/utils/date';
 
 interface Consultation {
@@ -41,6 +41,7 @@ export default function AdminConsultationsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedConsultationId, setSelectedConsultationId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     fetchConsultations();
@@ -106,13 +107,19 @@ export default function AdminConsultationsPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">상담 관리</h1>
-        <div className="flex space-x-2">
+        <div className="flex items-center gap-3">
           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">
             대기중: {consultations.filter(c => c.status === 'pending').length}
           </span>
           <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
             진행중: {consultations.filter(c => c.status === 'in_progress').length}
           </span>
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+          >
+            + 상담 등록
+          </button>
         </div>
       </div>
 
@@ -285,6 +292,16 @@ export default function AdminConsultationsPage() {
           onUpdate={fetchConsultations}
         />
       )}
+
+      {/* Create Modal */}
+      <CreateConsultationModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreated={() => {
+          setIsCreateModalOpen(false);
+          fetchConsultations();
+        }}
+      />
     </div>
   );
 }

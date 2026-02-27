@@ -7,7 +7,12 @@
       "Bash(npx tsc --noEmit*)",
       "Bash(yarn lint*)",
       "Bash(npx next lint*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(npx:*)",
+      "Bash(node_modules/.bin/next lint:*)"
+    ],
+    "additionalDirectories": [
+      "/Users/hwayeonlee/Documents/GitHub/tov-nextjs/src/app/consultation"
     ]
   },
   "hooks": {

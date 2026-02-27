@@ -4,17 +4,17 @@ import { cookies } from 'next/headers';
 import { verifyAccessToken } from '@/lib/auth-utils';
 import { ConsultationStatus } from '@/core/domain/entities/Consultation';
 
-async function getCurrentUserId(): Promise<number | undefined> {
+async function getCurrentUserPayload() {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
-  if (!accessToken) return undefined;
-  const payload = verifyAccessToken(accessToken, process.env.JWT_ACCESS_SECRET || 'default-access-secret');
-  return payload?.userId ?? undefined;
+  if (!accessToken) return null;
+  return verifyAccessToken(accessToken, process.env.JWT_ACCESS_SECRET || 'default-access-secret');
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = await getCurrentUserId();
+    const payload = await getCurrentUserPayload();
+    const userId = payload?.userId ?? undefined;
     const searchParams = request.nextUrl.searchParams;
     const page = searchParams.get('page');
     const limit = searchParams.get('limit');
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = await getCurrentUserId();
+    const payload = await getCurrentUserPayload();
     const body = await request.json();
 
     const requiredFields = ['name', 'phone', 'consultationType', 'title', 'content', 'privacyAgree'];
@@ -55,6 +55,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 어드민이 등록하는 경우: body.linkedUserId를 userId로 사용 (없으면 null)
+    // 일반 유저가 등록하는 경우: 쿠키의 userId를 사용
+    const isAdmin = payload?.role === 'ADMIN';
+    let userId: number | undefined;
+    if (isAdmin) {
+      userId = body.linkedUserId ? Number(body.linkedUserId) : undefined;
+    } else {
+      userId = payload?.userId ?? undefined;
+    }
+
     const container = getContainer();
     const createConsultationUseCase = container.getCreateConsultationUseCase();
 
@@ -65,11 +75,9 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(consultation, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error creating consultation:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to create consultation' },
-      { status: 400 }
-    );
+    const message = error instanceof Error ? error.message : 'Failed to create consultation';
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
