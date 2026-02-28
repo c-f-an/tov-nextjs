@@ -335,11 +335,10 @@ export function ConsultationDetailModal({
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`py-3 text-sm font-medium border-b-2 transition-colors ${
-                        activeTab === tab
-                          ? "border-primary text-primary"
-                          : "border-transparent text-gray-500 hover:text-gray-700"
-                      }`}
+                      className={`py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab
+                        ? "border-primary text-primary"
+                        : "border-transparent text-gray-500 hover:text-gray-700"
+                        }`}
                     >
                       {tabLabels[tab]}
                     </button>
@@ -499,7 +498,7 @@ export function ConsultationDetailModal({
                   {/* 헤더: 버튼 영역 */}
                   <div className="flex justify-between items-center">
                     <h3 className="text-base font-semibold text-gray-800">
-                      질문/답변 ({responses.length + 1})
+                      질문/답변 ({responses.length})
                     </h3>
                     <div className="flex gap-2">
                       <button
@@ -586,22 +585,6 @@ export function ConsultationDetailModal({
 
                   {/* 대화형 질문/답변 목록 */}
                   <div className="space-y-3">
-                    {/* 원래 상담 질문 (항상 첫 번째) */}
-                    <div className="flex justify-start">
-                      <div className="max-w-[80%] bg-gray-100 border border-gray-200 rounded-lg rounded-tl-none p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-300 text-gray-700">원본 질문</span>
-                          <span className="text-xs text-gray-400">{formatDate(consultation.createdAt)}</span>
-                          {consultation.inquiryCategory && (
-                            <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">
-                              {inquiryCategoryLabels[consultation.inquiryCategory]}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm font-semibold text-gray-800 mb-1">{consultation.title}</p>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{consultation.content}</p>
-                      </div>
-                    </div>
 
                     {/* 추가 질문 및 답변 */}
                     {responses.length === 0 ? (
@@ -612,16 +595,14 @@ export function ConsultationDetailModal({
                         return (
                           <div key={resp.id} className={`flex ${isQuestion ? 'justify-start' : 'justify-end'}`}>
                             <div
-                              className={`max-w-[80%] rounded-lg p-4 ${
-                                isQuestion
-                                  ? 'bg-gray-100 border border-gray-200 rounded-tl-none'
-                                  : 'bg-blue-50 border border-blue-200 rounded-tr-none'
-                              }`}
+                              className={`max-w-[80%] rounded-lg p-4 ${isQuestion
+                                ? 'bg-gray-100 border border-gray-200 rounded-tl-none'
+                                : 'bg-blue-50 border border-blue-200 rounded-tr-none'
+                                }`}
                             >
                               <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                                  isQuestion ? 'bg-gray-300 text-gray-700' : 'bg-green-100 text-green-800'
-                                }`}>
+                                <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${isQuestion ? 'bg-gray-300 text-gray-700' : 'bg-green-100 text-green-800'
+                                  }`}>
                                   {responseTypeLabels[resp.responseType] || "답변"}
                                 </span>
                                 {!isQuestion && (
